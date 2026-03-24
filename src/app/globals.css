@@ -2,7 +2,7 @@
 @plugin 'tailwindcss-animate';
 
 :root {
-    --font-roboto: Roboto, sans-serif;
+    --font-roboto: Inter, sans-serif;
     --radius: 0.625rem;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -10,9 +10,9 @@
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
+    --primary: #1085f9;
     --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
+    --secondary: #0f172a;
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
     --muted-foreground: oklch(0.556 0 0);
@@ -78,6 +78,7 @@
 *::before,
 *::after {
     box-sizing: border-box;
+    line-height: 1.5;
 }
 
 body {

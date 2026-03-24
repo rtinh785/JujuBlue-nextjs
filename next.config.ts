@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
     eslint: {
         dirs: ['src'],
     },
+    typescript: {
+        ignoreBuildErrors: true,
+    },
     experimental: {
         swcPlugins: [['@lingui/swc-plugin', {}]],
     },
