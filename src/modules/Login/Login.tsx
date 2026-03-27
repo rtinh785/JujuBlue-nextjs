@@ -2,12 +2,16 @@
 
 import { supabase } from '@/libs/supabase/client'
 import { LoginFormValues, loginSchema } from '@/modules/Login/login.schema'
+import { AUTH_MESSAGES } from '@/core/constants/messages/auth/auth.messages'
 import { yupResolver } from '@hookform/resolvers/yup'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useState } from 'react'
+import InputField from '@/components/form/InputField'
+import { signInWithGoogle } from '@/libs/supabase/auth'
+import { ensureProfileExists } from '@/libs/supabase/profile'
 
 const Login = () => {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
@@ -26,30 +30,34 @@ const Login = () => {
     })
 
     const onSubmit = async (values: LoginFormValues) => {
-        const { error } = await supabase.auth.signInWithPassword({
-            email: values.email,
-            password: values.password,
-        })
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: values.email,
+                password: values.password,
+            })
 
-        if (error) {
-            toast.error(error.message, { position: 'top-left' })
-            return
+            if (error) {
+                toast.error(error.message, { position: 'top-left' })
+                return
+            }
+
+            if (data.user) {
+                await ensureProfileExists(data.user)
+            }
+
+            toast.success(AUTH_MESSAGES.loginSuccess, { position: 'top-left' })
+            reset()
+            router.push('/')
+        } catch (error) {
+            const message = error instanceof Error ? error.message : AUTH_MESSAGES.genericError
+            toast.error(message, { position: 'top-left' })
         }
-
-        toast.success('Dang nhap thanh cong', { position: 'top-left' })
-        reset()
-        router.push('/')
     }
 
     const handleGoogleLogin = async () => {
         setIsGoogleLoading(true)
 
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin,
-            },
-        })
+        const { error } = await signInWithGoogle(window.location.origin)
 
         if (error) {
             toast.error(error.message, { position: 'top-left' })
@@ -58,102 +66,80 @@ const Login = () => {
     }
 
     return (
-        <div className="flex h-full w-full items-center justify-center">
-            <section className="bg-primary hidden h-full text-white lg:block lg:w-1/2">
-                <div className="align-center flex h-full flex-col items-center justify-center p-8">
-                    <div className="flex size-[96px] items-center justify-center rounded-[12px] bg-white px-[16px] py-[8px]">
-                        <img src="/images/svg/logo.svg" alt="Juju Blue Logo" className="h-10 w-auto object-cover" />
+        <section className="flex items-center justify-center bg-white px-4 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">
+            <div className="flex w-full max-w-[400px] flex-col px-4 md:min-w-[250px] md:px-0">
+                <div className="mb-8 flex w-full items-center justify-center lg:hidden">
+                    <div className="bg-primary flex size-[96px] items-center justify-center rounded-[12px] px-[16px] py-[8px]">
+                        <img
+                            src="/images/svg/logo-new.svg"
+                            alt="Juju Blue Logo"
+                            className="h-10 w-auto fill-[#fff] object-cover"
+                        />
                     </div>
-                    <h1 className="mt-6 text-4xl font-bold">Juju Blue</h1>
-                    <p className="mt-6 text-[18px] font-[500]">Elevate your discourse.</p>
                 </div>
-            </section>
-            <section className="flex items-center justify-center bg-white px-4 py-8 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">
-                <div className="flex w-full max-w-[400px] flex-col px-4 md:min-w-[250px] md:px-0">
-                    <div className="mb-8 flex w-full items-center justify-center lg:hidden">
-                        <div className="bg-primary flex size-[96px] items-center justify-center rounded-[12px] px-[16px] py-[8px]">
-                            <img
-                                src="/images/svg/logo-new.svg"
-                                alt="Juju Blue Logo"
-                                className="h-10 w-auto fill-[#fff] object-cover"
-                            />
-                        </div>
-                    </div>
-                    <h1 className="pb-2 text-center text-3xl font-bold lg:text-left">Wellcome back</h1>
-                    <p className="mb-8 font-normal text-[#64748B]">Enter your details to sign in to your account.</p>
+                <h1 className="pb-2 text-center text-3xl font-bold lg:text-left">Wellcome back</h1>
+                <p className="mb-8 font-normal text-[#64748B]">Enter your details to sign in to your account.</p>
+
+                <button
+                    className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-[13px] text-sm font-medium text-gray-500"
+                    onClick={handleGoogleLogin}
+                    type="button"
+                    disabled={isGoogleLoading}
+                >
+                    <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
+                    <span className="font-semibold text-[#0F172A]">
+                        {' '}
+                        {isGoogleLoading ? 'Connecting...' : 'Continue with Google'}
+                    </span>
+                </button>
+
+                <div className="my-6 flex items-center gap-4 md:my-8">
+                    <hr className="flex-1 border-gray-200" />
+                    <span className="text-sm text-gray-400">or</span>
+                    <hr className="flex-1 border-gray-200" />
+                </div>
+
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    {/* email */}
+                    <InputField<LoginFormValues>
+                        label="Email address"
+                        type="email"
+                        placeholder="name@example.com"
+                        name="email"
+                        register={register}
+                        errors={errors}
+                    />
+                    {/* password */}
+                    <InputField<LoginFormValues>
+                        label="Password"
+                        type="password"
+                        placeholder="........"
+                        name="password"
+                        register={register}
+                        errors={errors}
+                        rightNode={
+                            <Link href="/forgot-password" className="text-primary text-sm font-medium hover:underline">
+                                Forgot password?
+                            </Link>
+                        }
+                    />
 
                     <button
-                        className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-[13px] text-sm font-medium text-gray-500"
-                        onClick={handleGoogleLogin}
-                        type="button"
-                        disabled={isGoogleLoading}
+                        disabled={isSubmitting}
+                        className="bg-primary mt-[28px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white disabled:opacity-50"
                     >
-                        <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
-                        <span className="font-semibold text-[#0F172A]">
-                            {' '}
-                            {isGoogleLoading ? 'Connecting...' : 'Continue with Google'}
-                        </span>
+                        {isSubmitting ? 'Logging in...' : 'Log in'}
                     </button>
+                </form>
 
-                    <div className="my-6 flex items-center gap-4 md:my-8">
-                        <hr className="flex-1 border-gray-200" />
-                        <span className="text-sm text-gray-400">or</span>
-                        <hr className="flex-1 border-gray-200" />
-                    </div>
-
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        {/* email */}
-                        <div className="flex flex-col">
-                            <label className="mb-[6px] text-sm font-medium text-[#0F172A]">Email address</label>
-                            <input
-                                type="email"
-                                placeholder="name@example.com"
-                                className="w-full rounded-lg border-1 border-transparent bg-[#F8FAFC] px-[14.5] py-4 focus:border focus:border-[#E2E8F0] focus:outline-none"
-                                {...register('email')}
-                            />
-                            <p className="mt-1 min-h-[21px] text-sm text-red-500">
-                                {errors.email ? errors.email.message : ''}
-                            </p>
-                        </div>
-                        {/* password */}
-                        <div className="mt-[20px] flex flex-col">
-                            <div className="flex justify-between">
-                                <label className="mb-[6px] text-sm font-medium text-[#0F172A]">Password</label>
-                                <Link
-                                    href="/forgotPassword"
-                                    className="text-primary text-sm font-medium hover:underline"
-                                >
-                                    Forgot password?
-                                </Link>
-                            </div>
-                            <input
-                                type="password"
-                                placeholder="••••••••"
-                                className="w-full rounded-lg border-1 border-transparent bg-[#F8FAFC] px-[14.5] py-4 focus:border focus:border-[#E2E8F0] focus:outline-none"
-                                {...register('password')}
-                            />
-                            <p className="mt-1 min-h-[21px] text-sm text-red-500">
-                                {errors.password ? errors.password.message : ''}
-                            </p>
-                        </div>
-
-                        <button
-                            disabled={isSubmitting}
-                            className="bg-primary mt-[28px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white disabled:opacity-50"
-                        >
-                            {isSubmitting ? 'Logging in...' : 'Log in'}
-                        </button>
-                    </form>
-
-                    <div className="pt-12 text-center">
-                        <span className="text-[14px] font-normal text-[#64748B]">Don't have an account?</span>
-                        <Link href="/register" className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                            Sign up
-                        </Link>
-                    </div>
+                <div className="pt-12 text-center">
+                    <span className="text-[14px] font-normal text-[#64748B]">Don't have an account?</span>
+                    <Link href="/register" className="text-primary pl-1 text-[14px] font-semibold hover:underline">
+                        Sign up
+                    </Link>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
     )
 }
 

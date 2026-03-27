@@ -4,6 +4,7 @@ import './globals.css'
 import linguiConfig from '../../lingui.config'
 import AppProviders from './providers'
 import { siteConfig } from '@/core/configs/site.config'
+import Header from '@/components/layout/header'
 
 export async function generateStaticParams() {
     return linguiConfig.locales.map((lang) => ({ lang }))
@@ -34,5 +35,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-    return <AppProviders>{children}</AppProviders>
+    return (
+        <AppProviders>
+            <Header />
+            {children}
+        </AppProviders>
+    )
 }
