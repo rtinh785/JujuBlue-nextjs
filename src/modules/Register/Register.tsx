@@ -1,34 +1,36 @@
 'use client'
-
-import { supabase } from '@/libs/supabase/client'
-import { LoginFormValues, loginSchema } from '@/modules/Login/login.schema'
-import { yupResolver } from '@hookform/resolvers/yup'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { supabase } from '@/libs/supabase/client'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
+import { registerSchema, type RegisterFormValues } from './register.schema'
 import { toast } from 'sonner'
 import { useState } from 'react'
 
-const Login = () => {
+const Register = () => {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-    const router = useRouter()
+
     const {
         register,
         handleSubmit,
         reset,
         formState: { errors, isSubmitting },
-    } = useForm<LoginFormValues>({
-        resolver: yupResolver(loginSchema),
+    } = useForm<RegisterFormValues>({
+        resolver: yupResolver(registerSchema),
         defaultValues: {
             email: '',
             password: '',
+            confirmPassword: '',
         },
     })
 
-    const onSubmit = async (values: LoginFormValues) => {
-        const { error } = await supabase.auth.signInWithPassword({
+    const onSubmit = async (values: RegisterFormValues) => {
+        const { error } = await supabase.auth.signUp({
             email: values.email,
             password: values.password,
+            options: {
+                emailRedirectTo: `${window.location.origin}/login`,
+            },
         })
 
         if (error) {
@@ -36,12 +38,11 @@ const Login = () => {
             return
         }
 
-        toast.success('Dang nhap thanh cong', { position: 'top-left' })
+        toast.success('Dang ky thanh cong, vui long kiem tra email de xac thuc tai khoan', { position: 'top-left' })
         reset()
-        router.push('/')
     }
 
-    const handleGoogleLogin = async () => {
+    const handleGoogleRegister = async () => {
         setIsGoogleLoading(true)
 
         const { error } = await supabase.auth.signInWithOAuth({
@@ -79,29 +80,28 @@ const Login = () => {
                             />
                         </div>
                     </div>
-                    <h1 className="pb-2 text-center text-3xl font-bold lg:text-left">Wellcome back</h1>
-                    <p className="mb-8 font-normal text-[#64748B]">Enter your details to sign in to your account.</p>
+                    <h1 className="pb-2 text-center text-2xl font-bold lg:text-left lg:text-3xl">Nice to meet you!</h1>
+                    <p className="mb-5 font-normal text-[#64748B]">Enter your details to create an account.</p>
 
                     <button
-                        className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-[13px] text-sm font-medium text-gray-500"
-                        onClick={handleGoogleLogin}
                         type="button"
+                        onClick={handleGoogleRegister}
                         disabled={isGoogleLoading}
+                        className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-[13px] text-sm font-medium text-gray-500 disabled:opacity-50"
                     >
                         <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
                         <span className="font-semibold text-[#0F172A]">
-                            {' '}
                             {isGoogleLoading ? 'Connecting...' : 'Continue with Google'}
                         </span>
                     </button>
 
-                    <div className="my-6 flex items-center gap-4 md:my-8">
+                    <div className="my-3 flex items-center gap-4 md:my-6">
                         <hr className="flex-1 border-gray-200" />
                         <span className="text-sm text-gray-400">or</span>
                         <hr className="flex-1 border-gray-200" />
                     </div>
 
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleSubmit(onSubmit)} noValidate>
                         {/* email */}
                         <div className="flex flex-col">
                             <label className="mb-[6px] text-sm font-medium text-[#0F172A]">Email address</label>
@@ -111,20 +111,15 @@ const Login = () => {
                                 className="w-full rounded-lg border-1 border-transparent bg-[#F8FAFC] px-[14.5] py-4 focus:border focus:border-[#E2E8F0] focus:outline-none"
                                 {...register('email')}
                             />
+
                             <p className="mt-1 min-h-[21px] text-sm text-red-500">
                                 {errors.email ? errors.email.message : ''}
                             </p>
                         </div>
                         {/* password */}
-                        <div className="mt-[20px] flex flex-col">
+                        <div className="mt-[10px] flex flex-col">
                             <div className="flex justify-between">
                                 <label className="mb-[6px] text-sm font-medium text-[#0F172A]">Password</label>
-                                <Link
-                                    href="/forgotPassword"
-                                    className="text-primary text-sm font-medium hover:underline"
-                                >
-                                    Forgot password?
-                                </Link>
                             </div>
                             <input
                                 type="password"
@@ -132,23 +127,39 @@ const Login = () => {
                                 className="w-full rounded-lg border-1 border-transparent bg-[#F8FAFC] px-[14.5] py-4 focus:border focus:border-[#E2E8F0] focus:outline-none"
                                 {...register('password')}
                             />
+
                             <p className="mt-1 min-h-[21px] text-sm text-red-500">
                                 {errors.password ? errors.password.message : ''}
                             </p>
                         </div>
 
+                        <div className="mt-[10px] flex flex-col">
+                            <div className="flex justify-between">
+                                <label className="mb-[6px] text-sm font-medium text-[#0F172A]">Confirm Password</label>
+                            </div>
+                            <input
+                                type="password"
+                                placeholder="••••••••"
+                                className="w-full rounded-lg border-1 border-transparent bg-[#F8FAFC] px-[14.5] py-4 focus:border focus:border-[#E2E8F0] focus:outline-none"
+                                {...register('confirmPassword')}
+                            />
+
+                            <p className="mt-1 min-h-[21px] text-sm text-red-500">
+                                {errors.confirmPassword ? errors.confirmPassword.message : ''}
+                            </p>
+                        </div>
                         <button
+                            className="bg-primary mt-[18px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white"
                             disabled={isSubmitting}
-                            className="bg-primary mt-[28px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white disabled:opacity-50"
                         >
-                            {isSubmitting ? 'Logging in...' : 'Log in'}
+                            {isSubmitting ? 'Creating...' : 'Create account'}
                         </button>
                     </form>
 
-                    <div className="pt-12 text-center">
-                        <span className="text-[14px] font-normal text-[#64748B]">Don't have an account?</span>
-                        <Link href="/register" className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                            Sign up
+                    <div className="mt-6 text-center">
+                        <span className="text-[14px] font-normal text-[#64748B]">Already have an account?</span>
+                        <Link href="/login" className="text-primary pl-1 text-[14px] font-semibold hover:underline">
+                            Sign in
                         </Link>
                     </div>
                 </div>
@@ -157,4 +168,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default Register
