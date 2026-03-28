@@ -1,5 +1,8 @@
 'use client'
-import React from 'react'
+
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import MobileDrawer from '@/components/layout/MobileDrawer'
 import SearchInput from '@/components/form/SearchInput'
 import NavSection from '@/components/layout/NavSection'
@@ -10,11 +13,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/base/dropdown-menu'
-import { useState } from 'react'
-import Link from 'next/link'
 
 const Header = () => {
     const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false)
+    const router = useRouter()
 
     return (
         <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm">
@@ -22,8 +24,12 @@ const Header = () => {
                 <div className="lg:hidden">
                     <MobileDrawer />
                 </div>
-                {/* logo */}
-                <div className="hidden cursor-pointer items-center gap-x-2 lg:flex">
+
+                <button
+                    type="button"
+                    onClick={() => router.push('/home')}
+                    className="hidden cursor-pointer items-center gap-x-2 lg:flex"
+                >
                     <div className="bg-primary flex size-10 items-center justify-center rounded-[12px] px-2 py-1">
                         <img
                             src="/images/svg/logo-new.svg"
@@ -32,39 +38,44 @@ const Header = () => {
                         />
                     </div>
                     <span className="text-primary text-2xl font-bold">Juju Blue</span>
-                </div>
+                </button>
 
                 <div className="hidden lg:absolute lg:left-1/2 lg:block lg:-translate-x-1/2">
                     <NavSection isDesktop={true}>
                         <SearchInput desktopOnly={true} />
-                        <NavItem isDesktop={true} label="Home" href="/" />
+                        <NavItem isDesktop={true} label="Home" href="/home" />
                         <NavItem isDesktop={true} label="Messages" href="/messages" />
                     </NavSection>
                 </div>
 
                 <div className="flex items-center lg:hidden">
                     <SearchInput mobileOnly={true} />
-                    <img
-                        src="https://scontent.fsgn2-9.fna.fbcdn.net/v/t39.30808-6/596815475_10237514722319902_2803255483467207372_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=IFm2JmsOgUAQ7kNvwEfWRwy&_nc_oc=AdqR2cApAlI5RWuOsFMBs2XvLt8QC906lGmKVxDB4e0AeqeA9TcrKGhy2TamRawfquk&_nc_zt=23&_nc_ht=scontent.fsgn2-9.fna&_nc_gid=wuVi5Fwr7n6OStbjA7AFFw&_nc_ss=7a32e&oh=00_Afxz40AlCpgJveyokwnX1NdS17tlb31Jsb4FEW4XgIZ1UA&oe=69CC193E"
-                        alt=""
-                        className="size-10 cursor-pointer rounded-full object-cover"
-                    />
+                    <Link href="/profile" className="block">
+                        <img
+                            src="https://scontent.fsgn2-9.fna.fbcdn.net/v/t39.30808-6/596815475_10237514722319902_2803255483467207372_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=IFm2JmsOgUAQ7kNvwEfWRwy&_nc_oc=AdqR2cApAlI5RWuOsFMBs2XvLt8QC906lGmKVxDB4e0AeqeA9TcrKGhy2TamRawfquk&_nc_zt=23&_nc_ht=scontent.fsgn2-9.fna&_nc_gid=wuVi5Fwr7n6OStbjA7AFFw&_nc_ss=7a32e&oh=00_Afxz40AlCpgJveyokwnX1NdS17tlb31Jsb4FEW4XgIZ1UA&oe=69CC193E"
+                            alt="Avatar"
+                            className="size-10 cursor-pointer rounded-full object-cover"
+                        />
+                    </Link>
                 </div>
+
                 <div
                     className="hidden lg:block"
                     onMouseEnter={() => setIsAvatarMenuOpen(true)}
                     onMouseLeave={() => setIsAvatarMenuOpen(false)}
                 >
-                    <DropdownMenu open={isAvatarMenuOpen} onOpenChange={setIsAvatarMenuOpen}>
+                    <DropdownMenu modal={false} open={isAvatarMenuOpen} onOpenChange={setIsAvatarMenuOpen}>
                         <DropdownMenuTrigger asChild>
-                            <button type="button" className="group relative cursor-pointer outline-none">
+                            <button
+                                type="button"
+                                className="group relative hidden cursor-pointer outline-none lg:block"
+                            >
                                 <img
                                     src="https://scontent.fsgn2-9.fna.fbcdn.net/v/t39.30808-6/596815475_10237514722319902_2803255483467207372_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_Z1dCSNDGiwQ7kNvwGSVDWX&_nc_oc=AdqZNLMvyYIabXcyFAGgSrasoB0WdpbZJetvGUAw5Xn-DXJUJFBknKI4bLQbJr3NTfk&_nc_zt=23&_nc_ht=scontent.fsgn2-9.fna&_nc_gid=6oI3w42pDk4Pvjcg2haIrw&_nc_ss=7a32e&oh=00_AfwvPu32dhKon0jtR5X2aA7AI8Xpn9nshO3jlcW7F5PX_A&oe=69CC89BE"
                                     alt="Avatar"
-                                    className="group-hover:ring-primary hidden size-10 cursor-pointer rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2 lg:block"
+                                    className="group-hover:ring-primary size-10 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
                                 />
-                                {/* Online indicator */}
-                                <span className="bg-primary border-background absolute right-0 bottom-0 hidden size-2.5 rounded-full border-2 lg:block" />
+                                <span className="bg-primary border-background absolute right-0 bottom-0 size-2.5 rounded-full border-2" />
                             </button>
                         </DropdownMenuTrigger>
 
@@ -143,6 +154,13 @@ const Header = () => {
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
+
+                    {/* Guest desktop state
+                    <div className="flex items-center gap-x-3">
+                        <MyButton href="/register" name="Sign up" />
+                        <MyButton href="/login" name="Log in" />
+                    </div>
+                    */}
                 </div>
             </div>
         </header>

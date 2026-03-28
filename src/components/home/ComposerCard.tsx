@@ -1,3 +1,4 @@
+import MyButton from '@/components/MyButton'
 import { ImagePlus } from 'lucide-react'
 import React from 'react'
 
@@ -35,12 +36,7 @@ const ComposerCard = () => {
                             <ImagePlus className="size-4" />
                         </button>
 
-                        <button
-                            type="button"
-                            className="rounded-full bg-blue-500 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
-                        >
-                            Post
-                        </button>
+                        <MyButton href="/post" name="Post" />
                     </div>
                 </div>
             </div>

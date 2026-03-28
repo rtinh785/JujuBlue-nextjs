@@ -17,7 +17,6 @@ export async function generateMetadata(): Promise<Metadata> {
         title: siteConfig.title,
         description: siteConfig.description,
         keywords: siteConfig.keywords,
-        assets: [siteConfig.ogImage],
         openGraph: {
             title: siteConfig.title,
             description: siteConfig.description,
@@ -35,10 +34,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <AppProviders>
-            <Header />
-            {children}
-        </AppProviders>
-    )
+    return <AppProviders>{children}</AppProviders>
 }

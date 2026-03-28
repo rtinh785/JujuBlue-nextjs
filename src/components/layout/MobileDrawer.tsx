@@ -37,15 +37,36 @@ const MobileDrawer = () => {
                         className="size-9 rounded-full object-cover ring-2 ring-white"
                     />
                     <div className="min-w-0 flex-1">
-                        <p className="truncate text-[13px] font-semibold text-gray-900">My Account</p>
-                        <p className="text-[11px] text-gray-400">View profile</p>
+                        <DialogClose asChild>
+                            <Link href="/profile" className="block">
+                                <p className="truncate text-[13px] font-semibold text-gray-900">My Account</p>
+                                <p className="text-[11px] text-gray-400">View profile</p>
+                            </Link>
+                        </DialogClose>
                     </div>
                 </div>
 
                 {/* Nav section */}
                 <NavSection title="Menu">
-                    <NavItem icon="/images/svg/home.svg" label="Home" href="/" />
-                    <NavItem icon="/images/svg/message.svg" label="Messages" href="/messages" />
+                    <DialogClose asChild>
+                        <Link
+                            href="/"
+                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900"
+                        >
+                            <img src="/images/svg/home.svg" alt="Home" />
+                            Home
+                        </Link>
+                    </DialogClose>
+
+                    <DialogClose asChild>
+                        <Link
+                            href="/messages"
+                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900"
+                        >
+                            <img src="/images/svg/message.svg" alt="Messages" />
+                            Messages
+                        </Link>
+                    </DialogClose>
                 </NavSection>
 
                 {/* Divider */}
@@ -69,6 +90,29 @@ const MobileDrawer = () => {
                         Sign out
                     </button>
                 </div>
+
+                {/* Guest drawer state
+                <div className="px-4 pb-6">
+                    <div className="space-y-3">
+                        <DialogClose asChild>
+                            <Link
+                                href="/login"
+                                className="block rounded-full border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700"
+                            >
+                                Log in
+                            </Link>
+                        </DialogClose>
+                        <DialogClose asChild>
+                            <Link
+                                href="/register"
+                                className="block rounded-full bg-blue-500 px-4 py-3 text-center text-sm font-semibold text-white"
+                            >
+                                Sign up
+                            </Link>
+                        </DialogClose>
+                    </div>
+                </div>
+                */}
             </DialogContent>
         </Dialog>
     )

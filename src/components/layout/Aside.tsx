@@ -1,0 +1,25 @@
+import ProfileSummaryCard from '@/components/home/ProfileSummaryCard'
+import SuggestedUsersCard from '@/components/home/SuggestedUsersCard'
+import TrendingCard from '@/components/home/TrendingCard'
+import React from 'react'
+
+interface AsideProps {
+    showTrending?: boolean
+}
+
+const Aside = ({ showTrending = true }: AsideProps) => {
+    return (
+        <aside className="hidden space-y-4 lg:fixed lg:top-[88px] lg:right-[max(1rem,calc((100vw-1180px)/2+1rem))] lg:block lg:h-[calc(100vh-108px)] lg:w-[320px] lg:overflow-y-auto lg:pr-1">
+            <ProfileSummaryCard />
+            {showTrending && <TrendingCard />}
+            <SuggestedUsersCard />
+
+            <div className="px-1 text-xs text-slate-400">
+                <p>Terms - Privacy - Cookies</p>
+                <p className="mt-1">(c) 2024 Juju Blue</p>
+            </div>
+        </aside>
+    )
+}
+
+export default Aside
