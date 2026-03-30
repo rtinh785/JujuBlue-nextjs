@@ -15,3 +15,17 @@ export const changeLanguage = async (lang: SupportedLocale) => {
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
+
+export const formatDateOfBirth = (dateOfBirth?: string | null) => {
+    if (!dateOfBirth) {
+        return 'Chua cap nhat'
+    }
+
+    const [year, month, day] = dateOfBirth.split('-')
+
+    if (!year || !month || !day) {
+        return 'Chua cap nhat'
+    }
+
+    return `${day}/${month}/${year}`
+}

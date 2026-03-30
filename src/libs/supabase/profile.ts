@@ -9,7 +9,7 @@ export const ensureProfileExists = async (user: {
         .from('profiles')
         .select('id')
         .eq('id', user.id)
-        .maybeSingle()
+        .maybeSingle() // Chỉ lấy một bản ghi nếu tồn tại, không lỗi nếu không tìm thấy
 
     if (fetchError) {
         throw fetchError

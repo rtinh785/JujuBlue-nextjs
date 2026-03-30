@@ -1,22 +1,12 @@
+'use client'
 import ComposerCard from '@/components/home/ComposerCard'
-import FeedPostCard from '@/components/home/FeedPostCard'
+import PostCard from '@/components/post/PostCard'
 import Aside from '@/components/layout/Aside'
+import { useCurrentUser } from '@/features/auth/auth.queries'
+import type { Post } from '@/core/types/post.type'
 import React from 'react'
 
-type FeedPost = {
-    id: number
-    author: string
-    handle: string
-    avatar: string
-    time: string
-    content: string
-    image?: string
-    comments: number
-    reposts: number
-    likes: number
-}
-
-const feedPosts: FeedPost[] = [
+const feedPosts: Post[] = [
     {
         id: 1,
         author: 'Marcus Webb',
@@ -56,17 +46,18 @@ const feedPosts: FeedPost[] = [
 ]
 
 const Home = () => {
+    const { data: user } = useCurrentUser()
+
     return (
         <main className="mx-auto w-full max-w-[1180px] px-3 pt-4 pb-10 lg:px-4">
             <div className="relative lg:pr-[344px]">
                 <section className="space-y-4">
-                    {/* dang bai post */}
-                    <ComposerCard />
+                    {user && <ComposerCard />}
 
                     {/* list bai post */}
                     <div className="space-y-4">
                         {feedPosts.map((post) => (
-                            <FeedPostCard key={post.id} post={post} />
+                            <PostCard key={post.id} post={post} />
                         ))}
                     </div>
                     {/* loading cac bai post */}
@@ -75,7 +66,7 @@ const Home = () => {
                     </div>
                 </section>
 
-                <Aside />
+                <Aside user={user} />
             </div>
         </main>
     )

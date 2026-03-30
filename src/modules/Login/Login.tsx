@@ -12,6 +12,8 @@ import { useState } from 'react'
 import InputField from '@/components/form/InputField'
 import { signInWithGoogle } from '@/libs/supabase/auth'
 import { ensureProfileExists } from '@/libs/supabase/profile'
+import { useQueryClient } from '@tanstack/react-query'
+import { authKeys } from '@/features/auth/auth.keys'
 
 const Login = () => {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
@@ -28,6 +30,7 @@ const Login = () => {
             password: '',
         },
     })
+    const queryClient = useQueryClient()
 
     const onSubmit = async (values: LoginFormValues) => {
         try {
@@ -45,7 +48,10 @@ const Login = () => {
                 await ensureProfileExists(data.user)
             }
 
-            toast.success(AUTH_MESSAGES.loginSuccess, { position: 'top-left' })
+            queryClient.setQueryData(authKeys.currentUser(), data.user)
+
+            console.log('Login successful:', data)
+
             reset()
             router.push('/')
         } catch (error) {

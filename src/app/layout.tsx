@@ -1,10 +1,9 @@
+import './globals.css'
 import '@/assets/fonts/fonts.css'
 import type { Metadata } from 'next'
-import './globals.css'
 import linguiConfig from '../../lingui.config'
 import AppProviders from './providers'
 import { siteConfig } from '@/core/configs/site.config'
-import Header from '@/components/layout/header'
 
 export async function generateStaticParams() {
     return linguiConfig.locales.map((lang) => ({ lang }))
