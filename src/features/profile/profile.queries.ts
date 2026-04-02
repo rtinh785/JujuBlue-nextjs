@@ -1,13 +1,26 @@
-import { useQuery } from '@tanstack/react-query'
-import { getMyProfile } from './profile.api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getMyProfile, updateMyProfile, UpdateProfilePayload } from './profile.api'
 import { profileKeys } from './profile.keys'
 import { Profile } from '@/modules/Profile/profile.type'
 
-export const useMyProfile = (userId?: string) => {
+export const useMyProfile = (userId: string) => {
     return useQuery<Profile>({
-        queryKey: userId ? profileKeys.myProfile(userId) : ['my-profile', 'unknown'],
+        queryKey: profileKeys.myProfile(userId),
         queryFn: () => getMyProfile(userId!),
         enabled: !!userId,
         staleTime: 1000 * 60 * 5,
+    })
+}
+
+export const useUpdateMyProfile = (userId: string) => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (profileData: UpdateProfilePayload) => updateMyProfile(userId, profileData),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: profileKeys.myProfile(userId),
+            })
+        },
     })
 }

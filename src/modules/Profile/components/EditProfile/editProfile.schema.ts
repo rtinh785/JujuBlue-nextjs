@@ -1,24 +1,27 @@
 import * as yup from 'yup'
 
 export const editProfileSchema = yup.object({
-    display_name: yup.string().trim().required('Ten hien thi la bat buoc').max(50, 'Ten hien thi toi da 50 ky tu'),
+    display_name: yup.string().trim().required('Tên hiển thị là bắt buộc').max(50, 'Tên hiển thị tối đa 50 ký tự'),
+
     bio: yup
         .string()
         .nullable()
         .transform((value) => value ?? '')
-        .max(160, 'Bio toi da 160 ky tu')
+        .max(160, 'Tiểu sử tối đa 160 ký tự')
         .defined(),
+
     location: yup
         .string()
         .nullable()
         .transform((value) => value ?? '')
-        .max(80, 'Dia diem toi da 80 ky tu')
+        .max(80, 'Địa điểm tối đa 80 ký tự')
         .defined(),
+
     website: yup
         .string()
         .nullable()
         .transform((value) => value ?? '')
-        .test('is-valid-url', 'Website khong hop le', (value) => {
+        .test('is-valid-url', 'URL phải có dạng https://www.example.com', (value) => {
             if (!value) return true
 
             try {
@@ -29,6 +32,7 @@ export const editProfileSchema = yup.object({
             }
         })
         .defined(),
+
     date_of_birth: yup
         .string()
         .nullable()

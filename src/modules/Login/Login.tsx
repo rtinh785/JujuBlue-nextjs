@@ -14,6 +14,7 @@ import { signInWithGoogle } from '@/libs/supabase/auth'
 import { ensureProfileExists } from '@/libs/supabase/profile'
 import { useQueryClient } from '@tanstack/react-query'
 import { authKeys } from '@/features/auth/auth.keys'
+import { profileKeys } from '@/features/profile/profile.keys'
 
 const Login = () => {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
@@ -46,11 +47,11 @@ const Login = () => {
 
             if (data.user) {
                 await ensureProfileExists(data.user)
+                queryClient.setQueryData(authKeys.currentUser(), data.user)
+                await queryClient.invalidateQueries({
+                    queryKey: profileKeys.myProfile(data.user.id),
+                })
             }
-
-            queryClient.setQueryData(authKeys.currentUser(), data.user)
-
-            console.log('Login successful:', data)
 
             reset()
             router.push('/')

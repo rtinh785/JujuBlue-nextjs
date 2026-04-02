@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import MobileDrawer from '@/components/layout/MobileDrawer'
@@ -19,26 +19,24 @@ import { authKeys } from '@/features/auth/auth.keys'
 import { useQueryClient } from '@tanstack/react-query'
 import { signOut } from '@/features/auth/auth.api'
 import { useMyProfile } from '@/features/profile/profile.queries'
-import { Profile } from '@/modules/Profile/profile.type'
+import HeaderLoadingState from '@/modules/Login/components/HeaderLoadingState'
 
 const Header = () => {
     const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false)
-    const [profile, setProfile] = useState<Profile | null>(null)
     const router = useRouter()
-    const { data: user } = useCurrentUser()
-    const { data: profileData } = useMyProfile(user?.id || '')
-
+    const { data: user, isLoading: isUserLoading } = useCurrentUser()
+    const { data: profileData, isLoading: isProfileLoading } = useMyProfile(user?.id || '')
+    const isPageLoading = isUserLoading || (!!user && isProfileLoading)
     const queryClient = useQueryClient()
-
-    useEffect(() => {
-        if (profileData) {
-            setProfile(profileData)
-        }
-    }, [profileData])
+    const profile = profileData ?? null
 
     const handleSignOut = async () => {
         await signOut()
-        queryClient.setQueryData(authKeys.currentUser(), null)
+        await queryClient.setQueryData(authKeys.currentUser(), null)
+    }
+
+    if (isPageLoading) {
+        return <HeaderLoadingState />
     }
 
     return (
