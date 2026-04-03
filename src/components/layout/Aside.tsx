@@ -12,9 +12,9 @@ interface AsideProps {
 const Aside = ({ showTrending = true, user }: AsideProps) => {
     return (
         <aside className="hidden space-y-4 lg:fixed lg:top-[88px] lg:right-[max(1rem,calc((100vw-1180px)/2+1rem))] lg:block lg:h-[calc(100vh-108px)] lg:w-[320px] lg:overflow-y-auto lg:pr-1">
-            {user && <ProfileSummaryCard />}
+            {user && <ProfileSummaryCard user={user} />}
             {showTrending && <TrendingCard />}
-            <SuggestedUsersCard />
+            {user && <SuggestedUsersCard user={user} />}
 
             {/* dang nhap moi moi follow dc */}
             <div className="px-1 text-xs text-slate-400">

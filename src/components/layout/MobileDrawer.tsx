@@ -37,14 +37,15 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                 {/* User card */}
                 {user && (
                     <div className="mx-3 mb-4 flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-3">
-                        <img
-                            src={
-                                profile?.avatar_url ||
-                                'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=160&q=80'
-                            }
-                            alt="avatar"
-                            className="size-9 rounded-full object-cover ring-2 ring-white"
-                        />
+                        {profile?.avatar_url ? (
+                            <img
+                                src={profile?.avatar_url}
+                                alt="Avatar"
+                                className="group-hover:ring-primary size-10 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
+                            />
+                        ) : (
+                            <div className="flex size-10 items-center justify-center rounded-full bg-gray-300" />
+                        )}
                         <div className="min-w-0 flex-1">
                             <DialogClose asChild>
                                 <Link href="/profile" className="block">

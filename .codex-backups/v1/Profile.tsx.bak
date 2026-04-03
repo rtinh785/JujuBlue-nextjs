@@ -1,8 +1,8 @@
-import type { Post } from '@/core/types/post.type'
 import Aside from '@/components/layout/Aside'
 import PostCard from '@/components/post/PostCard'
+import type { Post } from '@/core/types/post.type'
 import { useCurrentUser } from '@/features/auth/auth.queries'
-import { uploadAvatar } from '@/features/profile/profile.api'
+import { uploadAvatar, uploadCoverPhoto } from '@/features/profile/profile.api'
 import { useMyProfile, useUpdateMyProfile } from '@/features/profile/profile.queries'
 import EditProfileDialog from '@/modules/Profile/components/EditProfile/EditProfileDialog'
 import type { EditProfileFormValues } from '@/modules/Profile/components/EditProfile/editProfile.schema'
@@ -11,7 +11,12 @@ import DialogAvatar from '@/modules/Profile/components/ImagesUploader/Avatar/Dia
 import ProfileLoadingState from '@/modules/Profile/components/ProfileLoadingState'
 import { formatDateOfBirth } from '@/utils/helper'
 import { CalendarDays, MapPin, Pencil } from 'lucide-react'
+import Cropper from 'react-easy-crop'
 import { useEffect, useRef, useState } from 'react'
+import { useCheckIsFollowing, useFollowUser, useUnfollowUser } from '@/features/follows/follows.queries'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/base/tabs'
+import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
+import FollowingTab from '@/modules/Profile/components/Tabs/FollowingTab'
 
 const profile = {
     name: 'Alex Rivera',
@@ -19,51 +24,47 @@ const profile = {
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=320&q=80',
     bio: 'Product Designer building clean interfaces. Obsessed with typography, whitespace, and systems that scale. Coffee enthusiast.',
     location: 'San Francisco, CA',
-    joinedAt: 'Joined March 2023',
 }
 
-const profilePosts: Post[] = [
-    {
-        id: 1,
-        content:
-            'Just pushed the new design system update. Focusing entirely on structural clarity and stripping away non-essential visual noise. The new primary blue feels incredibly fresh.',
-        time: '2h',
-        comments: 12,
-        reposts: 4,
-        likes: 89,
-    },
-    {
-        id: 2,
-        content: 'Minimal desk setup check. Nothing but essentials.',
-        time: 'Oct 12',
-        image: 'https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=1200&q=80',
-        comments: 45,
-        reposts: 12,
-        likes: 342,
-    },
-]
+const COVER_MAX_OFFSET_Y = 120
 
-const Profile = () => {
-    // avatar dialog states
+interface ProfileProps {
+    profileId?: string
+}
+
+const Profile = ({ profileId }: ProfileProps) => {
+    // Edit profile + avatar
     const [openEditDialog, setOpenEditDialog] = useState(false)
     const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
     const [selectedAvatarSrc, setSelectedAvatarSrc] = useState<string | null>(null)
 
-    // cover photo dialog states
+    // Cover photo
     const coverPhotoInputRef = useRef<HTMLInputElement | null>(null)
     const [selectedCoverPhotoSrc, setSelectedCoverPhotoSrc] = useState<string | null>(null)
     const [isEditingCoverPhoto, setIsEditingCoverPhoto] = useState(false)
+    const [coverPhotoOffsetX, setCoverPhotoOffsetX] = useState(0)
     const [coverPhotoOffsetY, setCoverPhotoOffsetY] = useState(0)
     const [savedCoverPhotoOffsetY, setSavedCoverPhotoOffsetY] = useState(0)
+    const [selectedCoverPhotoFile, setSelectedCoverPhotoFile] = useState<File | null>(null)
 
-    // profile data states
+    // Profile data
     const { data: userReal, isLoading: isUserLoading } = useCurrentUser()
-    const { data: profileReal, isLoading: isProfileLoading } = useMyProfile(userReal?.id || '')
+    const { data: profileReal, isLoading: isProfileLoading } = useMyProfile(profileId ? profileId : userReal?.id || '')
     const updateProfileMutation = useUpdateMyProfile(userReal?.id || '')
 
     const isPageLoading = isUserLoading || (!!userReal && isProfileLoading)
 
-    // update profile handler
+    // Helpers
+    const clampCoverOffsetY = (value: number) => {
+        return Math.max(-COVER_MAX_OFFSET_Y, Math.min(COVER_MAX_OFFSET_Y, value))
+    }
+
+    // Follow and unfollow logic will be added in the future when we have the follow api ready
+    const { data: isFollowed } = useCheckIsFollowing(userReal?.id, profileId || '')
+    const { mutate: followMutation } = useFollowUser(userReal?.id || '')
+    const { mutate: unfollowMutation } = useUnfollowUser(userReal?.id || '')
+
+    // Handlers
     const handleUpdateProfile = async (values: EditProfileFormValues) => {
         if (!userReal?.id) {
             return
@@ -73,7 +74,6 @@ const Profile = () => {
         setOpenEditDialog(false)
     }
 
-    // avatar handlers
     const handleSelectAvatar = (file: File) => {
         setSelectedAvatarSrc(URL.createObjectURL(file))
         setIsAvatarDialogOpen(true)
@@ -103,8 +103,9 @@ const Profile = () => {
         }
     }
 
-    //  cover photo handlers
     const handleSelectCoverPhoto = (file: File) => {
+        setSelectedCoverPhotoFile(file)
+        setCoverPhotoOffsetX(0)
         setSelectedCoverPhotoSrc(URL.createObjectURL(file))
         setCoverPhotoOffsetY(0)
         setSavedCoverPhotoOffsetY(0)
@@ -113,28 +114,66 @@ const Profile = () => {
 
     const handleCancelCoverPhoto = () => {
         setSelectedCoverPhotoSrc(null)
+        setCoverPhotoOffsetX(0)
         setCoverPhotoOffsetY(0)
         setSavedCoverPhotoOffsetY(0)
         setIsEditingCoverPhoto(false)
+        setSelectedCoverPhotoFile(null)
     }
 
-    const handleSaveCoverPhoto = () => {
-        setSavedCoverPhotoOffsetY(coverPhotoOffsetY)
-        setIsEditingCoverPhoto(false)
+    const handleSaveCoverPhoto = async () => {
+        if (!userReal?.id || !selectedCoverPhotoFile) {
+            return
+        }
+
+        try {
+            const coverPhotoUrl = await uploadCoverPhoto(userReal.id, selectedCoverPhotoFile)
+            const nextOffsetY = clampCoverOffsetY(coverPhotoOffsetY)
+
+            await updateProfileMutation.mutateAsync({
+                cover_photo_url: coverPhotoUrl,
+                cover_photo_offset_y: nextOffsetY,
+            })
+
+            setSavedCoverPhotoOffsetY(nextOffsetY)
+            setSelectedCoverPhotoFile(null)
+            setIsEditingCoverPhoto(false)
+        } catch (error) {
+            console.log('save cover photo error:', error)
+        }
     }
 
     const handleOpenCoverPhotoPicker = () => {
         coverPhotoInputRef.current?.click()
     }
 
-    //  cleanup object URLs to prevent memory leaks
+    const handleFollowUnfollow = () => {
+        if (isFollowed) {
+            unfollowMutation(profileId!)
+        } else {
+            followMutation(profileId!)
+        }
+    }
+
+    // Cleanup
     useEffect(() => {
         return () => {
             if (selectedAvatarSrc) {
                 URL.revokeObjectURL(selectedAvatarSrc)
             }
+
+            if (selectedCoverPhotoSrc) {
+                URL.revokeObjectURL(selectedCoverPhotoSrc)
+            }
         }
-    }, [selectedAvatarSrc])
+    }, [selectedAvatarSrc, selectedCoverPhotoSrc])
+
+    const currentCoverPhotoSrc = selectedCoverPhotoSrc ?? profileReal?.cover_photo_url ?? null
+
+    const currentCoverPhotoOffsetY =
+        selectedCoverPhotoSrc && isEditingCoverPhoto
+            ? coverPhotoOffsetY
+            : (profileReal?.cover_photo_offset_y ?? savedCoverPhotoOffsetY ?? 0)
 
     if (isPageLoading) {
         return <ProfileLoadingState />
@@ -145,6 +184,7 @@ const Profile = () => {
             <div className="relative lg:pr-[344px]">
                 <section className="space-y-4">
                     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+                        {/* Cover photo */}
                         <div className="group relative h-28 min-h-[170px] w-full overflow-hidden bg-slate-100 sm:h-36 lg:min-h-[231px]">
                             {isEditingCoverPhoto && (
                                 <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-end gap-2 bg-black/25 px-4 py-3">
@@ -165,12 +205,33 @@ const Profile = () => {
                                 </div>
                             )}
 
-                            {selectedCoverPhotoSrc ? (
-                                <img
-                                    src={selectedCoverPhotoSrc}
-                                    alt="Cover preview"
-                                    className="h-full w-full object-cover"
-                                />
+                            {currentCoverPhotoSrc ? (
+                                isEditingCoverPhoto ? (
+                                    <Cropper
+                                        image={currentCoverPhotoSrc}
+                                        crop={{ x: coverPhotoOffsetX, y: coverPhotoOffsetY }}
+                                        zoom={1}
+                                        minZoom={1}
+                                        maxZoom={1}
+                                        aspect={4.4}
+                                        cropShape="rect"
+                                        showGrid={false}
+                                        objectFit="horizontal-cover"
+                                        restrictPosition
+                                        zoomWithScroll={false}
+                                        onCropChange={(nextCrop) => {
+                                            setCoverPhotoOffsetX(nextCrop.x)
+                                            setCoverPhotoOffsetY(clampCoverOffsetY(nextCrop.y))
+                                        }}
+                                    />
+                                ) : (
+                                    <img
+                                        src={currentCoverPhotoSrc}
+                                        alt="Cover preview"
+                                        className="h-full w-full object-cover"
+                                        style={{ objectPosition: `center calc(50% + ${currentCoverPhotoOffsetY}px)` }}
+                                    />
+                                )
                             ) : (
                                 <div className="h-full w-full bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200" />
                             )}
@@ -189,25 +250,52 @@ const Profile = () => {
 
                         <div className="px-5 pb-5">
                             <div className="-mt-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                                {/* Avatar */}
                                 <div className="flex flex-col items-start gap-3">
                                     <AvatarUploader
-                                        avatarUrl={profileReal?.avatar_url}
+                                        avatarUrl={
+                                            profileReal?.avatar_url ?? userReal?.user_metadata?.avatar_url ?? undefined
+                                        }
                                         alt={profileReal?.display_name ?? 'Avatar'}
                                         onFileSelect={handleSelectAvatar}
                                     />
                                 </div>
 
-                                <div className="flex items-center gap-2 sm:justify-end">
-                                    <button
-                                        type="button"
-                                        onClick={() => setOpenEditDialog(true)}
-                                        className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                                    >
-                                        Edit Profile
-                                    </button>
-                                </div>
+                                {profileId ? (
+                                    <div className="flex items-center gap-2 sm:justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleFollowUnfollow()}
+                                            className={
+                                                isFollowed
+                                                    ? 'rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 transition-colors duration-200 hover:border-red-300 hover:bg-red-100'
+                                                    : 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors duration-200 hover:bg-slate-50'
+                                            }
+                                        >
+                                            {isFollowed ? 'Unfollow' : 'Follow'}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setOpenEditDialog(true)}
+                                            className="bg-primary hover:bg-primary/90 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-white"
+                                        >
+                                            Message
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 sm:justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => setOpenEditDialog(true)}
+                                            className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                                        >
+                                            Edit Profile
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
+                            {/* Profile info */}
                             <div className="mt-3">
                                 <h1 className="text-[28px] font-semibold tracking-tight text-slate-900">
                                     {profileReal?.display_name}
@@ -228,39 +316,35 @@ const Profile = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-6 flex items-center gap-6 border-b border-slate-200">
-                                <button
-                                    type="button"
-                                    className="border-b-2 border-slate-900 pb-3 text-sm font-semibold text-slate-900"
-                                >
-                                    Posts
-                                </button>
-                                <button type="button" className="pb-3 text-sm font-medium text-slate-400">
-                                    Replies
-                                </button>
-                                <button type="button" className="pb-3 text-sm font-medium text-slate-400">
-                                    Likes
-                                </button>
-                            </div>
-                        </div>
-                    </section>
+                            <Tabs defaultValue="posts" className="mt-6">
+                                <TabsList variant="line" className="gap-6 border-b border-slate-200 p-0">
+                                    <TabsTrigger value="posts" className="rounded-none px-0 pb-3 text-sm font-medium">
+                                        Posts
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                        value="following"
+                                        className="rounded-none px-0 pb-3 text-sm font-medium"
+                                    >
+                                        Following
+                                    </TabsTrigger>
+                                </TabsList>
 
-                    <section className="flex flex-col gap-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-                        {profilePosts.map((post) => (
-                            <PostCard
-                                key={post.id}
-                                post={post}
-                                fallbackAuthor={profile.name}
-                                fallbackHandle={profile.handle}
-                                fallbackAvatar={profile.avatar}
-                            />
-                        ))}
+                                <TabsContent value="posts" className="pt-4">
+                                    <PostsTab />
+                                </TabsContent>
+
+                                <TabsContent value="following" className="pt-4">
+                                    <FollowingTab />
+                                </TabsContent>
+                            </Tabs>
+                        </div>
                     </section>
 
                     <div className="flex justify-center pt-2">
                         <div className="size-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
                     </div>
                 </section>
+
                 {profileReal && (
                     <EditProfileDialog
                         open={openEditDialog}
@@ -270,9 +354,11 @@ const Profile = () => {
                         isPending={updateProfileMutation.isPending}
                     />
                 )}
+
                 <Aside showTrending={false} user={userReal} />
             </div>
 
+            {/* Hidden file picker for cover photo */}
             <input
                 ref={coverPhotoInputRef}
                 type="file"
@@ -285,6 +371,7 @@ const Profile = () => {
                 }}
             />
 
+            {/* Avatar crop dialog */}
             <DialogAvatar
                 open={isAvatarDialogOpen}
                 imageSrc={selectedAvatarSrc}

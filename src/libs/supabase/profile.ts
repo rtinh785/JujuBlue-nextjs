@@ -1,5 +1,6 @@
 import { supabase } from './client'
 
+// kiem tra coi profile da ton tai chua, neu chua thi tao moi
 export const ensureProfileExists = async (user: {
     id: string
     email?: string
@@ -9,7 +10,7 @@ export const ensureProfileExists = async (user: {
         .from('profiles')
         .select('id')
         .eq('id', user.id)
-        .maybeSingle() // Chỉ lấy một bản ghi nếu tồn tại, không lỗi nếu không tìm thấy
+        .maybeSingle()
 
     if (fetchError) {
         throw fetchError

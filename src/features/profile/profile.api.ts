@@ -2,16 +2,6 @@ import { supabase } from '@/libs/supabase/client'
 
 const PROFILE_IMAGES_BUCKET = 'images'
 
-export const getMyProfile = async (userId: string) => {
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
-
-    if (error) {
-        throw error
-    }
-
-    return data
-}
-
 export type UpdateProfilePayload = {
     display_name?: string
     bio?: string | null
@@ -21,6 +11,16 @@ export type UpdateProfilePayload = {
     avatar_url?: string | null
     cover_photo_url?: string | null
     cover_photo_offset_y?: number | null
+}
+
+export const getMyProfile = async (userId: string) => {
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+
+    if (error) {
+        throw error
+    }
+
+    return data
 }
 
 export const updateMyProfile = async (userId: string, payload: UpdateProfilePayload) => {
@@ -62,4 +62,21 @@ export const uploadCoverPhoto = async (userId: string, file: File) => {
     const { data } = supabase.storage.from('images').getPublicUrl(filePath)
 
     return data.publicUrl
+}
+
+export const getSuggestedProfiles = async (currentUserId: string) => {
+    const { data, error } = await supabase.from('follows').select('following_id').eq('follower_id', currentUserId)
+
+    const excludeIds = (data ?? []).map((row) => row.following_id)
+    excludeIds.push(currentUserId)
+
+    const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, display_name, username, avatar_url')
+        .not('id', 'in', `(${excludeIds.join(',')})`)
+        .order('created_at', { ascending: false })
+        .limit(6)
+
+    if (profilesError) throw profilesError
+    return profiles ?? []
 }

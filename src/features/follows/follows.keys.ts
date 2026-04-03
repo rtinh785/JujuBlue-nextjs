@@ -1,0 +1,7 @@
+export const followerKeys = {
+    currentUser: (userId: string) => ['follower', userId] as const,
+    followingCount: (userId: string) => ['following-count', userId] as const,
+    followerCount: (userId: string) => ['follower-count', userId] as const,
+    isFollowing: (followerId: string, followingId: string) => ['is-following', followerId, followingId] as const,
+    followingProfiles: (userId: string) => ['following-profiles', userId] as const,
+}

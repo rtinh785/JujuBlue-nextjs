@@ -74,14 +74,15 @@ const Header = () => {
                     <SearchInput mobileOnly={true} />
                     {user && (
                         <Link href="/profile" className="block">
-                            <img
-                                src={
-                                    profile?.avatar_url ||
-                                    'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=160&q=80'
-                                }
-                                alt="Avatar"
-                                className="size-10 cursor-pointer rounded-full object-cover"
-                            />
+                            {profile?.avatar_url ? (
+                                <img
+                                    src={profile?.avatar_url}
+                                    alt="Avatar"
+                                    className="group-hover:ring-primary size-10 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
+                                />
+                            ) : (
+                                <div className="flex size-10 items-center justify-center rounded-full bg-gray-300" />
+                            )}
                         </Link>
                     )}
                 </div>
@@ -98,15 +99,15 @@ const Header = () => {
                                     type="button"
                                     className="group relative hidden cursor-pointer outline-none lg:block"
                                 >
-                                    <img
-                                        src={
-                                            profile?.avatar_url ||
-                                            'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=160&q=80'
-                                        }
-                                        alt="Avatar"
-                                        className="group-hover:ring-primary size-10 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
-                                    />
-                                    <span className="bg-primary border-background absolute right-0 bottom-0 size-2.5 rounded-full border-2" />
+                                    {profile?.avatar_url ? (
+                                        <img
+                                            src={profile?.avatar_url}
+                                            alt="Avatar"
+                                            className="group-hover:ring-primary size-10 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
+                                        />
+                                    ) : (
+                                        <div className="flex size-10 items-center justify-center rounded-full bg-gray-300" />
+                                    )}
                                 </button>
                             </DropdownMenuTrigger>
 
