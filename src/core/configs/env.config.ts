@@ -1,5 +1,6 @@
 export const envConfig = {
-    isProduction: process.env.NODE_ENV === 'production',
+    PORT: process.env.PORT ?? 3000,
+    BASE_URL: process.env.BASE_URL ?? 'http://localhost:4000',
     APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
     API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000',
     SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',

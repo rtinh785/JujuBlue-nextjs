@@ -14,21 +14,25 @@ import {
     DropdownMenuTrigger,
 } from '@/components/base/dropdown-menu'
 import MyButton from '@/components/MyButton'
-import { useCurrentUser } from '@/features/auth/auth.queries'
+
 import { authKeys } from '@/features/auth/auth.keys'
 import { useQueryClient } from '@tanstack/react-query'
 import { signOut } from '@/features/auth/auth.api'
 import { useMyProfile } from '@/features/profile/profile.queries'
 import HeaderLoadingState from '@/modules/Login/components/HeaderLoadingState'
+import { useCurrentUser } from '@/apis/user/user.query'
 
 const Header = () => {
     const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false)
     const router = useRouter()
     const { data: user, isLoading: isUserLoading } = useCurrentUser()
+
     const { data: profileData, isLoading: isProfileLoading } = useMyProfile(user?.id || '')
     const isPageLoading = isUserLoading || (!!user && isProfileLoading)
     const queryClient = useQueryClient()
     const profile = profileData ?? null
+    console.log(user)
+    console.log('profile', profile)
 
     const handleSignOut = async () => {
         await signOut()

@@ -1,22 +1,25 @@
 'use client'
 import Link from 'next/link'
 import { AUTH_MESSAGES } from '@/core/constants/messages/auth/auth.messages'
-import { supabase } from '@/libs/supabase/client'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { registerSchema, type RegisterFormValues } from './register.schema'
 import { toast } from 'sonner'
 import { useState } from 'react'
 import InputField from '@/components/form/InputField'
-import { signInWithGoogle } from '@/libs/supabase/auth'
+import { useMutation } from '@tanstack/react-query'
+import authApi from '@/apis/auth/auth.api'
 
 const Register = () => {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-
+    const registerAccountMutation = useMutation({
+        mutationFn: authApi.registerAccount,
+    })
     const {
         register,
         handleSubmit,
         reset,
+        setError,
         formState: { errors, isSubmitting },
     } = useForm<RegisterFormValues>({
         resolver: yupResolver(registerSchema),
@@ -27,33 +30,26 @@ const Register = () => {
         },
     })
 
-    const onSubmit = async (values: RegisterFormValues) => {
-        const { error } = await supabase.auth.signUp({
-            email: values.email,
-            password: values.password,
-            options: {
-                emailRedirectTo: `${window.location.origin}/login`,
+    const onSubmit = async ({ email, password }: RegisterFormValues) => {
+        registerAccountMutation.mutate(
+            { email, password },
+            {
+                onSuccess: (data) => {
+                    toast('Bạn đã đăng ký thành công hãy check email xác để thực')
+                    reset()
+                },
+                onError: (error: any) => {
+                    setError('email', {
+                        message: error.response?.data?.message || AUTH_MESSAGES.REGISTER_FAILED,
+                    })
+                },
             },
-        })
-
-        if (error) {
-            toast.error(error.message, { position: 'top-left' })
-            return
-        }
-
-        toast.success(AUTH_MESSAGES.registerSuccess, { position: 'top-left' })
-        reset()
+        )
     }
 
     const handleGoogleRegister = async () => {
         setIsGoogleLoading(true)
-
-        const { error } = await signInWithGoogle(window.location.origin)
-
-        if (error) {
-            toast.error(error.message, { position: 'top-left' })
-            setIsGoogleLoading(false)
-        }
+        window.location.href = 'http://localhost:4000/auth/google'
     }
 
     return (

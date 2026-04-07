@@ -8,16 +8,24 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import InputField from '@/components/form/InputField'
 import { signInWithGoogle } from '@/libs/supabase/auth'
 import { ensureProfileExists } from '@/libs/supabase/profile'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { authKeys } from '@/features/auth/auth.keys'
 import { profileKeys } from '@/features/profile/profile.keys'
+import http from '@/apis/axios'
+
+import { e } from 'node_modules/@lingui/react/dist/shared/react.34bf68ab.mjs'
+import { saveAccesTokenToLS, saveRefreshTokenToLS } from '@/utils/auth'
+import authApi from '@/apis/auth/auth.api'
 
 const Login = () => {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+    const loginAccountMutation = useMutation({
+        mutationFn: authApi.loginAccount,
+    })
     const router = useRouter()
     const {
         register,
@@ -34,43 +42,39 @@ const Login = () => {
     const queryClient = useQueryClient()
 
     const onSubmit = async (values: LoginFormValues) => {
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: values.email,
-                password: values.password,
-            })
-
-            if (error) {
-                toast.error(error.message, { position: 'top-left' })
-                return
-            }
-
-            if (data.user) {
-                await ensureProfileExists(data.user)
-                queryClient.setQueryData(authKeys.currentUser(), data.user)
-                await queryClient.invalidateQueries({
-                    queryKey: profileKeys.myProfile(data.user.id),
-                })
-            }
-
-            reset()
-            router.push('/')
-        } catch (error) {
-            const message = error instanceof Error ? error.message : AUTH_MESSAGES.genericError
-            toast.error(message, { position: 'top-left' })
-        }
+        await loginAccountMutation.mutateAsync(values, {
+            onSuccess: () => {
+                reset()
+                router.push('/')
+            },
+            onError: (error: any) => {
+                console.log('login error', error)
+                toast.error(error.response?.data?.message || AUTH_MESSAGES.LOGIN_FAILED, { position: 'top-left' })
+            },
+        })
     }
 
     const handleGoogleLogin = async () => {
         setIsGoogleLoading(true)
-
-        const { error } = await signInWithGoogle(window.location.origin)
-
-        if (error) {
-            toast.error(error.message, { position: 'top-left' })
-            setIsGoogleLoading(false)
-        }
+        window.location.href = 'http://localhost:4000/auth/google'
     }
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+
+        const hash = window.location.hash
+        if (!hash) return
+
+        const params = new URLSearchParams(hash.slice(1))
+        const access_token = params.get('access_token')
+        const refresh_token = params.get('refresh_token')
+
+        if (access_token && refresh_token) {
+            saveAccesTokenToLS(access_token)
+            saveRefreshTokenToLS(refresh_token)
+            window.history.replaceState(null, '', '/login')
+        }
+    }, [])
 
     return (
         <section className="flex items-center justify-center bg-white px-4 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">
@@ -149,5 +153,4 @@ const Login = () => {
         </section>
     )
 }
-
 export default Login

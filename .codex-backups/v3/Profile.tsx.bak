@@ -179,8 +179,6 @@ const Profile = ({ profileId }: ProfileProps) => {
         return <ProfileLoadingState />
     }
 
-    console.log('profileReal:', profileReal)
-
     return (
         <main className="mx-auto w-full max-w-[1180px] px-3 pt-4 pb-10 lg:px-4">
             <div className="relative lg:pr-[344px]">
@@ -313,18 +311,14 @@ const Profile = ({ profileId }: ProfileProps) => {
                                 <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">{profileReal?.bio}</p>
 
                                 <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-400">
-                                    {profileReal?.location && (
-                                        <div className="flex items-center gap-1.5">
-                                            <MapPin className="size-4" />
-                                            <span>{profileReal?.location}</span>
-                                        </div>
-                                    )}
-                                    {profileReal?.date_of_birth && (
-                                        <div className="flex items-center gap-1.5">
-                                            <CalendarDays className="size-4" />
-                                            <span>{formatDateOfBirth(profileReal?.date_of_birth)}</span>
-                                        </div>
-                                    )}
+                                    <div className="flex items-center gap-1.5">
+                                        <MapPin className="size-4" />
+                                        <span>{profileReal?.location}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <CalendarDays className="size-4" />
+                                        <span>{formatDateOfBirth(profileReal?.date_of_birth)}</span>
+                                    </div>
                                 </div>
 
                                 {/* Tab bar dính đáy card */}

@@ -4,4 +4,6 @@ export const AUTH_MESSAGES = {
     forgotPasswordSuccess: 'Kiểm tra email của bạn để đặt lại mật khẩu',
     resetPasswordSuccess: 'Mật khẩu đã được đặt lại thành công',
     genericError: 'Có lỗi xảy ra, vui lòng thử lại',
+    REGISTER_FAILED: 'Đăng ký thất bại, vui lòng thử lại',
+    LOGIN_FAILED: 'Đăng nhập thất bại, vui lòng kiểm tra email và mật khẩu',
 }
