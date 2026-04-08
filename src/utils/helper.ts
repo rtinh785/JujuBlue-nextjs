@@ -29,3 +29,9 @@ export const formatDateOfBirth = (dateOfBirth?: string | null) => {
 
     return `${day}/${month}/${year}`
 }
+
+const COVER_MAX_OFFSET_Y = 120
+
+export const clampCoverOffsetY = (value: number) => {
+    return Math.max(-COVER_MAX_OFFSET_Y, Math.min(COVER_MAX_OFFSET_Y, value))
+}

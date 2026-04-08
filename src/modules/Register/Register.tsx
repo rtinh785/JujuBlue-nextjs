@@ -5,16 +5,19 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { registerSchema, type RegisterFormValues } from './register.schema'
 import { toast } from 'sonner'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import InputField from '@/components/form/InputField'
 import { useMutation } from '@tanstack/react-query'
 import authApi from '@/apis/auth/auth.api'
-
+import { saveAccesTokenToLS, saveRefreshTokenToLS } from '@/utils/auth'
+import { useRouter } from 'next/navigation'
+import http from '@/apis/axios'
 const Register = () => {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
     const registerAccountMutation = useMutation({
         mutationFn: authApi.registerAccount,
     })
+    const router = useRouter()
     const {
         register,
         handleSubmit,
@@ -51,6 +54,31 @@ const Register = () => {
         setIsGoogleLoading(true)
         window.location.href = 'http://localhost:4000/auth/google'
     }
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+
+        const run = async () => {
+            const hash = window.location.hash
+            if (!hash) return
+
+            const params = new URLSearchParams(hash.slice(1))
+            const access_token = params.get('access_token')
+            const refresh_token = params.get('refresh_token')
+
+            if (access_token && refresh_token) {
+                saveAccesTokenToLS(access_token)
+                saveRefreshTokenToLS(refresh_token)
+                window.history.replaceState(null, '', '/login')
+
+                await http.get('profiles/me')
+
+                router.push('/home')
+            }
+        }
+
+        run()
+    }, [router])
 
     return (
         <section className="flex items-center justify-center bg-white px-4 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">

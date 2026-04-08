@@ -1,6 +1,7 @@
 import userApi from '@/apis/user/user.api'
 import { userKeys } from '@/apis/user/user.key'
-import { useQuery } from '@tanstack/react-query'
+import { ProfileUpdateData } from '@/core/types/request.type'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export const useCurrentUser = () => {
     return useQuery({
@@ -10,5 +11,58 @@ export const useCurrentUser = () => {
             return res.data.user
         },
         staleTime: 1000 * 60 * 5,
+    })
+}
+
+export const useMyProfile = () => {
+    return useQuery({
+        queryKey: userKeys.myProfile(),
+        queryFn: async () => {
+            const res = await userApi.getMyProfile()
+            return res.data.profile
+        },
+        staleTime: 1000 * 60 * 5,
+    })
+}
+
+export const useUpdateMyProfile = () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: async (data: ProfileUpdateData) => {
+            const res = await userApi.updateMyProfile(data)
+            return res.data.profile
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
+            await queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
+        },
+    })
+}
+
+export const useUpdateAvatar = () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: async (data: File) => {
+            const res = await userApi.uploadAvatar(data)
+            return res.data.profile
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
+            await queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
+        },
+    })
+}
+
+export const useUpdateCoverPhoto = () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: async (data: File) => {
+            const res = await userApi.uploadCoverPhoto(data)
+            return res.data.profile
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
+            await queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
+        },
     })
 }

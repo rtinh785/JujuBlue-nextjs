@@ -1,44 +1,56 @@
 import Aside from '@/components/layout/Aside'
 import PostCard from '@/components/post/PostCard'
 import type { Post } from '@/core/types/post.type'
-import { useCurrentUser } from '@/features/auth/auth.queries'
-import { uploadAvatar, uploadCoverPhoto } from '@/features/profile/profile.api'
-import { useMyProfile, useUpdateMyProfile } from '@/features/profile/profile.queries'
 import EditProfileDialog from '@/modules/Profile/components/EditProfile/EditProfileDialog'
 import type { EditProfileFormValues } from '@/modules/Profile/components/EditProfile/editProfile.schema'
 import AvatarUploader from '@/modules/Profile/components/ImagesUploader/Avatar/AvatarUploader'
 import DialogAvatar from '@/modules/Profile/components/ImagesUploader/Avatar/DialogAvatar'
 import ProfileLoadingState from '@/modules/Profile/components/ProfileLoadingState'
-import { formatDateOfBirth } from '@/utils/helper'
+import { clampCoverOffsetY, formatDateOfBirth } from '@/utils/helper'
 import { CalendarDays, MapPin, Pencil } from 'lucide-react'
 import Cropper from 'react-easy-crop'
 import { useEffect, useRef, useState } from 'react'
-import { useCheckIsFollowing, useFollowUser, useUnfollowUser } from '@/features/follows/follows.queries'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/base/tabs'
 import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
 import FollowingTab from '@/modules/Profile/components/Tabs/FollowingTab'
+import {
+    useCurrentUser,
+    useMyProfile,
+    useUpdateAvatar,
+    useUpdateCoverPhoto,
+    useUpdateMyProfile,
+} from '@/apis/user/user.query'
 
-const profile = {
-    name: 'Alex Rivera',
-    handle: '@arivera',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=320&q=80',
-    bio: 'Product Designer building clean interfaces. Obsessed with typography, whitespace, and systems that scale. Coffee enthusiast.',
-    location: 'San Francisco, CA',
-}
+import { useCheckIsFollowing, useFollowUser, useUnfollowUser } from '@/features/follows/follows.queries'
 
-const COVER_MAX_OFFSET_Y = 120
+// const profile = {
+//     name: 'Alex Rivera',
+//     handle: '@arivera',
+//     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=320&q=80',
+//     bio: 'Product Designer building clean interfaces. Obsessed with typography, whitespace, and systems that scale. Coffee enthusiast.',
+//     location: 'San Francisco, CA',
+// }
 
 interface ProfileProps {
     profileId?: string
 }
 
 const Profile = ({ profileId }: ProfileProps) => {
+    // Profile data
+    const { data: userReal, isLoading: isUserLoading } = useCurrentUser()
+    const { data: profileReal, isLoading: isProfileLoading } = useMyProfile()
+    const updateProfileMutation = useUpdateMyProfile()
+
+    const isPageLoading = isUserLoading || (!!userReal && isProfileLoading)
+
     // Edit profile + avatar
     const [openEditDialog, setOpenEditDialog] = useState(false)
     const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
     const [selectedAvatarSrc, setSelectedAvatarSrc] = useState<string | null>(null)
+    const updateAvatarMutation = useUpdateAvatar()
 
     // Cover photo
+    const updateCoverPhotoMutation = useUpdateCoverPhoto()
     const coverPhotoInputRef = useRef<HTMLInputElement | null>(null)
     const [selectedCoverPhotoSrc, setSelectedCoverPhotoSrc] = useState<string | null>(null)
     const [isEditingCoverPhoto, setIsEditingCoverPhoto] = useState(false)
@@ -47,33 +59,33 @@ const Profile = ({ profileId }: ProfileProps) => {
     const [savedCoverPhotoOffsetY, setSavedCoverPhotoOffsetY] = useState(0)
     const [selectedCoverPhotoFile, setSelectedCoverPhotoFile] = useState<File | null>(null)
 
-    // Profile data
-    const { data: userReal, isLoading: isUserLoading } = useCurrentUser()
-    const { data: profileReal, isLoading: isProfileLoading } = useMyProfile(profileId ? profileId : userReal?.id || '')
-    const updateProfileMutation = useUpdateMyProfile(userReal?.id || '')
-
-    const isPageLoading = isUserLoading || (!!userReal && isProfileLoading)
-
-    // Helpers
-    const clampCoverOffsetY = (value: number) => {
-        return Math.max(-COVER_MAX_OFFSET_Y, Math.min(COVER_MAX_OFFSET_Y, value))
-    }
-
     // Follow and unfollow logic will be added in the future when we have the follow api ready
     const { data: isFollowed } = useCheckIsFollowing(userReal?.id, profileId || '')
     const { mutate: followMutation } = useFollowUser(userReal?.id || '')
     const { mutate: unfollowMutation } = useUnfollowUser(userReal?.id || '')
 
-    // Handlers
+    // Handlers Profile
     const handleUpdateProfile = async (values: EditProfileFormValues) => {
-        if (!userReal?.id) {
-            return
+        if (!userReal?.id) return
+        // Do db chỉ nhận null chứ k phải "" nên phải chuyển '' thành null nhen
+        const cleaned = {
+            ...values,
+            date_of_birth: values.date_of_birth || null,
         }
 
-        await updateProfileMutation.mutateAsync(values)
+        // bỏ field rỗng lun
+        Object.keys(cleaned).forEach((key) => {
+            const k = key as keyof typeof cleaned
+            if (cleaned[k] === '' || cleaned[k] === undefined) {
+                delete cleaned[k]
+            }
+        })
+
+        await updateProfileMutation.mutateAsync(cleaned)
         setOpenEditDialog(false)
     }
 
+    // Handlers Avatar
     const handleSelectAvatar = (file: File) => {
         setSelectedAvatarSrc(URL.createObjectURL(file))
         setIsAvatarDialogOpen(true)
@@ -85,17 +97,8 @@ const Profile = ({ profileId }: ProfileProps) => {
     }
 
     const handleSaveAvatarDialog = async (croppedFile: File) => {
-        if (!userReal?.id) {
-            return
-        }
-
         try {
-            const avatarUrl = await uploadAvatar(userReal.id, croppedFile)
-
-            await updateProfileMutation.mutateAsync({
-                avatar_url: avatarUrl,
-            })
-
+            await updateAvatarMutation.mutateAsync(croppedFile)
             setIsAvatarDialogOpen(false)
             setSelectedAvatarSrc(null)
         } catch (error) {
@@ -103,6 +106,7 @@ const Profile = ({ profileId }: ProfileProps) => {
         }
     }
 
+    // Handlers CoverPhoto
     const handleSelectCoverPhoto = (file: File) => {
         setSelectedCoverPhotoFile(file)
         setCoverPhotoOffsetX(0)
@@ -122,16 +126,16 @@ const Profile = ({ profileId }: ProfileProps) => {
     }
 
     const handleSaveCoverPhoto = async () => {
-        if (!userReal?.id || !selectedCoverPhotoFile) {
+        if (!selectedCoverPhotoFile) {
             return
         }
 
         try {
-            const coverPhotoUrl = await uploadCoverPhoto(userReal.id, selectedCoverPhotoFile)
+            const profile = await updateCoverPhotoMutation.mutateAsync(selectedCoverPhotoFile)
             const nextOffsetY = clampCoverOffsetY(coverPhotoOffsetY)
 
             await updateProfileMutation.mutateAsync({
-                cover_photo_url: coverPhotoUrl,
+                cover_photo_url: profile.cover_photo_url,
                 cover_photo_offset_y: nextOffsetY,
             })
 
@@ -178,8 +182,6 @@ const Profile = ({ profileId }: ProfileProps) => {
     if (isPageLoading) {
         return <ProfileLoadingState />
     }
-
-    console.log('profileReal:', profileReal)
 
     return (
         <main className="mx-auto w-full max-w-[1180px] px-3 pt-4 pb-10 lg:px-4">

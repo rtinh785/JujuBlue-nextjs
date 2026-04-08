@@ -62,19 +62,27 @@ const Login = () => {
     useEffect(() => {
         if (typeof window === 'undefined') return
 
-        const hash = window.location.hash
-        if (!hash) return
+        const run = async () => {
+            const hash = window.location.hash
+            if (!hash) return
 
-        const params = new URLSearchParams(hash.slice(1))
-        const access_token = params.get('access_token')
-        const refresh_token = params.get('refresh_token')
+            const params = new URLSearchParams(hash.slice(1))
+            const access_token = params.get('access_token')
+            const refresh_token = params.get('refresh_token')
 
-        if (access_token && refresh_token) {
-            saveAccesTokenToLS(access_token)
-            saveRefreshTokenToLS(refresh_token)
-            window.history.replaceState(null, '', '/login')
+            if (access_token && refresh_token) {
+                saveAccesTokenToLS(access_token)
+                saveRefreshTokenToLS(refresh_token)
+                window.history.replaceState(null, '', '/login')
+
+                await http.get('profiles/me')
+
+                router.push('/home')
+            }
         }
-    }, [])
+
+        run()
+    }, [router])
 
     return (
         <section className="flex items-center justify-center bg-white px-4 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">
