@@ -2,9 +2,9 @@
 import ComposerCard from '@/components/home/ComposerCard'
 import PostCard from '@/components/post/PostCard'
 import Aside from '@/components/layout/Aside'
-import { useCurrentUser } from '@/features/auth/auth.queries'
 import type { Post } from '@/core/types/post.type'
 import React from 'react'
+import { useCurrentUser } from '@/apis/user/user.query'
 
 const feedPosts: Post[] = [
     {

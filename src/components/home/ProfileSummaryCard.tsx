@@ -1,6 +1,7 @@
+import { useMyProfile } from '@/apis/user/user.query'
 import Stat from '@/components/home/Stat'
 import { useFollowerCount, useFollowingCount } from '@/features/follows/follows.queries'
-import { useMyProfile } from '@/features/profile/profile.queries'
+
 import { User } from '@supabase/supabase-js'
 
 import React from 'react'
@@ -19,7 +20,7 @@ type ProfileSummaryCardProps = {
 }
 
 const ProfileSummaryCard = ({ user }: ProfileSummaryCardProps) => {
-    const { data: profileData } = useMyProfile(user?.id || '')
+    const { data: profileData } = useMyProfile()
     const { data: followingCount } = useFollowingCount(user?.id)
     const { data: followerCount } = useFollowerCount(user?.id)
     return (

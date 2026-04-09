@@ -25,7 +25,6 @@ const Header = () => {
     const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false)
     const router = useRouter()
     const { data: user, isLoading: isUserLoading } = useCurrentUser()
-
     const { data: profileData, isLoading: isProfileLoading } = useMyProfile()
 
     const isPageLoading = isUserLoading || (!!user && isProfileLoading)

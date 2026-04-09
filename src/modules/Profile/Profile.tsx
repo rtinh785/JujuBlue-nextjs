@@ -1,72 +1,88 @@
-import Aside from '@/components/layout/Aside'
-import PostCard from '@/components/post/PostCard'
-import type { Post } from '@/core/types/post.type'
-import EditProfileDialog from '@/modules/Profile/components/EditProfile/EditProfileDialog'
-import type { EditProfileFormValues } from '@/modules/Profile/components/EditProfile/editProfile.schema'
-import AvatarUploader from '@/modules/Profile/components/ImagesUploader/Avatar/AvatarUploader'
-import DialogAvatar from '@/modules/Profile/components/ImagesUploader/Avatar/DialogAvatar'
-import ProfileLoadingState from '@/modules/Profile/components/ProfileLoadingState'
-import { clampCoverOffsetY, formatDateOfBirth } from '@/utils/helper'
-import { CalendarDays, MapPin, Pencil } from 'lucide-react'
-import Cropper from 'react-easy-crop'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
+import { CalendarDays, MapPin } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/base/tabs'
-import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
-import FollowingTab from '@/modules/Profile/components/Tabs/FollowingTab'
+import Aside from '@/components/layout/Aside'
 import {
     useCurrentUser,
+    useGetProfile,
     useMyProfile,
     useUpdateAvatar,
     useUpdateCoverPhoto,
     useUpdateMyProfile,
 } from '@/apis/user/user.query'
-
 import { useCheckIsFollowing, useFollowUser, useUnfollowUser } from '@/features/follows/follows.queries'
-
-// const profile = {
-//     name: 'Alex Rivera',
-//     handle: '@arivera',
-//     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=320&q=80',
-//     bio: 'Product Designer building clean interfaces. Obsessed with typography, whitespace, and systems that scale. Coffee enthusiast.',
-//     location: 'San Francisco, CA',
-// }
+import { useProfileMedia } from '@/hooks/useProfileMedia'
+import EditProfileDialog from '@/modules/Profile/components/EditProfile/EditProfileDialog'
+import type { EditProfileFormValues } from '@/modules/Profile/components/EditProfile/editProfile.schema'
+import DialogAvatar from '@/modules/Profile/components/ImagesUploader/Avatar/DialogAvatar'
+import ProfileCoverSection from '@/modules/Profile/components/ProfileCoverSection/ProfileCoverSection'
+import ProfileHeaderSection from '@/modules/Profile/components/ProfileHeaderSection/ProfileHeaderSection'
+import ProfileLoadingState from '@/modules/Profile/components/ProfileLoadingState'
+import FollowingTab from '@/modules/Profile/components/Tabs/FollowingTab'
+import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
+import { clampCoverOffsetY, formatDateOfBirth } from '@/utils/helper'
 
 interface ProfileProps {
     profileId?: string
 }
 
 const Profile = ({ profileId }: ProfileProps) => {
-    // Profile data
-    const { data: userReal, isLoading: isUserLoading } = useCurrentUser()
-    const { data: profileReal, isLoading: isProfileLoading } = useMyProfile()
+    // Profile queries
+    const { data: currentUser, isLoading: isUserLoading } = useCurrentUser()
+    const isOwnProfile = !profileId || profileId === currentUser?.id
+    const myProfileQuery = useMyProfile(isOwnProfile)
+    const otherProfileQuery = useGetProfile(!isOwnProfile ? profileId : undefined)
+    const profileData = isOwnProfile ? myProfileQuery.data : otherProfileQuery.data
+    const isProfileLoading = isOwnProfile ? myProfileQuery.isLoading : otherProfileQuery.isLoading
+
+    // Mutations
     const updateProfileMutation = useUpdateMyProfile()
-
-    const isPageLoading = isUserLoading || (!!userReal && isProfileLoading)
-
-    // Edit profile + avatar
-    const [openEditDialog, setOpenEditDialog] = useState(false)
-    const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
-    const [selectedAvatarSrc, setSelectedAvatarSrc] = useState<string | null>(null)
     const updateAvatarMutation = useUpdateAvatar()
-
-    // Cover photo
     const updateCoverPhotoMutation = useUpdateCoverPhoto()
-    const coverPhotoInputRef = useRef<HTMLInputElement | null>(null)
-    const [selectedCoverPhotoSrc, setSelectedCoverPhotoSrc] = useState<string | null>(null)
-    const [isEditingCoverPhoto, setIsEditingCoverPhoto] = useState(false)
-    const [coverPhotoOffsetX, setCoverPhotoOffsetX] = useState(0)
-    const [coverPhotoOffsetY, setCoverPhotoOffsetY] = useState(0)
-    const [savedCoverPhotoOffsetY, setSavedCoverPhotoOffsetY] = useState(0)
-    const [selectedCoverPhotoFile, setSelectedCoverPhotoFile] = useState<File | null>(null)
 
-    // Follow and unfollow logic will be added in the future when we have the follow api ready
-    const { data: isFollowed } = useCheckIsFollowing(userReal?.id, profileId || '')
-    const { mutate: followMutation } = useFollowUser(userReal?.id || '')
-    const { mutate: unfollowMutation } = useUnfollowUser(userReal?.id || '')
+    // Local UI state
+    const [openEditDialog, setOpenEditDialog] = useState(false)
 
-    // Handlers Profile
+    // Media state
+    const {
+        isAvatarDialogOpen,
+        setIsAvatarDialogOpen,
+        selectedAvatarSrc,
+        setSelectedAvatarSrc,
+        coverPhotoInputRef,
+        selectedCoverPhotoSrc,
+        isEditingCoverPhoto,
+        setIsEditingCoverPhoto,
+        coverPhotoOffsetX,
+        coverPhotoOffsetY,
+        savedCoverPhotoOffsetY,
+        setSavedCoverPhotoOffsetY,
+        selectedCoverPhotoFile,
+        setSelectedCoverPhotoFile,
+        handleSelectAvatar,
+        handleCancelAvatarDialog,
+        handleSelectCoverPhoto,
+        handleCancelCoverPhoto,
+        handleOpenCoverPhotoPicker,
+        handleCoverCropChange,
+    } = useProfileMedia()
+
+    // Follow state
+    const { data: isFollowed } = useCheckIsFollowing(currentUser?.id, profileId || '')
+    const { mutate: followMutation } = useFollowUser(currentUser?.id || '')
+    const { mutate: unfollowMutation } = useUnfollowUser(currentUser?.id || '')
+
+    // Derived values
+    const isPageLoading = isUserLoading || (!!currentUser && isProfileLoading)
+    const currentCoverPhotoSrc = selectedCoverPhotoSrc ?? profileData?.cover_photo_url ?? null
+    const currentCoverPhotoOffsetY =
+        selectedCoverPhotoSrc && isEditingCoverPhoto
+            ? coverPhotoOffsetY
+            : (profileData?.cover_photo_offset_y ?? savedCoverPhotoOffsetY ?? 0)
+
+    // Handlers
     const handleUpdateProfile = async (values: EditProfileFormValues) => {
-        if (!userReal?.id) return
+        if (!currentUser?.id) return
         // Do db chỉ nhận null chứ k phải "" nên phải chuyển '' thành null nhen
         const cleaned = {
             ...values,
@@ -85,17 +101,6 @@ const Profile = ({ profileId }: ProfileProps) => {
         setOpenEditDialog(false)
     }
 
-    // Handlers Avatar
-    const handleSelectAvatar = (file: File) => {
-        setSelectedAvatarSrc(URL.createObjectURL(file))
-        setIsAvatarDialogOpen(true)
-    }
-
-    const handleCancelAvatarDialog = () => {
-        setIsAvatarDialogOpen(false)
-        setSelectedAvatarSrc(null)
-    }
-
     const handleSaveAvatarDialog = async (croppedFile: File) => {
         try {
             await updateAvatarMutation.mutateAsync(croppedFile)
@@ -104,25 +109,6 @@ const Profile = ({ profileId }: ProfileProps) => {
         } catch (error) {
             console.log('save avatar error:', error)
         }
-    }
-
-    // Handlers CoverPhoto
-    const handleSelectCoverPhoto = (file: File) => {
-        setSelectedCoverPhotoFile(file)
-        setCoverPhotoOffsetX(0)
-        setSelectedCoverPhotoSrc(URL.createObjectURL(file))
-        setCoverPhotoOffsetY(0)
-        setSavedCoverPhotoOffsetY(0)
-        setIsEditingCoverPhoto(true)
-    }
-
-    const handleCancelCoverPhoto = () => {
-        setSelectedCoverPhotoSrc(null)
-        setCoverPhotoOffsetX(0)
-        setCoverPhotoOffsetY(0)
-        setSavedCoverPhotoOffsetY(0)
-        setIsEditingCoverPhoto(false)
-        setSelectedCoverPhotoFile(null)
     }
 
     const handleSaveCoverPhoto = async () => {
@@ -147,10 +133,6 @@ const Profile = ({ profileId }: ProfileProps) => {
         }
     }
 
-    const handleOpenCoverPhotoPicker = () => {
-        coverPhotoInputRef.current?.click()
-    }
-
     const handleFollowUnfollow = () => {
         if (isFollowed) {
             unfollowMutation(profileId!)
@@ -158,26 +140,6 @@ const Profile = ({ profileId }: ProfileProps) => {
             followMutation(profileId!)
         }
     }
-
-    // Cleanup
-    useEffect(() => {
-        return () => {
-            if (selectedAvatarSrc) {
-                URL.revokeObjectURL(selectedAvatarSrc)
-            }
-
-            if (selectedCoverPhotoSrc) {
-                URL.revokeObjectURL(selectedCoverPhotoSrc)
-            }
-        }
-    }, [selectedAvatarSrc, selectedCoverPhotoSrc])
-
-    const currentCoverPhotoSrc = selectedCoverPhotoSrc ?? profileReal?.cover_photo_url ?? null
-
-    const currentCoverPhotoOffsetY =
-        selectedCoverPhotoSrc && isEditingCoverPhoto
-            ? coverPhotoOffsetY
-            : (profileReal?.cover_photo_offset_y ?? savedCoverPhotoOffsetY ?? 0)
 
     if (isPageLoading) {
         return <ProfileLoadingState />
@@ -191,140 +153,54 @@ const Profile = ({ profileId }: ProfileProps) => {
                         {/* Card profile + tab bar dính liền */}
                         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
                             {/* Cover photo */}
-                            <div className="group relative h-28 min-h-[170px] w-full overflow-hidden bg-slate-100 sm:h-36 lg:min-h-[231px]">
-                                {isEditingCoverPhoto && (
-                                    <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-end gap-2 bg-black/25 px-4 py-3">
-                                        <button
-                                            type="button"
-                                            onClick={handleCancelCoverPhoto}
-                                            className="rounded-lg bg-white/20 px-4 py-2 text-sm font-medium text-white"
-                                        >
-                                            Hủy
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleSaveCoverPhoto}
-                                            className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white"
-                                        >
-                                            Lưu thay đổi
-                                        </button>
-                                    </div>
-                                )}
-
-                                {currentCoverPhotoSrc ? (
-                                    isEditingCoverPhoto ? (
-                                        <Cropper
-                                            image={currentCoverPhotoSrc}
-                                            crop={{ x: coverPhotoOffsetX, y: coverPhotoOffsetY }}
-                                            zoom={1}
-                                            minZoom={1}
-                                            maxZoom={1}
-                                            aspect={4.4}
-                                            cropShape="rect"
-                                            showGrid={false}
-                                            objectFit="horizontal-cover"
-                                            restrictPosition
-                                            zoomWithScroll={false}
-                                            onCropChange={(nextCrop) => {
-                                                setCoverPhotoOffsetX(nextCrop.x)
-                                                setCoverPhotoOffsetY(clampCoverOffsetY(nextCrop.y))
-                                            }}
-                                        />
-                                    ) : (
-                                        <img
-                                            src={currentCoverPhotoSrc}
-                                            alt="Cover preview"
-                                            className="h-full w-full object-cover"
-                                            style={{
-                                                objectPosition: `center calc(50% + ${currentCoverPhotoOffsetY}px)`,
-                                            }}
-                                        />
-                                    )
-                                ) : (
-                                    <div className="h-full w-full bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200" />
-                                )}
-
-                                {!isEditingCoverPhoto && (
-                                    <button
-                                        type="button"
-                                        onClick={handleOpenCoverPhotoPicker}
-                                        className="absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full bg-black/55 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 focus-visible:opacity-100"
-                                        aria-label="Đổi ảnh bìa"
-                                    >
-                                        <Pencil className="size-4" />
-                                    </button>
-                                )}
-                            </div>
+                            <ProfileCoverSection
+                                isOwnProfile={isOwnProfile}
+                                isEditingCoverPhoto={isEditingCoverPhoto}
+                                currentCoverPhotoSrc={currentCoverPhotoSrc}
+                                currentCoverPhotoOffsetY={currentCoverPhotoOffsetY}
+                                coverPhotoOffsetX={coverPhotoOffsetX}
+                                coverPhotoOffsetY={coverPhotoOffsetY}
+                                onCancelCoverPhoto={handleCancelCoverPhoto}
+                                onSaveCoverPhoto={handleSaveCoverPhoto}
+                                onOpenCoverPhotoPicker={handleOpenCoverPhotoPicker}
+                                onCoverCropChange={handleCoverCropChange}
+                            />
 
                             <div className="px-5 pb-0">
-                                <div className="-mt-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                                    <div className="flex flex-col items-start gap-3">
-                                        <AvatarUploader
-                                            avatarUrl={
-                                                profileReal?.avatar_url ??
-                                                userReal?.user_metadata?.avatar_url ??
-                                                undefined
-                                            }
-                                            alt={profileReal?.display_name ?? 'Avatar'}
-                                            onFileSelect={handleSelectAvatar}
-                                        />
-                                    </div>
-
-                                    {profileId ? (
-                                        <div className="flex items-center gap-2 sm:justify-end">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleFollowUnfollow()}
-                                                className={
-                                                    isFollowed
-                                                        ? 'rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 transition-colors duration-200 hover:border-red-300 hover:bg-red-100'
-                                                        : 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors duration-200 hover:bg-slate-50'
-                                                }
-                                            >
-                                                {isFollowed ? 'Unfollow' : 'Follow'}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setOpenEditDialog(true)}
-                                                className="bg-primary hover:bg-primary/90 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-white"
-                                            >
-                                                Message
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-2 sm:justify-end">
-                                            <button
-                                                type="button"
-                                                onClick={() => setOpenEditDialog(true)}
-                                                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                                            >
-                                                Edit Profile
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
+                                <ProfileHeaderSection
+                                    isOwnProfile={isOwnProfile}
+                                    profileId={profileId}
+                                    avatarUrl={
+                                        profileData?.avatar_url ?? currentUser?.user_metadata?.avatar_url ?? undefined
+                                    }
+                                    avatarAlt={profileData?.display_name ?? 'Avatar'}
+                                    isFollowed={isFollowed}
+                                    onSelectAvatar={handleSelectAvatar}
+                                    onFollowUnfollow={handleFollowUnfollow}
+                                    onOpenEditDialog={() => setOpenEditDialog(true)}
+                                />
 
                                 {/* Profile info */}
                                 <div className="mt-3">
                                     <h1 className="text-[28px] font-semibold tracking-tight text-slate-900">
-                                        {profileReal?.display_name}
+                                        {profileData?.display_name}
                                     </h1>
-                                    <p className="text-sm text-slate-400">{profileReal?.username}</p>
+                                    <p className="text-sm text-slate-400">{profileData?.username}</p>
                                 </div>
 
-                                <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">{profileReal?.bio}</p>
+                                <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">{profileData?.bio}</p>
 
                                 <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-400">
-                                    {profileReal?.location && (
+                                    {profileData?.location && (
                                         <div className="flex items-center gap-1.5">
                                             <MapPin className="size-4" />
-                                            <span>{profileReal?.location}</span>
+                                            <span>{profileData?.location}</span>
                                         </div>
                                     )}
-                                    {profileReal?.date_of_birth && (
+                                    {profileData?.date_of_birth && (
                                         <div className="flex items-center gap-1.5">
                                             <CalendarDays className="size-4" />
-                                            <span>{formatDateOfBirth(profileReal?.date_of_birth)}</span>
+                                            <span>{formatDateOfBirth(profileData?.date_of_birth)}</span>
                                         </div>
                                     )}
                                 </div>
@@ -356,7 +232,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                         </TabsContent>
 
                         <TabsContent value="following">
-                            <FollowingTab currentUserId={userReal?.id} />
+                            <FollowingTab currentUserId={currentUser?.id} />
                         </TabsContent>
                     </Tabs>
 
@@ -365,17 +241,17 @@ const Profile = ({ profileId }: ProfileProps) => {
                     </div>
                 </section>
 
-                {profileReal && (
+                {isOwnProfile && profileData && (
                     <EditProfileDialog
                         open={openEditDialog}
                         onOpenChange={setOpenEditDialog}
-                        profile={profileReal}
+                        profile={profileData}
                         onSubmit={handleUpdateProfile}
                         isPending={updateProfileMutation.isPending}
                     />
                 )}
 
-                <Aside showTrending={false} user={userReal} />
+                <Aside showTrending={false} user={currentUser} />
             </div>
 
             {/* Hidden file picker for cover photo */}

@@ -1,3 +1,4 @@
+import { SuggestProfile } from '@/core/types/follow.type'
 import { ProfileUpdateData } from '@/core/types/request.type'
 
 export type UpdateProfileResponse = {
@@ -15,4 +16,8 @@ export type UploadCoverPhotoResponse = {
         cover_photo_url: string | null
         cover_photo_offset_y: number | null
     }
+}
+
+export type GetSuggestedProfilesResponse = {
+    profiles: SuggestProfile[]
 }

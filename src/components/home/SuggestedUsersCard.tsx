@@ -1,6 +1,7 @@
 'use client'
+import { useSuggestedProfiles } from '@/apis/follows/follows.query'
 import { useFollowUser } from '@/features/follows/follows.queries'
-import { useSuggestedProfiles } from '@/features/profile/profile.queries'
+
 import { User } from '@supabase/supabase-js'
 import Link from 'next/dist/client/link'
 import React from 'react'
@@ -10,7 +11,7 @@ type SuggestedUsersCardProps = {
 }
 
 const SuggestedUsersCard = ({ user }: SuggestedUsersCardProps) => {
-    const { data: suggestedUsersArray } = useSuggestedProfiles(user?.id)
+    const { data: suggestedUsersArray } = useSuggestedProfiles()
     const { mutate: followMutation } = useFollowUser(user?.id)
 
     return (

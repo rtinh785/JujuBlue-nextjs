@@ -10,14 +10,11 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import InputField from '@/components/form/InputField'
-import { signInWithGoogle } from '@/libs/supabase/auth'
-import { ensureProfileExists } from '@/libs/supabase/profile'
+
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { authKeys } from '@/features/auth/auth.keys'
-import { profileKeys } from '@/features/profile/profile.keys'
+
 import http from '@/apis/axios'
 
-import { e } from 'node_modules/@lingui/react/dist/shared/react.34bf68ab.mjs'
 import { saveAccesTokenToLS, saveRefreshTokenToLS } from '@/utils/auth'
 import authApi from '@/apis/auth/auth.api'
 
@@ -48,7 +45,6 @@ const Login = () => {
                 router.push('/')
             },
             onError: (error: any) => {
-                console.log('login error', error)
                 toast.error(error.response?.data?.message || AUTH_MESSAGES.LOGIN_FAILED, { position: 'top-left' })
             },
         })

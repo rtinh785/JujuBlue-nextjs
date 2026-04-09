@@ -14,14 +14,14 @@ export const useCurrentUser = () => {
     })
 }
 
-export const useMyProfile = () => {
+export const useMyProfile = (enabled = true) => {
     return useQuery({
         queryKey: userKeys.myProfile(),
         queryFn: async () => {
             const res = await userApi.getMyProfile()
-            return res.data.profile
+            return res.data
         },
-        staleTime: 1000 * 60 * 5,
+        enabled,
     })
 }
 
@@ -64,5 +64,17 @@ export const useUpdateCoverPhoto = () => {
             await queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
             await queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
         },
+    })
+}
+
+export const useGetProfile = (userId?: string) => {
+    return useQuery({
+        queryKey: userKeys.getProfile(userId ?? ''),
+        queryFn: async () => {
+            const res = await userApi.getProfileById(userId ?? '')
+            return res.data
+        },
+        staleTime: 1000 * 60 * 5,
+        enabled: !!userId,
     })
 }
