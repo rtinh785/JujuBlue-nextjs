@@ -1,46 +1,20 @@
-import { useFollowingByIds, useUnfollowUser } from '@/features/follows/follows.queries'
-import { useState } from 'react'
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-    DialogClose,
-} from '@/components/base/dialog'
+'use client'
 
-const mockFollowing = [
-    {
-        id: '1',
-        display_name: 'Alex Rivera',
-        username: 'arivera',
-        avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&q=80',
-    },
-    {
-        id: '2',
-        display_name: 'Sarah Chen',
-        username: 'schen',
-        avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80',
-    },
-    {
-        id: '3',
-        display_name: 'Marcus Lee',
-        username: 'mlee',
-        avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80',
-    },
-]
+import { useState } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/base/dialog'
+import { useFollowingList, useUnfollow } from '@/apis/follows/follows.query'
 
 interface FollowingTabProps {
     currentUserId?: string
+    isOwnProfile?: boolean
 }
 
-const FollowingTab = ({ currentUserId }: FollowingTabProps) => {
+const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps) => {
     const [confirmId, setConfirmId] = useState<string | null>(null)
 
-    const { data: following } = useFollowingByIds(currentUserId)
+    const { data: following } = useFollowingList()
     const userToUnfollow = following?.find((u) => u.id === confirmId)
-    const { mutateAsync: unfollowMutation, isPending } = useUnfollowUser(currentUserId)
+    const { mutateAsync: unfollowMutation, isPending } = useUnfollow(currentUserId)
 
     const handleUnfollow = async () => {
         if (!confirmId) return
@@ -51,6 +25,7 @@ const FollowingTab = ({ currentUserId }: FollowingTabProps) => {
             console.log('unfollow error:', error)
         }
     }
+
     return (
         <>
             <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
@@ -80,7 +55,7 @@ const FollowingTab = ({ currentUserId }: FollowingTabProps) => {
                             <li key={user.id} className="flex items-center justify-between gap-4 px-5 py-4">
                                 <div className="flex items-center gap-3">
                                     <img
-                                        src={user.avatar_url}
+                                        src={user.avatar_url ?? ''}
                                         alt={user.display_name}
                                         className="size-10 rounded-full object-cover"
                                     />
@@ -89,13 +64,15 @@ const FollowingTab = ({ currentUserId }: FollowingTabProps) => {
                                         <p className="text-xs text-slate-400">@{user.username}</p>
                                     </div>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setConfirmId(user.id)}
-                                    className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100"
-                                >
-                                    Unfollow
-                                </button>
+                                {isOwnProfile && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfirmId(user.id)}
+                                        className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100"
+                                    >
+                                        Unfollow
+                                    </button>
+                                )}
                             </li>
                         ))}
                     </ul>

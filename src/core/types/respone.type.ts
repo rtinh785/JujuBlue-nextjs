@@ -21,3 +21,9 @@ export type UploadCoverPhotoResponse = {
 export type GetSuggestedProfilesResponse = {
     profiles: SuggestProfile[]
 }
+
+export type GetFollowCount = { following: number; followers: number }
+
+export type GetFollowingList = {
+    profiles: { id: string; username: string; display_name: string; avatar_url: string | null }[]
+}

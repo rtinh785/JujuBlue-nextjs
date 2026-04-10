@@ -10,7 +10,6 @@ import {
     useUpdateCoverPhoto,
     useUpdateMyProfile,
 } from '@/apis/user/user.query'
-import { useCheckIsFollowing, useFollowUser, useUnfollowUser } from '@/features/follows/follows.queries'
 import { useProfileMedia } from '@/hooks/useProfileMedia'
 import EditProfileDialog from '@/modules/Profile/components/EditProfile/EditProfileDialog'
 import type { EditProfileFormValues } from '@/modules/Profile/components/EditProfile/editProfile.schema'
@@ -21,6 +20,8 @@ import ProfileLoadingState from '@/modules/Profile/components/ProfileLoadingStat
 import FollowingTab from '@/modules/Profile/components/Tabs/FollowingTab'
 import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
 import { clampCoverOffsetY, formatDateOfBirth } from '@/utils/helper'
+
+import { useCheckFollowing, useFollow, useUnfollow } from '@/apis/follows/follows.query'
 
 interface ProfileProps {
     profileId?: string
@@ -68,9 +69,9 @@ const Profile = ({ profileId }: ProfileProps) => {
     } = useProfileMedia()
 
     // Follow state
-    const { data: isFollowed } = useCheckIsFollowing(currentUser?.id, profileId || '')
-    const { mutate: followMutation } = useFollowUser(currentUser?.id || '')
-    const { mutate: unfollowMutation } = useUnfollowUser(currentUser?.id || '')
+    const { data: checkFollow } = useCheckFollowing(currentUser?.id, profileId || '')
+    const { mutate: followMutation } = useFollow(currentUser?.id)
+    const { mutate: unfollowMutation } = useUnfollow(currentUser?.id)
 
     // Derived values
     const isPageLoading = isUserLoading || (!!currentUser && isProfileLoading)
@@ -134,7 +135,7 @@ const Profile = ({ profileId }: ProfileProps) => {
     }
 
     const handleFollowUnfollow = () => {
-        if (isFollowed) {
+        if (checkFollow?.isFollowing) {
             unfollowMutation(profileId!)
         } else {
             followMutation(profileId!)
@@ -174,7 +175,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                                         profileData?.avatar_url ?? currentUser?.user_metadata?.avatar_url ?? undefined
                                     }
                                     avatarAlt={profileData?.display_name ?? 'Avatar'}
-                                    isFollowed={isFollowed}
+                                    isFollowed={checkFollow?.isFollowing}
                                     onSelectAvatar={handleSelectAvatar}
                                     onFollowUnfollow={handleFollowUnfollow}
                                     onOpenEditDialog={() => setOpenEditDialog(true)}
@@ -232,7 +233,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                         </TabsContent>
 
                         <TabsContent value="following">
-                            <FollowingTab currentUserId={currentUser?.id} />
+                            <FollowingTab currentUserId={currentUser?.id} isOwnProfile={isOwnProfile} />
                         </TabsContent>
                     </Tabs>
 
