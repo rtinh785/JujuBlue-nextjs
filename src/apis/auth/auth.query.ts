@@ -15,3 +15,18 @@ export const useRegisterMutation = () => {
         mutationFn: authApi.registerAccount,
     })
 }
+
+export const useForgotPasswordMutation = () => {
+    return useMutation({
+        mutationKey: authKeys.forgotPassword(),
+        mutationFn: authApi.forgotPassword,
+    })
+}
+
+export const useResetPasswordMutation = () => {
+    return useMutation({
+        mutationKey: authKeys.resetPassword(),
+        mutationFn: ({ body, accessToken }: { body: { new_password: string }; accessToken: string }) =>
+            authApi.resetPassword(body, accessToken),
+    })
+}

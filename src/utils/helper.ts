@@ -35,3 +35,12 @@ const COVER_MAX_OFFSET_Y = 120
 export const clampCoverOffsetY = (value: number) => {
     return Math.max(-COVER_MAX_OFFSET_Y, Math.min(COVER_MAX_OFFSET_Y, value))
 }
+
+export const getResetAccessToken = () => {
+    if (typeof window === 'undefined') return ''
+
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    const searchParams = new URLSearchParams(window.location.search)
+
+    return hashParams.get('access_token') || searchParams.get('access_token') || ''
+}

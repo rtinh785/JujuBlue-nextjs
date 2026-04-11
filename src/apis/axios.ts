@@ -17,9 +17,11 @@ const http = axios.create({
 http.interceptors.request.use(
     (config) => {
         const access_token = getAccesTokenFromLS()
-        if (access_token) {
+
+        if (!config.headers.Authorization && access_token) {
             config.headers.Authorization = `Bearer ${access_token}`
         }
+
         return config
     },
     (error) => Promise.reject(error),

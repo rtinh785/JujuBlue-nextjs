@@ -1,6 +1,5 @@
 'use client'
 
-import { supabase } from '@/libs/supabase/client'
 import { LoginFormValues, loginSchema } from '@/modules/Login/login.schema'
 import { AUTH_MESSAGES } from '@/core/constants/messages/auth/auth.messages'
 import { yupResolver } from '@hookform/resolvers/yup'

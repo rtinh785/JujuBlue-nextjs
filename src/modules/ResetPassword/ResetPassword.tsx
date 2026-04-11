@@ -2,16 +2,19 @@
 
 import InputField from '@/components/form/InputField'
 import { AUTH_MESSAGES } from '@/core/constants/messages/auth/auth.messages'
-import { supabase } from '@/libs/supabase/client'
+import { useResetPasswordMutation } from '@/apis/auth/auth.query'
 import { RequestResetPasswordFormValues, requestResetPassword } from '@/modules/ResetPassword/resetPassword.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { getResetAccessToken } from '@/utils'
 
 const ResetPassword = () => {
     const router = useRouter()
+    const { mutateAsync: resetPasswordMutation, isPending } = useResetPasswordMutation()
+
     const {
         register,
         handleSubmit,
@@ -25,18 +28,28 @@ const ResetPassword = () => {
     })
 
     const onSubmit = async (values: RequestResetPasswordFormValues) => {
-        const { error } = await supabase.auth.updateUser({
-            password: values.newPassword,
+    const accessToken = getResetAccessToken()
+
+    if (!accessToken) {
+        toast.error('Link reset không hợp lệ hoặc đã hết hạn', { position: 'top-left' })
+        return
+    }
+
+    try {
+        await resetPasswordMutation({
+            body: { new_password: values.newPassword },
+            accessToken,
         })
 
-        if (error) {
-            toast.error(error.message, { position: 'top-left' })
-        } else {
-            toast.success(AUTH_MESSAGES.resetPasswordSuccess, { position: 'top-left' })
-            router.push('/login')
-        }
+        toast.success(AUTH_MESSAGES.resetPasswordSuccess, { position: 'top-left' })
         reset()
+        router.push('/login')
+    } catch (error) {
+        console.log('reset password error:', error)
+        toast.error('Đổi mật khẩu thất bại', { position: 'top-left' })
     }
+}
+
 
     return (
         <section className="flex items-center justify-center bg-white px-4 py-8 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">

@@ -3,14 +3,17 @@
 import InputField from '@/components/form/InputField'
 import { AUTH_MESSAGES } from '@/core/constants/messages/auth/auth.messages'
 import { envConfig } from '@/core/configs/env.config'
-import { supabase } from '@/libs/supabase/client'
+
 import { ForgotPasswordFormValues, forgotPasswordSchema } from '@/modules/ForgotPassword/forgotPassword.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { useForgotPasswordMutation } from '@/apis/auth/auth.query'
 
 const ForgotPassword = () => {
+    const { mutateAsync: forgotPasswordMutation, isPending } = useForgotPasswordMutation()
+
     const {
         register,
         handleSubmit,
@@ -23,18 +26,17 @@ const ForgotPassword = () => {
         },
     })
 
-    const onSubmit = async (values: ForgotPasswordFormValues) => {
-        const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
-            redirectTo: `${envConfig.APP_URL}/reset-password`,
-        })
-
-        if (error) {
-            toast.error(error.message, { position: 'top-left' })
-        } else {
-            toast.success(AUTH_MESSAGES.forgotPasswordSuccess, { position: 'top-left' })
-        }
+    const onSubmit = async (values: { email: string }) => {
+    try {
+        await forgotPasswordMutation({ email: values.email })
+        toast.success('Đã gửi email khôi phục mật khẩu', { position: 'top-left' })
         reset()
+    } catch (error) {
+        console.log('forgot password error:', error)
+        toast.error('Gửi email thất bại', { position: 'top-left' })
     }
+}
+
 
     return (
         <section className="flex items-center justify-center bg-white px-4 py-8 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">
