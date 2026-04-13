@@ -12,7 +12,9 @@ import authApi from '@/apis/auth/auth.api'
 import { saveAccesTokenToLS, saveRefreshTokenToLS } from '@/utils/auth'
 import { useRouter } from 'next/navigation'
 import http from '@/apis/axios'
+import { useGuestGuard } from '@/hooks/useGuestGuard'
 const Register = () => {
+    useGuestGuard()
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
     const registerAccountMutation = useMutation({
         mutationFn: authApi.registerAccount,

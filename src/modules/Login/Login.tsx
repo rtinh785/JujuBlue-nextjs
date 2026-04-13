@@ -16,8 +16,10 @@ import http from '@/apis/axios'
 
 import { saveAccesTokenToLS, saveRefreshTokenToLS } from '@/utils/auth'
 import authApi from '@/apis/auth/auth.api'
+import { useGuestGuard } from '@/hooks/useGuestGuard'
 
 const Login = () => {
+    useGuestGuard()
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
     const loginAccountMutation = useMutation({
         mutationFn: authApi.loginAccount,

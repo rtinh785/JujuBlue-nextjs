@@ -10,8 +10,10 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useForgotPasswordMutation } from '@/apis/auth/auth.query'
+import { useGuestGuard } from '@/hooks/useGuestGuard'
 
 const ForgotPassword = () => {
+    useGuestGuard()
     const { mutateAsync: forgotPasswordMutation, isPending } = useForgotPasswordMutation()
 
     const {

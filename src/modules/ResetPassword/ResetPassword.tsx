@@ -10,8 +10,10 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { getResetAccessToken } from '@/utils'
+import { useGuestGuard } from '@/hooks/useGuestGuard'
 
 const ResetPassword = () => {
+    useGuestGuard()
     const router = useRouter()
     const { mutateAsync: resetPasswordMutation, isPending } = useResetPasswordMutation()
 

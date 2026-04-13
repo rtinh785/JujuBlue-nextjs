@@ -1,5 +1,5 @@
 'use client'
-import ComposerCard from '@/components/home/ComposerCard'
+import ComposerCard from '@/components/home/ComposerCard/ComposerCard'
 import PostCard from '@/components/post/PostCard'
 import Aside from '@/components/layout/Aside'
 import type { Post } from '@/core/types/post.type'

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import MobileDrawer from '@/components/layout/MobileDrawer'
 import SearchInput from '@/components/form/SearchInput'
 import NavSection from '@/components/layout/NavSection'
@@ -24,6 +24,7 @@ import authApi from '@/apis/auth/auth.api'
 const Header = () => {
     const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false)
     const router = useRouter()
+    const pathname = usePathname()
     const { data: user, isLoading: isUserLoading } = useCurrentUser()
     const { data: profileData, isLoading: isProfileLoading } = useMyProfile()
 
@@ -32,8 +33,17 @@ const Header = () => {
     const profile = profileData ?? null
 
     const handleSignOut = async () => {
+        const currentUserId = user?.id
+
         await authApi.logoutAccount()
         await queryClient.setQueryData(userKeys.currentUser(), null)
+
+        if (pathname === '/profile' && currentUserId) {
+            router.replace(`/profile/${currentUserId}`)
+            return
+        }
+
+        router.replace('/')
     }
 
     if (isPageLoading) {
@@ -167,7 +177,7 @@ const Header = () => {
                                 <div className="my-1 h-px bg-gray-100" />
 
                                 <DropdownMenuItem
-                                    onClick={() => handleSignOut()}
+                                    onClick={handleSignOut}
                                     className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-50 focus:bg-red-50"
                                 >
                                     <svg

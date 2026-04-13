@@ -22,6 +22,7 @@ import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
 import { clampCoverOffsetY, formatDateOfBirth } from '@/utils/helper'
 
 import { useCheckFollowing, useFollow, useUnfollow } from '@/apis/follows/follows.query'
+import { requireAuthAction } from '@/utils/requireAuthAction'
 
 interface ProfileProps {
     profileId?: string
@@ -30,7 +31,7 @@ interface ProfileProps {
 const Profile = ({ profileId }: ProfileProps) => {
     // Profile queries
     const { data: currentUser, isLoading: isUserLoading } = useCurrentUser()
-    const isOwnProfile = !profileId || profileId === currentUser?.id
+    const isOwnProfile = !!currentUser?.id && (!profileId || profileId === currentUser.id)
     const myProfileQuery = useMyProfile(isOwnProfile)
     const otherProfileQuery = useGetProfile(!isOwnProfile ? profileId : undefined)
     const profileData = isOwnProfile ? myProfileQuery.data : otherProfileQuery.data
@@ -135,11 +136,13 @@ const Profile = ({ profileId }: ProfileProps) => {
     }
 
     const handleFollowUnfollow = () => {
+       requireAuthAction(() => {
         if (checkFollow?.isFollowing) {
             unfollowMutation(profileId!)
         } else {
             followMutation(profileId!)
         }
+    })
     }
 
     if (isPageLoading) {
