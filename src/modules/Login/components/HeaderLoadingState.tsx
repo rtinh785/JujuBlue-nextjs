@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/base/skeleton'
 
 const HeaderLoadingState = () => {
     return (
-        <div className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm">
+        <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm">
             <div className="relative container mx-auto flex items-center justify-between px-3 pt-3 pb-2 after:pointer-events-none after:absolute after:bottom-0 after:left-1/2 after:h-px after:w-screen after:-translate-x-1/2 after:bg-gray-200">
                 {/* Mobile left: hamburger */}
                 <div className="lg:hidden">
@@ -34,7 +34,7 @@ const HeaderLoadingState = () => {
                     <span className="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-white bg-gray-200" />
                 </div>
             </div>
-        </div>
+        </header>
     )
 }
 

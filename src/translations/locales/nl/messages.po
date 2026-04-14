@@ -24,3 +24,6 @@ msgstr "Engels"
 
 msgid "Pseudo"
 msgstr "Pseudo"
+
+msgid "Tiếng Việt"
+msgstr ""

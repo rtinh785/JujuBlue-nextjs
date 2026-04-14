@@ -18,7 +18,7 @@ export const useFeedPosts = () => {
         queryKey: postsKeys.feed(),
         queryFn: async () => {
             const res = await postsApi.getFeed()
-            return res.data.posts
+            return res.data
         },
     })
 }
@@ -31,5 +31,11 @@ export const useProfilePosts = (userId?: string) => {
             return res.data.posts
         },
         enabled: !!userId,
+    })
+}
+
+export const useUploadPostMedia = () => {
+    return useMutation({
+        mutationFn: postsApi.uploadMedia,
     })
 }

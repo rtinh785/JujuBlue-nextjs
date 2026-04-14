@@ -1,1 +1,1 @@
-/*eslint-disable*/module.exports={messages:JSON.parse("{\"KIjvtr\":[\"Nederlands\"],\"M55mLW\":[\"Pseudo\"],\"h1IXFK\":[\"Chinees\"],\"lYGfRP\":[\"Engels\"]}")};
+/*eslint-disable*/module.exports={messages:JSON.parse("{\"KIjvtr\":[\"Nederlands\"],\"M55mLW\":[\"Pseudo\"],\"h1IXFK\":[\"Chinees\"],\"lYGfRP\":[\"Engels\"],\"oIVUkZ\":[\"Tiếng Việt\"]}")};

@@ -12,7 +12,7 @@ const linguiConfig = {
     sourceLocale: DEFAULT_LOCALE,
     pseudoLocale: 'pseudo',
     fallbackLocales: {
-        default: 'en',
+        default: 'vi',
     },
     catalogs: [
         {

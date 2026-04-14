@@ -11,11 +11,13 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { getResetAccessToken } from '@/utils'
 import { useGuestGuard } from '@/hooks/useGuestGuard'
+import { useLingui } from '@lingui/react/macro'
 
 const ResetPassword = () => {
     useGuestGuard()
     const router = useRouter()
     const { mutateAsync: resetPasswordMutation, isPending } = useResetPasswordMutation()
+    const {t}= useLingui()
 
     const {
         register,
@@ -33,7 +35,7 @@ const ResetPassword = () => {
     const accessToken = getResetAccessToken()
 
     if (!accessToken) {
-        toast.error('Link reset không hợp lệ hoặc đã hết hạn', { position: 'top-left' })
+        toast.error(t`Link reset không hợp lệ hoặc đã hết hạn`, { position: 'top-left' })
         return
     }
 

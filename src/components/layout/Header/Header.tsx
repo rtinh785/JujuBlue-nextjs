@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import MobileDrawer from '@/components/layout/MobileDrawer'
@@ -22,11 +22,16 @@ import { userKeys } from '@/apis/user/user.key'
 import authApi from '@/apis/auth/auth.api'
 
 const Header = () => {
+    const [mounted, setMounted] = useState(false)
     const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false)
     const router = useRouter()
     const pathname = usePathname()
     const { data: user, isLoading: isUserLoading } = useCurrentUser()
-    const { data: profileData, isLoading: isProfileLoading } = useMyProfile()
+    const { data: profileData, isLoading: isProfileLoading } = useMyProfile(!!user)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     const isPageLoading = isUserLoading || (!!user && isProfileLoading)
     const queryClient = useQueryClient()
@@ -45,7 +50,9 @@ const Header = () => {
 
         router.replace('/')
     }
-
+    if (!mounted) {
+        return <HeaderLoadingState />
+    }
     if (isPageLoading) {
         return <HeaderLoadingState />
     }

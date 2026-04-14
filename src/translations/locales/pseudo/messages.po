@@ -24,3 +24,6 @@ msgstr "Ëñglïsh"
 
 msgid "Pseudo"
 msgstr "Pšëüdö"
+
+msgid "Tiếng Việt"
+msgstr ""

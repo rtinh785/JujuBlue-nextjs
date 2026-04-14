@@ -16,3 +16,5 @@ export type CheckIsFollow = {
 export type UnFollowRespone = {
     message: string
 }
+
+

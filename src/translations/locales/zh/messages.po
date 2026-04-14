@@ -24,3 +24,6 @@ msgstr "英語"
 
 msgid "Pseudo"
 msgstr "偽"
+
+msgid "Tiếng Việt"
+msgstr ""

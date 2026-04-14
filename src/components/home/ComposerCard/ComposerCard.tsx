@@ -1,11 +1,12 @@
 import { useMyProfile } from '@/apis/user/user.query'
 import MyButton from '@/components/MyButton'
-import { ImagePlus, Globe, Users, Lock, ChevronDown } from 'lucide-react'
+import { ImagePlus, Globe, Users, Lock, ChevronDown, X } from 'lucide-react'
 import { useRef, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { composerSchema, type ComposerFormValues } from '../schema/composer.schema'
-import { useCreatePost } from '@/apis/posts/posts.query'
+import { useCreatePost, useUploadPostMedia } from '@/apis/posts/posts.query'
+import { toast } from 'sonner'
 
 const VISIBILITY_OPTIONS = [
     { value: 'public', label: 'Public', icon: Globe },
@@ -19,7 +20,7 @@ const ComposerCard = () => {
     const dropdownRef = useRef<HTMLDivElement | null>(null)
     const [visibilityOpen, setVisibilityOpen] = useState(false)
     const { mutateAsync: createPostMutation, isPending } = useCreatePost()
-
+    const { mutateAsync: uploadMediaMutation, isPending: isUploadingMedia } = useUploadPostMedia()
     const {
         register,
         handleSubmit,
@@ -43,8 +44,6 @@ const ComposerCard = () => {
     const currentOption = VISIBILITY_OPTIONS.find((o) => o.value === selectedVisibility) ?? VISIBILITY_OPTIONS[0]
     const CurrentIcon = currentOption.icon
 
-    // Đóng dropdown khi click ra ngoài
-
     const handleChooseMedia = () => {
         fileInputRef.current?.click()
     }
@@ -53,11 +52,39 @@ const ComposerCard = () => {
         setValue('media', event.target.files, { shouldValidate: true })
     }
 
+    const handleRemoveMedia = (indexToRemove: number) => {
+        const newFiles = mediaFiles.filter((_, i) => i !== indexToRemove)
+        if (newFiles.length === 0) {
+            setValue('media', null, { shouldValidate: true })
+            if (fileInputRef.current) fileInputRef.current.value = ''
+        } else {
+            const dt = new DataTransfer()
+            newFiles.forEach((f) => dt.items.add(f))
+            setValue('media', dt.files, { shouldValidate: true })
+        }
+    }
+
     const onSubmit = async (values: ComposerFormValues) => {
+        const hasContent = !!values.content?.trim()
+        const hasMedia = !!values.media && values.media.length > 0
+
+        if (!hasContent && !hasMedia) {
+            toast.error('Phải có nội dung hoặc media mới đăng được', { position: 'top-left' })
+            return
+        }
+
+        let uploadedMedia: { url: string; type: 'image' | 'video' }[] | null = null
+
+        if (values.media && values.media.length > 0) {
+            const files = Array.from(values.media)
+            const res = await uploadMediaMutation(files)
+            uploadedMedia = res.data.media
+        }
+
         await createPostMutation({
             content: values.content?.trim() || '',
             visibility: values.visibility,
-            media: null,
+            media: uploadedMedia,
         })
 
         reset({
@@ -143,35 +170,36 @@ const ComposerCard = () => {
                         )}
                     </div>
 
-                    {errors.media && <p className="mt-2 text-xs text-red-500">{errors.media.message}</p>}
-
+                    {/* Media preview */}
                     {mediaFiles.length > 0 && (
                         <div className="mt-4 grid grid-cols-1 gap-3">
                             {mediaFiles.map((file, index) => {
                                 const previewUrl = URL.createObjectURL(file)
+                                const isImage = file.type.startsWith('image/')
 
-                                if (file.type.startsWith('image/')) {
-                                    return (
-                                        <div
-                                            key={`${file.name}-${index}`}
-                                            className="max-h-[500px] min-h-[200px] overflow-hidden rounded-xl"
-                                        >
+                                return (
+                                    <div key={`${file.name}-${index}`} className="group relative">
+                                        {isImage ? (
                                             <img
                                                 src={previewUrl}
                                                 alt={file.name}
-                                                className="h-full max-h-[500px] min-h-[200px] w-full object-cover"
+                                                className="max-h-[500px] min-h-[200px] w-full rounded-xl object-cover"
                                             />
-                                        </div>
-                                    )
-                                }
-
-                                return (
-                                    <video
-                                        key={`${file.name}-${index}`}
-                                        src={previewUrl}
-                                        controls
-                                        className="max-h-[500px] min-h-[200px] w-full rounded-xl object-cover"
-                                    />
+                                        ) : (
+                                            <video
+                                                src={previewUrl}
+                                                controls
+                                                className="max-h-[500px] min-h-[200px] w-full rounded-xl object-cover"
+                                            />
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveMedia(index)}
+                                            className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
+                                        >
+                                            <X className="size-3.5" />
+                                        </button>
+                                    </div>
                                 )
                             })}
                         </div>
@@ -196,10 +224,10 @@ const ComposerCard = () => {
 
                         <button
                             type="submit"
-                            disabled={isPending}
+                            disabled={isPending || isUploadingMedia}
                             className="bg-primary rounded-full px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
                         >
-                            {isPending ? 'Posting...' : 'Post'}
+                            {isPending || isUploadingMedia ? 'Posting...' : 'Post'}
                         </button>
                     </div>
                 </div>
