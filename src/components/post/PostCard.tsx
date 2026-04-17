@@ -1,13 +1,14 @@
 import FeedAction from '@/components/home/FeedAction'
-import { Post } from '@/core/types/post.type'
-import { MessageCircle, Repeat2, Heart, Share2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
-import { useRef, useState, useEffect } from 'react'
+import { Post, PostWithStatus } from '@/core/types/post.type'
+import { MessageCircle, Repeat2, Heart, Share2, MoreHorizontal, Pencil, Trash2, Bookmark } from 'lucide-react'
+import { useRef, useState, useEffect, useOptimistic } from 'react'
 import { formatPostTime } from '../../utils/helper'
 import { VISIBILITY_LABEL_MAP } from '@/core/constants/common.constant'
+import { usebookmarkPost, useLikePost, useUnbookmarkPost, useUnlikePost } from '@/apis/posts/posts.query'
 
 type Props = {
     currentUserId?: string
-    post: Post
+    post: PostWithStatus
     onEdit?: (post: Post) => void
     onDelete?: (postId: string) => void
 }
@@ -16,6 +17,26 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete }: Props) => {
     const isOwner = currentUserId === post.author?.id
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
+    const { mutateAsync: likeMutation } = useLikePost()
+    const { mutateAsync: unlikeMutation } = useUnlikePost()
+    const { mutateAsync: bookmarkeMutation } = usebookmarkPost()
+    const { mutateAsync: unbookmarkeMutation } = useUnbookmarkPost()
+
+    const handleLike = async () => {
+        if (post.is_liked) {
+            await unlikeMutation(post.id)
+        } else {
+            await likeMutation(post.id)
+        }
+    }
+
+    const handleBookmark = async () => {
+        if (post.is_bookmark) {
+            await unbookmarkeMutation(post.id)
+        } else {
+            await bookmarkeMutation(post.id)
+        }
+    }
 
     useEffect(() => {
         if (!menuOpen) return
@@ -125,13 +146,20 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete }: Props) => {
                     )}
 
                     <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                        <FeedAction icon={<Heart className="size-4 fill-current" />} value={post.likes_count} active />
+                        <FeedAction
+                            icon={<Heart className="size-4 fill-current" />}
+                            value={post.likes_count}
+                            active={post.is_liked}
+                            handleOnClick={currentUserId ? handleLike : undefined}
+                        />
                         <FeedAction icon={<MessageCircle className="size-4" />} value={post.comments_count} />
                         <FeedAction icon={<Repeat2 className="size-4" />} value={0} />
 
-                        <button type="button" className="text-slate-400 transition-colors hover:text-slate-600">
-                            <Share2 className="size-4" />
-                        </button>
+                        <FeedAction
+                            icon={<Bookmark className="size-4" />}
+                            active={post.is_bookmark}
+                            handleOnClick={currentUserId ? handleBookmark : undefined}
+                        />
                     </div>
                 </div>
             </div>

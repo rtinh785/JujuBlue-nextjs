@@ -25,4 +25,9 @@ export type Post = {
     author: PostAuthor
 }
 
-export type FeedPosts = Post[]
+export type PostWithStatus = Post & {
+    is_liked: boolean
+    is_bookmark: boolean
+}
+
+export type FeedPosts = PostWithStatus[]

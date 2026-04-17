@@ -25,6 +25,21 @@ const postsApi = {
             },
         })
     },
+    likePost(postId: string) {
+        return http.post(`posts/${postId}/like`)
+    },
+
+    unlikePost(postId: string) {
+        return http.delete(`posts/${postId}/like`)
+    },
+
+    bookmarkPost(postId: string) {
+        return http.post(`posts/${postId}/bookmark`)
+    },
+
+    unBookmarkPost(postId: string) {
+        return http.delete(`posts/${postId}/bookmark`)
+    },
 }
 
 export default postsApi

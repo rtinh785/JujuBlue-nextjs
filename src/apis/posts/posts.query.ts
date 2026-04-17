@@ -20,6 +20,7 @@ export const useFeedPosts = () => {
             const res = await postsApi.getFeed()
             return res.data
         },
+        staleTime: 0,
     })
 }
 
@@ -37,5 +38,57 @@ export const useProfilePosts = (userId?: string) => {
 export const useUploadPostMedia = () => {
     return useMutation({
         mutationFn: postsApi.uploadMedia,
+    })
+}
+
+export const useLikePost = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: postsApi.likePost,
+        onSuccess: async () => {
+            await queryClient.refetchQueries({
+                queryKey: postsKeys.feed(),
+            })
+        },
+    })
+}
+
+export const useUnlikePost = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: postsApi.unlikePost,
+        onSuccess: async () => {
+            await queryClient.refetchQueries({
+                queryKey: postsKeys.feed(),
+            })
+        },
+    })
+}
+
+export const usebookmarkPost = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: postsApi.bookmarkPost,
+        onSuccess: async () => {
+            await queryClient.refetchQueries({
+                queryKey: postsKeys.feed(),
+            })
+        },
+    })
+}
+
+export const useUnbookmarkPost = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: postsApi.unBookmarkPost,
+        onSuccess: async () => {
+            await queryClient.refetchQueries({
+                queryKey: postsKeys.feed(),
+            })
+        },
     })
 }

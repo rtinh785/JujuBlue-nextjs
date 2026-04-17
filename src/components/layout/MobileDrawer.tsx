@@ -4,7 +4,7 @@ import NavSection from '@/components/layout/NavSection'
 import { Profile } from '@/modules/Profile/profile.type'
 import { User } from '@supabase/supabase-js'
 import Link from 'next/link'
-import React from 'react'
+import { EarthIcon, EarthLockIcon } from 'lucide-react'
 interface MobileDrawerProps {
     user: User | undefined
     profile: Profile | null
@@ -85,7 +85,7 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                 <div className="mx-3 my-3 border-t border-gray-100" />
                 {/* Settings section */}
                 <NavSection title="Settings">
-                    <NavItem icon="/images/svg/earth.svg" label="Language" onClick={() => {}} />
+                    <NavItem icon={EarthLockIcon} label="Language" onClick={() => {}} />
                 </NavSection>
                 {/* Spacer */}
                 <div className="flex-1" />

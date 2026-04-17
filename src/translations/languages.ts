@@ -15,6 +15,11 @@ export const languages: Language[] = [
         rtl: false,
     },
     {
+        locale: 'vi',
+        name: msg`Tiếng Việt`,
+        rtl: false,
+    },
+    {
         locale: 'nl',
         name: msg`Dutch`,
         rtl: false,

@@ -9,7 +9,7 @@ const SearchInput = ({ mobileOnly = false, desktopOnly = false }: SearchInputPro
     const visibilityClass = desktopOnly ? 'hidden lg:block' : mobileOnly ? 'block lg:hidden' : 'block'
 
     return (
-        <div className={`relative mx-3 w-full max-w-[200px] flex-1 ${visibilityClass}`}>
+        <div className={`relative mx-3 w-full  flex-1 ${visibilityClass}`}>
             <img
                 src="/images/svg/search.svg"
                 alt="Search"

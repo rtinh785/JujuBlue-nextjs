@@ -14,12 +14,15 @@ import {
     DropdownMenuTrigger,
 } from '@/components/base/dropdown-menu'
 import MyButton from '@/components/MyButton'
+import { Home, MessageSquareText, Bookmark, Earth } from 'lucide-react'
 
 import { useQueryClient } from '@tanstack/react-query'
 import HeaderLoadingState from '@/modules/Login/components/HeaderLoadingState'
 import { useCurrentUser, useMyProfile } from '@/apis/user/user.query'
 import { userKeys } from '@/apis/user/user.key'
 import authApi from '@/apis/auth/auth.api'
+
+import { postsKeys } from '@/apis/posts/posts.key'
 
 const Header = () => {
     const [mounted, setMounted] = useState(false)
@@ -42,7 +45,8 @@ const Header = () => {
 
         await authApi.logoutAccount()
         await queryClient.setQueryData(userKeys.currentUser(), null)
-
+        // await queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
+        await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
         if (pathname === '/profile' && currentUserId) {
             router.replace(`/profile/${currentUserId}`)
             return
@@ -59,7 +63,7 @@ const Header = () => {
 
     return (
         <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm">
-            <div className="relative container mx-auto flex items-center justify-between px-3 pt-3 pb-2 after:pointer-events-none after:absolute after:bottom-0 after:left-1/2 after:h-px after:w-screen after:-translate-x-1/2 after:bg-gray-200">
+            <div className="relative container mx-auto flex items-center justify-between px-3 py-2 after:pointer-events-none after:absolute after:bottom-0 after:left-1/2 after:h-px after:w-screen after:-translate-x-1/2 after:bg-gray-200">
                 <div className="lg:hidden">
                     <MobileDrawer user={user} profile={profile} logOut={handleSignOut} />
                 </div>
@@ -76,14 +80,17 @@ const Header = () => {
                             className="h-1/2 w-[13px] fill-[#fff] object-cover"
                         />
                     </div>
-                    <span className="text-primary text-2xl font-bold">Juju Blue</span>
+                    <SearchInput desktopOnly={true} />
                 </button>
+
+    
 
                 <div className="hidden lg:absolute lg:left-1/2 lg:block lg:-translate-x-1/2">
                     <NavSection isDesktop={true}>
-                        <SearchInput desktopOnly={true} />
-                        {user && <NavItem isDesktop={true} label="Home" href="/home" />}
-                        {user && <NavItem isDesktop={true} label="Messages" href="/messages" />}
+                        {user && <NavItem icon={Home} isDesktop={true} href="/home" />}
+                        {user && <NavItem icon={MessageSquareText} isDesktop={true} href="/messages" />}
+                        {user && <NavItem icon={Bookmark} isDesktop={true} href="/bookmark" />}
+                        {user && <NavItem icon={Earth} isDesktop={true} href="/bookmark" />}
                     </NavSection>
                 </div>
 

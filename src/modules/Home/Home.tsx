@@ -10,8 +10,7 @@ import { useFeedPosts } from '@/apis/posts/posts.query'
 const Home = () => {
     const { data: user } = useCurrentUser()
     const { data: feedPosts } = useFeedPosts()
-    console.log('User nè ', user)
-    console.log('Post nè ', feedPosts)
+
     return (
         <main className="mx-auto w-full max-w-[1180px] px-3 pt-4 pb-10 lg:px-4">
             <div className="relative lg:pr-[344px]">
