@@ -83,14 +83,11 @@ const Header = () => {
                     <SearchInput desktopOnly={true} />
                 </button>
 
-    
-
                 <div className="hidden lg:absolute lg:left-1/2 lg:block lg:-translate-x-1/2">
                     <NavSection isDesktop={true}>
                         {user && <NavItem icon={Home} isDesktop={true} href="/home" />}
                         {user && <NavItem icon={MessageSquareText} isDesktop={true} href="/messages" />}
                         {user && <NavItem icon={Bookmark} isDesktop={true} href="/bookmark" />}
-                        {user && <NavItem icon={Earth} isDesktop={true} href="/bookmark" />}
                     </NavSection>
                 </div>
 
@@ -113,10 +110,11 @@ const Header = () => {
                 </div>
 
                 <div
-                    className="hidden lg:block"
+                    className="hidden lg:flex items-center gap-x-2"
                     onMouseEnter={() => setIsAvatarMenuOpen(true)}
                     onMouseLeave={() => setIsAvatarMenuOpen(false)}
                 >
+                    {user && <NavItem icon={Earth} isDesktop={true} href="/#" />}
                     {user ? (
                         <DropdownMenu modal={false} open={isAvatarMenuOpen} onOpenChange={setIsAvatarMenuOpen}>
                             <DropdownMenuTrigger asChild>

@@ -1,6 +1,6 @@
 import http from '@/apis/axios'
 import { UploadMediaRes } from '@/core/types/media.type'
-import { FeedPosts } from '@/core/types/post.type'
+import { FeedPosts, GetPostCountsRes, MessPostRes } from '@/core/types/post.type'
 
 const postsApi = {
     createPost(body: { content?: string; media?: unknown[] | null; visibility: 'public' | 'followers' | 'private' }) {
@@ -26,20 +26,26 @@ const postsApi = {
         })
     },
     likePost(postId: string) {
-        return http.post(`posts/${postId}/like`)
+        return http.post<MessPostRes>(`posts/${postId}/like`)
     },
 
     unlikePost(postId: string) {
-        return http.delete(`posts/${postId}/like`)
+        return http.delete<MessPostRes>(`posts/${postId}/like`)
     },
 
     bookmarkPost(postId: string) {
-        return http.post(`posts/${postId}/bookmark`)
+        return http.post<MessPostRes>(`posts/${postId}/bookmark`)
     },
 
     unBookmarkPost(postId: string) {
-        return http.delete(`posts/${postId}/bookmark`)
+        return http.delete<MessPostRes>(`posts/${postId}/bookmark`)
     },
+    getPostCounts() {
+        return http.get<GetPostCountsRes>('posts/counts')
+    },
+    getBookmarks() {
+    return http.get<FeedPosts>('posts/bookmark')
+},
 }
 
 export default postsApi

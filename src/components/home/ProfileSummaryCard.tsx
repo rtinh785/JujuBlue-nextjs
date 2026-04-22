@@ -1,4 +1,5 @@
 import { useFollowCounts } from '@/apis/follows/follows.query'
+import { useGetPostCounts } from '@/apis/posts/posts.query'
 import { useMyProfile } from '@/apis/user/user.query'
 import Stat from '@/components/home/Stat'
 import { User } from '@supabase/supabase-js'
@@ -10,6 +11,8 @@ type ProfileSummaryCardProps = {
 const ProfileSummaryCard = ({ user }: ProfileSummaryCardProps) => {
     const { data: profileData } = useMyProfile()
     const { data: followCounts } = useFollowCounts()
+    const { data: postCounts } = useGetPostCounts()
+
     return (
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
             <div className="flex items-center gap-3">
@@ -32,7 +35,7 @@ const ProfileSummaryCard = ({ user }: ProfileSummaryCardProps) => {
             <div className="mt-4 grid grid-cols-3 gap-3 text-center">
                 <Stat value={followCounts ? followCounts.following.toString() : '0'} label="Following" />
                 <Stat value={followCounts ? followCounts.followers.toString() : '0'} label="Followers" />
-                <Stat value="0" label="Posts" />
+                <Stat value={postCounts ? postCounts.postsCount.toString() : '0'} label="Posts" />
             </div>
         </section>
     )

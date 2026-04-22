@@ -4,25 +4,31 @@ import { MessageCircle, Repeat2, Heart, Share2, MoreHorizontal, Pencil, Trash2, 
 import { useRef, useState, useEffect, useOptimistic } from 'react'
 import { formatPostTime } from '../../utils/helper'
 import { VISIBILITY_LABEL_MAP } from '@/core/constants/common.constant'
-import { usebookmarkPost, useLikePost, useUnbookmarkPost, useUnlikePost } from '@/apis/posts/posts.query'
+import { useBookmarkPost, useLikePost, useUnbookmarkPost, useUnlikePost } from '@/apis/posts/posts.query'
 
 type Props = {
     currentUserId?: string
     post: PostWithStatus
     onEdit?: (post: Post) => void
     onDelete?: (postId: string) => void
+    onOpenDetail?: (post: PostWithStatus) => void
 }
 
-const PostCard = ({ post, currentUserId, onEdit, onDelete }: Props) => {
+const PostCard = ({ post, currentUserId, onEdit, onDelete, onOpenDetail }: Props) => {
     const isOwner = currentUserId === post.author?.id
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
-    const { mutateAsync: likeMutation } = useLikePost()
-    const { mutateAsync: unlikeMutation } = useUnlikePost()
-    const { mutateAsync: bookmarkeMutation } = usebookmarkPost()
-    const { mutateAsync: unbookmarkeMutation } = useUnbookmarkPost()
+    const { mutateAsync: likeMutation, isPending: isLiking } = useLikePost()
+    const { mutateAsync: unlikeMutation, isPending: isUnliking } = useUnlikePost()
+    const { mutateAsync: bookmarkeMutation, isPending: isBookmarking } = useBookmarkPost()
+    const { mutateAsync: unbookmarkeMutation, isPending: isUnbookmarking } = useUnbookmarkPost()
+
+    const isLikePending = isLiking || isUnliking
+    const isBookmarkPending = isBookmarking || isUnbookmarking
 
     const handleLike = async () => {
+        if (isLikePending) return
+
         if (post.is_liked) {
             await unlikeMutation(post.id)
         } else {
@@ -31,11 +37,18 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete }: Props) => {
     }
 
     const handleBookmark = async () => {
+        if (isBookmarkPending) return
+
         if (post.is_bookmark) {
             await unbookmarkeMutation(post.id)
         } else {
             await bookmarkeMutation(post.id)
         }
+    }
+
+    const handleOpenDetail = () => {
+        if (!currentUserId) return
+        onOpenDetail?.(post)
     }
 
     useEffect(() => {
@@ -118,7 +131,16 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete }: Props) => {
                     <p className="mt-[-4px] w-fit rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400">
                         {VISIBILITY_LABEL_MAP[post.visibility]}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{post.content}</p>
+                    <p
+                        role="button"
+                        tabIndex={0}
+                        onClick={handleOpenDetail}
+                        className={`mt-2 text-sm leading-6 text-slate-600 ${
+                            currentUserId ? 'cursor-pointer' : 'cursor-default'
+                        }`}
+                    >
+                        {post.content}
+                    </p>
                     {post.media && post.media.length > 0 && (
                         <div className="mt-4 space-y-3">
                             {post.media.map((item, index) => {
@@ -128,7 +150,10 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete }: Props) => {
                                             key={`${item.url}-${index}`}
                                             src={item.url}
                                             alt={post.author.display_name}
-                                            className="max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover"
+                                            onClick={handleOpenDetail}
+                                            className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
+                                                currentUserId ? 'cursor-pointer' : 'cursor-default'
+                                            }`}
                                         />
                                     )
                                 }
@@ -137,8 +162,11 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete }: Props) => {
                                     <video
                                         key={`${item.url}-${index}`}
                                         src={item.url}
+                                        onClick={handleOpenDetail}
                                         controls
-                                        className="max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover"
+                                        className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
+                                            currentUserId ? 'cursor-pointer' : 'cursor-default'
+                                        }`}
                                     />
                                 )
                             })}
@@ -150,6 +178,7 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete }: Props) => {
                             icon={<Heart className="size-4 fill-current" />}
                             value={post.likes_count}
                             active={post.is_liked}
+                            disabled={isLikePending}
                             handleOnClick={currentUserId ? handleLike : undefined}
                         />
                         <FeedAction icon={<MessageCircle className="size-4" />} value={post.comments_count} />
@@ -158,6 +187,7 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete }: Props) => {
                         <FeedAction
                             icon={<Bookmark className="size-4" />}
                             active={post.is_bookmark}
+                            disabled={isBookmarkPending}
                             handleOnClick={currentUserId ? handleBookmark : undefined}
                         />
                     </div>

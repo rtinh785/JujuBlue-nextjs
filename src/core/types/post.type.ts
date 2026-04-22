@@ -31,3 +31,11 @@ export type PostWithStatus = Post & {
 }
 
 export type FeedPosts = PostWithStatus[]
+
+export type MessPostRes = {
+    message: string
+}
+
+export type GetPostCountsRes = {
+    postsCount: number
+}

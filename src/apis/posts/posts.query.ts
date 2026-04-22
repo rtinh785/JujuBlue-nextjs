@@ -9,6 +9,7 @@ export const useCreatePost = () => {
         mutationFn: postsApi.createPost,
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+            await queryClient.invalidateQueries({ queryKey: postsKeys.postCounts() })
         },
     })
 }
@@ -67,15 +68,14 @@ export const useUnlikePost = () => {
     })
 }
 
-export const usebookmarkPost = () => {
+export const useBookmarkPost = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
         mutationFn: postsApi.bookmarkPost,
         onSuccess: async () => {
-            await queryClient.refetchQueries({
-                queryKey: postsKeys.feed(),
-            })
+            await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+            await queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks() })
         },
     })
 }
@@ -86,9 +86,31 @@ export const useUnbookmarkPost = () => {
     return useMutation({
         mutationFn: postsApi.unBookmarkPost,
         onSuccess: async () => {
-            await queryClient.refetchQueries({
-                queryKey: postsKeys.feed(),
-            })
+          await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+            await queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks() })
         },
+    })
+}
+
+export const useGetPostCounts = () => {
+    return useQuery({
+        queryKey: postsKeys.postCounts(),
+        queryFn: async () => {
+            const res = await postsApi.getPostCounts()
+            return res.data
+        },
+        staleTime: 1000 * 60 * 5,
+    })
+}
+
+export const useBookmarkedPosts = () => {
+    return useQuery({
+        queryKey: postsKeys.bookmarks(),
+        queryFn: async () => {
+            const res = await postsApi.getBookmarks()
+            return res.data
+        },
+        staleTime: 0,
+        refetchOnMount: 'always',
     })
 }

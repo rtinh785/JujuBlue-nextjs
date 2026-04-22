@@ -2,15 +2,19 @@
 import ComposerCard from '@/components/home/ComposerCard/ComposerCard'
 import PostCard from '@/components/post/PostCard'
 import Aside from '@/components/layout/Aside'
-
-import React from 'react'
 import { useCurrentUser } from '@/apis/user/user.query'
 import { useFeedPosts } from '@/apis/posts/posts.query'
-
+import PostDetailDialog from '@/components/post/components/PostDetailDialog'
+import { PostWithStatus } from '@/core/types/post.type'
+import { useState } from 'react'
 const Home = () => {
     const { data: user } = useCurrentUser()
     const { data: feedPosts } = useFeedPosts()
+    const [selectedPost, setSelectedPost] = useState<PostWithStatus | null>(null)
 
+    const handleOpenPostDetail = (post: PostWithStatus) => {
+        setSelectedPost(post)
+    }
     return (
         <main className="mx-auto w-full max-w-[1180px] px-3 pt-4 pb-10 lg:px-4">
             <div className="relative lg:pr-[344px]">
@@ -19,7 +23,14 @@ const Home = () => {
 
                     {/* list bai post */}
                     <div className="space-y-4">
-                        {feedPosts?.map((post) => <PostCard key={post.id} post={post} currentUserId={user?.id} />)}
+                        {feedPosts?.map((post) => (
+                            <PostCard
+                                key={post.id}
+                                post={post}
+                                currentUserId={user?.id}
+                                onOpenDetail={handleOpenPostDetail}
+                            />
+                        ))}
                     </div>
                     {/* loading cac bai post */}
                     <div className="flex justify-center pt-2">
@@ -29,6 +40,14 @@ const Home = () => {
 
                 <Aside user={user} />
             </div>
+            <PostDetailDialog
+                post={selectedPost}
+                currentUserId={user?.id}
+                open={!!selectedPost}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedPost(null)
+                }}
+            />
         </main>
     )
 }
