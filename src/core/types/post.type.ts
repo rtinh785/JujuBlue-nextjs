@@ -39,3 +39,21 @@ export type MessPostRes = {
 export type GetPostCountsRes = {
     postsCount: number
 }
+
+export type CommentItem = PostWithStatus & {
+    replies: PostWithStatus[]
+}
+
+export type GetCommentsRes = {
+    comments: CommentItem[]
+}
+
+export type CreateCommentReq = {
+    content?: string
+    media?: unknown[] | null
+    parentPostId?: string
+}
+
+export type CreateCommentRes = {
+    comment: PostWithStatus
+}

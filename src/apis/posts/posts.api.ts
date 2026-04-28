@@ -1,6 +1,13 @@
 import http from '@/apis/axios'
 import { UploadMediaRes } from '@/core/types/media.type'
-import { FeedPosts, GetPostCountsRes, MessPostRes } from '@/core/types/post.type'
+import {
+    CreateCommentReq,
+    CreateCommentRes,
+    FeedPosts,
+    GetCommentsRes,
+    GetPostCountsRes,
+    MessPostRes,
+} from '@/core/types/post.type'
 
 const postsApi = {
     createPost(body: { content?: string; media?: unknown[] | null; visibility: 'public' | 'followers' | 'private' }) {
@@ -44,8 +51,15 @@ const postsApi = {
         return http.get<GetPostCountsRes>('posts/counts')
     },
     getBookmarks() {
-    return http.get<FeedPosts>('posts/bookmark')
-},
+        return http.get<FeedPosts>('posts/bookmark')
+    },
+    getComments(postId: string) {
+        return http.get<GetCommentsRes>(`posts/${postId}/comments`)
+    },
+
+    createComment(postId: string, body: CreateCommentReq) {
+        return http.post<CreateCommentRes>(`posts/${postId}/comments`, body)
+    },
 }
 
 export default postsApi

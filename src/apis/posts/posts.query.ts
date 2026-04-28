@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import postsApi from './posts.api'
 import { postsKeys } from './posts.key'
+import { CreateCommentReq } from '@/core/types/post.type'
 
 export const useCreatePost = () => {
     const queryClient = useQueryClient()
@@ -86,7 +87,7 @@ export const useUnbookmarkPost = () => {
     return useMutation({
         mutationFn: postsApi.unBookmarkPost,
         onSuccess: async () => {
-          await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+            await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
             await queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks() })
         },
     })
@@ -112,5 +113,35 @@ export const useBookmarkedPosts = () => {
         },
         staleTime: 0,
         refetchOnMount: 'always',
+    })
+}
+
+export const useComments = (postId?: string) => {
+    return useQuery({
+        queryKey: postsKeys.comments(postId ?? ''),
+        queryFn: async () => {
+            const res = await postsApi.getComments(postId ?? '')
+            return res.data.comments
+        },
+        enabled: !!postId,
+    })
+}
+
+export const useCreateComment = (postId?: string) => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (body: CreateCommentReq) => postsApi.createComment(postId ?? '', body),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.comments(postId ?? ''),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.feed(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.bookmarks(),
+            })
+        },
     })
 }

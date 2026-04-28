@@ -12,9 +12,19 @@ type Props = {
     onEdit?: (post: Post) => void
     onDelete?: (postId: string) => void
     onOpenDetail?: (post: PostWithStatus) => void
+    onFocusCommentInput?: () => void
+    onOpenComments?: (post: PostWithStatus) => void
 }
 
-const PostCard = ({ post, currentUserId, onEdit, onDelete, onOpenDetail }: Props) => {
+const PostCard = ({
+    post,
+    currentUserId,
+    onEdit,
+    onDelete,
+    onOpenDetail,
+    onFocusCommentInput,
+    onOpenComments,
+}: Props) => {
     const isOwner = currentUserId === post.author?.id
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
@@ -48,6 +58,22 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete, onOpenDetail }: Props
 
     const handleOpenDetail = () => {
         if (!currentUserId) return
+        onOpenDetail?.(post)
+    }
+
+    const handleCommentClick = () => {
+        if (!currentUserId) return
+
+        if (onFocusCommentInput) {
+            onFocusCommentInput()
+            return
+        }
+
+        if (onOpenComments) {
+            onOpenComments(post)
+            return
+        }
+
         onOpenDetail?.(post)
     }
 
@@ -181,7 +207,11 @@ const PostCard = ({ post, currentUserId, onEdit, onDelete, onOpenDetail }: Props
                             disabled={isLikePending}
                             handleOnClick={currentUserId ? handleLike : undefined}
                         />
-                        <FeedAction icon={<MessageCircle className="size-4" />} value={post.comments_count} />
+                        <FeedAction
+                            icon={<MessageCircle className="size-4" />}
+                            value={post.comments_count}
+                            handleOnClick={handleCommentClick}
+                        />
                         <FeedAction icon={<Repeat2 className="size-4" />} value={0} />
 
                         <FeedAction

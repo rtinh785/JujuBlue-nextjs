@@ -11,10 +11,17 @@ const Home = () => {
     const { data: user } = useCurrentUser()
     const { data: feedPosts } = useFeedPosts()
     const [selectedPost, setSelectedPost] = useState<PostWithStatus | null>(null)
+    const [shouldFocusComment, setShouldFocusComment] = useState(false)
 
     const handleOpenPostDetail = (post: PostWithStatus) => {
         setSelectedPost(post)
     }
+
+    const handleOpenPostComments = (post: PostWithStatus) => {
+        setSelectedPost(post)
+        setShouldFocusComment(true)
+    }
+
     return (
         <main className="mx-auto w-full max-w-[1180px] px-3 pt-4 pb-10 lg:px-4">
             <div className="relative lg:pr-[344px]">
@@ -29,6 +36,7 @@ const Home = () => {
                                 post={post}
                                 currentUserId={user?.id}
                                 onOpenDetail={handleOpenPostDetail}
+                                onOpenComments={handleOpenPostComments}
                             />
                         ))}
                     </div>
@@ -44,8 +52,12 @@ const Home = () => {
                 post={selectedPost}
                 currentUserId={user?.id}
                 open={!!selectedPost}
+                shouldFocusComment={shouldFocusComment}
                 onOpenChange={(open) => {
-                    if (!open) setSelectedPost(null)
+                    if (!open) {
+                        setSelectedPost(null)
+                        setShouldFocusComment(false)
+                    }
                 }}
             />
         </main>
