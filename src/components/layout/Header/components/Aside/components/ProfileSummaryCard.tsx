@@ -1,7 +1,7 @@
 import { useFollowCounts } from '@/apis/follows/follows.query'
 import { useGetPostCounts } from '@/apis/posts/posts.query'
 import { useMyProfile } from '@/apis/user/user.query'
-import Stat from '@/components/home/Stat'
+import Stat from '@/components/layout/Header/components/Aside/components/Stat'
 import { User } from '@supabase/supabase-js'
 
 type ProfileSummaryCardProps = {

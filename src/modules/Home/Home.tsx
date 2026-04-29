@@ -1,7 +1,7 @@
 'use client'
 import ComposerCard from '@/components/home/ComposerCard/ComposerCard'
 import PostCard from '@/components/post/PostCard'
-import Aside from '@/components/layout/Aside'
+import Aside from '@/components/layout/Header/components/Aside/Aside'
 import { useCurrentUser } from '@/apis/user/user.query'
 import { useFeedPosts } from '@/apis/posts/posts.query'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'

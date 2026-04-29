@@ -1,7 +1,7 @@
 import FeedAction from '@/components/home/FeedAction'
 import { Post, PostWithStatus } from '@/core/types/post.type'
-import { MessageCircle, Repeat2, Heart, Share2, MoreHorizontal, Pencil, Trash2, Bookmark } from 'lucide-react'
-import { useRef, useState, useEffect, useOptimistic } from 'react'
+import { MessageCircle, Repeat2, Heart, MoreHorizontal, Pencil, Trash2, Bookmark } from 'lucide-react'
+import { useRef, useState, useEffect } from 'react'
 import { formatPostTime } from '../../utils/helper'
 import { VISIBILITY_LABEL_MAP } from '@/core/constants/common.constant'
 import { useBookmarkPost, useLikePost, useUnbookmarkPost, useUnlikePost } from '@/apis/posts/posts.query'
@@ -38,7 +38,6 @@ const PostCard = ({
 
     const handleLike = async () => {
         if (isLikePending) return
-
         if (post.is_liked) {
             await unlikeMutation(post.id)
         } else {
@@ -48,7 +47,6 @@ const PostCard = ({
 
     const handleBookmark = async () => {
         if (isBookmarkPending) return
-
         if (post.is_bookmark) {
             await unbookmarkeMutation(post.id)
         } else {
@@ -63,17 +61,14 @@ const PostCard = ({
 
     const handleCommentClick = () => {
         if (!currentUserId) return
-
         if (onFocusCommentInput) {
             onFocusCommentInput()
             return
         }
-
         if (onOpenComments) {
             onOpenComments(post)
             return
         }
-
         onOpenDetail?.(post)
     }
 
@@ -90,6 +85,7 @@ const PostCard = ({
 
     return (
         <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+            {/* Header */}
             <div className="flex items-start gap-3">
                 {post.author?.avatar_url ? (
                     <img
@@ -107,11 +103,9 @@ const PostCard = ({
                             <h3 className="text-sm font-semibold text-slate-900">
                                 {post.author?.display_name ?? 'Unknown'}
                             </h3>
-
                             {post.author?.username ? (
                                 <span className="text-xs text-slate-400">@{post.author.username}</span>
                             ) : null}
-
                             <span className="text-xs text-slate-300">{formatPostTime(post.created_at)}</span>
                         </div>
 
@@ -154,73 +148,79 @@ const PostCard = ({
                             </div>
                         )}
                     </div>
+
                     <p className="mt-[-4px] w-fit rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400">
                         {VISIBILITY_LABEL_MAP[post.visibility]}
                     </p>
+                </div>
+            </div>
+
+            {/* Body */}
+            <div className="mt-2">
+                {post.content && (
                     <p
                         role="button"
                         tabIndex={0}
                         onClick={handleOpenDetail}
-                        className={`mt-2 text-sm leading-6 text-slate-600 ${
+                        className={`text-sm leading-6 text-slate-600 ${
                             currentUserId ? 'cursor-pointer' : 'cursor-default'
                         }`}
                     >
                         {post.content}
                     </p>
-                    {post.media && post.media.length > 0 && (
-                        <div className="mt-4 space-y-3">
-                            {post.media.map((item, index) => {
-                                if (item.type === 'image') {
-                                    return (
-                                        <img
-                                            key={`${item.url}-${index}`}
-                                            src={item.url}
-                                            alt={post.author.display_name}
-                                            onClick={handleOpenDetail}
-                                            className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
-                                                currentUserId ? 'cursor-pointer' : 'cursor-default'
-                                            }`}
-                                        />
-                                    )
-                                }
+                )}
 
+                {post.media && post.media.length > 0 && (
+                    <div className="mt-3 space-y-3">
+                        {post.media.map((item, index) => {
+                            if (item.type === 'image') {
                                 return (
-                                    <video
+                                    <img
                                         key={`${item.url}-${index}`}
                                         src={item.url}
+                                        alt={post.author.display_name}
                                         onClick={handleOpenDetail}
-                                        controls
                                         className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
                                             currentUserId ? 'cursor-pointer' : 'cursor-default'
                                         }`}
                                     />
                                 )
-                            })}
-                        </div>
-                    )}
-
-                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                        <FeedAction
-                            icon={<Heart className="size-4 fill-current" />}
-                            value={post.likes_count}
-                            active={post.is_liked}
-                            disabled={isLikePending}
-                            handleOnClick={currentUserId ? handleLike : undefined}
-                        />
-                        <FeedAction
-                            icon={<MessageCircle className="size-4" />}
-                            value={post.comments_count}
-                            handleOnClick={handleCommentClick}
-                        />
-                        <FeedAction icon={<Repeat2 className="size-4" />} value={0} />
-
-                        <FeedAction
-                            icon={<Bookmark className="size-4" />}
-                            active={post.is_bookmark}
-                            disabled={isBookmarkPending}
-                            handleOnClick={currentUserId ? handleBookmark : undefined}
-                        />
+                            }
+                            return (
+                                <video
+                                    key={`${item.url}-${index}`}
+                                    src={item.url}
+                                    onClick={handleOpenDetail}
+                                    controls
+                                    className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
+                                        currentUserId ? 'cursor-pointer' : 'cursor-default'
+                                    }`}
+                                />
+                            )
+                        })}
                     </div>
+                )}
+
+                <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                    <FeedAction
+                        icon={<Heart className="size-4 fill-current" />}
+                        value={post.likes_count}
+                        active={post.is_liked}
+                        disabled={isLikePending}
+                        handleOnClick={currentUserId ? handleLike : undefined}
+                    />
+                    <FeedAction
+                        icon={<MessageCircle className="size-4" />}
+                        value={post.comments_count}
+                        handleOnClick={handleCommentClick}
+                    />
+                    <FeedAction icon={<Repeat2 className="size-4" />} value={0} />
+                    <FeedAction
+                        icon={<Bookmark className="size-4" />}
+                        active={post.is_bookmark}
+                        disabled={isBookmarkPending}
+                        handleOnClick={currentUserId ? handleBookmark : undefined}
+                    />
                 </div>
             </div>
         </article>

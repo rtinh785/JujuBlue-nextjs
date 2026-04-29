@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Aside from '@/components/layout/Aside'
+import Aside from '@/components/layout/Header/components/Aside/Aside'
 import { useCurrentUser } from '@/apis/user/user.query'
 import { useBookmarkedPosts } from '@/apis/posts/posts.query'
 import BookmarkItem from './components/BookmarkItem'

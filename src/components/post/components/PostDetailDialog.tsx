@@ -1,10 +1,16 @@
 'use client'
 
 import PostCard from '@/components/post/PostCard'
-import { PostWithStatus } from '@/core/types/post.type'
+import { PostMediaItem, PostWithStatus } from '@/core/types/post.type'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/base/dialog'
-import { useComments, useCreateComment } from '@/apis/posts/posts.query'
+import { useComments, useCreateComment, useUploadPostMedia } from '@/apis/posts/posts.query'
+
 import { useEffect, useRef, useState } from 'react'
+import CommentItem from '@/components/post/components/CommentItem'
+
+import MediaPickerButton from '@/components/post/components/MediaPickerButton'
+import MediaPreviewList from '@/components/post/components/MediaPreviewList'
+import { useMyProfile } from '@/apis/user/user.query'
 
 type Props = {
     post: PostWithStatus | null
@@ -13,15 +19,23 @@ type Props = {
     onOpenChange: (open: boolean) => void
     shouldFocusComment?: boolean
 }
+type ReplyTarget = {
+    parentCommentId: string
+    mentionUsername?: string
+    placement: 'parent' | 'reply'
+} | null
 
 const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocusComment }: Props) => {
     const { data: comments, isLoading } = useComments(post?.id)
     const [commentContent, setCommentContent] = useState('')
+    const [commentMedia, setCommentMedia] = useState<PostMediaItem[]>([])
     const commentInputRef = useRef<HTMLTextAreaElement | null>(null)
     const { mutateAsync: createComment, isPending: isCreatingComment } = useCreateComment(post?.id)
+    const { mutateAsync: uploadPostMedia, isPending: isUploadingCommentMedia } = useUploadPostMedia()
 
-    const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null)
+    const [replyTarget, setReplyTarget] = useState<ReplyTarget>(null)
     const [replyContent, setReplyContent] = useState('')
+    const [replyMedia, setReplyMedia] = useState<PostMediaItem[]>([])
 
     const handleFocusCommentInput = () => {
         commentInputRef.current?.focus()
@@ -31,27 +45,82 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
         })
     }
 
+    const { data: myProfile } = useMyProfile()
+
+    const handleUploadCommentMedia = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(event.target.files ?? [])
+
+        if (files.length === 0) return
+
+        const res = await uploadPostMedia(files)
+        setCommentMedia((prev) => [...prev, ...res.data.media])
+
+        event.target.value = ''
+    }
+
+    const handleUploadReplyMedia = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(event.target.files ?? [])
+
+        if (files.length === 0) return
+
+        const res = await uploadPostMedia(files)
+        setReplyMedia((prev) => [...prev, ...res.data.media])
+
+        event.target.value = ''
+    }
+
+    const handleRemoveReplyMedia = (indexToRemove: number) => {
+        setReplyMedia((prev) => prev.filter((_, index) => index !== indexToRemove))
+    }
+
+    const handleRemoveCommentMedia = (indexToRemove: number) => {
+        setCommentMedia((prev) => prev.filter((_, index) => index !== indexToRemove))
+    }
+
     const handleSubmitComment = async () => {
         const content = commentContent.trim()
 
-        if (!content || !post?.id || isCreatingComment) return
-
-        await createComment({ content })
-        setCommentContent('')
-    }
-
-    const handleSubmitReply = async (parentPostId: string) => {
-        const content = replyContent.trim()
-
-        if (!content || !post?.id || isCreatingComment) return
+        if ((!content && commentMedia.length === 0) || !post?.id || isCreatingComment) return
 
         await createComment({
             content,
-            parentPostId,
+            media: commentMedia,
+        })
+
+        setCommentContent('')
+        setCommentMedia([])
+    }
+
+    const openReplyComposer = (
+        parentCommentId: string,
+        username?: string,
+        placement: 'parent' | 'reply' = 'parent',
+    ) => {
+        setReplyTarget({
+            parentCommentId,
+            mentionUsername: username,
+            placement,
+        })
+
+        setReplyContent(username ? `@${username} ` : '')
+        setReplyMedia([])
+    }
+
+    const handleSubmitReply = async () => {
+        const content = replyContent.trim()
+
+        if ((!content && replyMedia.length === 0) || !post?.id || !replyTarget?.parentCommentId || isCreatingComment)
+            return
+
+        await createComment({
+            content,
+            media: replyMedia,
+            parentPostId: replyTarget.parentCommentId,
         })
 
         setReplyContent('')
-        setReplyingToCommentId(null)
+        setReplyTarget(null)
+        setReplyMedia([])
     }
 
     useEffect(() => {
@@ -80,35 +149,47 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                         <h3 className="text-sm font-semibold text-slate-900">Bình luận</h3>
                         <div className="mt-4 border-t border-slate-100 pt-4">
                             <div className="flex gap-3">
-                                {post.author?.avatar_url ? (
+                                {myProfile?.avatar_url ? (
                                     <img
-                                        src={post.author.avatar_url}
-                                        alt={post.author.display_name}
+                                        src={myProfile.avatar_url}
+                                        alt={myProfile.display_name}
                                         className="size-9 rounded-full object-cover"
                                     />
                                 ) : (
                                     <div className="size-9 rounded-full bg-slate-200" />
                                 )}
 
-                                <div className="flex-1 space-y-3">
-                                    <textarea
-                                        ref={commentInputRef}
-                                        value={commentContent}
-                                        onChange={(event) => setCommentContent(event.target.value)}
-                                        placeholder="Viết bình luận..."
-                                        rows={3}
-                                        className="w-full resize-none rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700 transition outline-none focus:border-slate-300"
-                                    />
+                                <div className="flex-1">
+                                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                                        <textarea
+                                            ref={commentInputRef}
+                                            value={commentContent}
+                                            onChange={(event) => setCommentContent(event.target.value)}
+                                            placeholder="Viết bình luận..."
+                                            rows={2}
+                                            className="max-h-40 w-full resize-none overflow-y-auto px-4 py-3 text-sm text-slate-700 outline-none"
+                                        />
+                                        <MediaPreviewList media={commentMedia} onRemove={handleRemoveCommentMedia} />
 
-                                    <div className="flex justify-end">
-                                        <button
-                                            type="button"
-                                            onClick={handleSubmitComment}
-                                            disabled={!commentContent.trim() || isCreatingComment}
-                                            className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            {isCreatingComment ? 'Đang gửi...' : 'Bình luận'}
-                                        </button>
+                                        <div className="flex items-center justify-between px-4 pt-1 pb-2">
+                                            <MediaPickerButton
+                                                onChange={handleUploadCommentMedia}
+                                                disabled={isUploadingCommentMedia || isCreatingComment}
+                                            />
+
+                                            <button
+                                                type="button"
+                                                onClick={handleSubmitComment}
+                                                disabled={
+                                                    (!commentContent.trim() && commentMedia.length === 0) ||
+                                                    isCreatingComment ||
+                                                    isUploadingCommentMedia
+                                                }
+                                                className="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                            >
+                                                {isCreatingComment ? 'Đang gửi...' : 'Bình luận'}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -118,99 +199,27 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                         ) : comments && comments.length > 0 ? (
                             <div className="mt-4 space-y-4">
                                 {comments.map((comment) => (
-                                    <div key={comment.id} className="space-y-3">
-                                        <div className="flex gap-3">
-                                            {comment.author?.avatar_url ? (
-                                                <img
-                                                    src={comment.author.avatar_url}
-                                                    alt={comment.author.display_name}
-                                                    className="size-9 rounded-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="size-9 rounded-full bg-slate-200" />
-                                            )}
-
-                                            <div className="min-w-0 flex-1">
-                                                <div className="rounded-2xl bg-slate-100 px-4 py-3">
-                                                    <p className="text-sm font-semibold text-slate-900">
-                                                        {comment.author?.display_name ?? 'Unknown'}
-                                                    </p>
-                                                    <p className="mt-1 text-sm text-slate-600">{comment.content}</p>
-                                                </div>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setReplyingToCommentId(comment.id)
-                                                        setReplyContent('')
-                                                    }}
-                                                    className="mt-2 text-xs font-medium text-slate-500 transition hover:text-slate-700"
-                                                >
-                                                    Trả lời
-                                                </button>
-                                                {replyingToCommentId === comment.id && (
-                                                    <div className="mt-3 ml-4 space-y-3">
-                                                        <textarea
-                                                            value={replyContent}
-                                                            onChange={(event) => setReplyContent(event.target.value)}
-                                                            placeholder={`Trả lời ${comment.author?.display_name ?? 'comment'}...`}
-                                                            rows={2}
-                                                            className="w-full resize-none rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700 transition outline-none focus:border-slate-300"
-                                                        />
-
-                                                        <div className="flex justify-end gap-2">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    setReplyingToCommentId(null)
-                                                                    setReplyContent('')
-                                                                }}
-                                                                className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-                                                            >
-                                                                Huỷ
-                                                            </button>
-
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleSubmitReply(comment.id)}
-                                                                disabled={!replyContent.trim() || isCreatingComment}
-                                                                className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-                                                            >
-                                                                {isCreatingComment ? 'Đang gửi...' : 'Trả lời'}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {comment.replies.length > 0 && (
-                                                    <div className="mt-3 ml-4 space-y-3">
-                                                        {comment.replies.map((reply) => (
-                                                            <div key={reply.id} className="flex gap-3">
-                                                                {reply.author?.avatar_url ? (
-                                                                    <img
-                                                                        src={reply.author.avatar_url}
-                                                                        alt={reply.author.display_name}
-                                                                        className="size-8 rounded-full object-cover"
-                                                                    />
-                                                                ) : (
-                                                                    <div className="size-8 rounded-full bg-slate-200" />
-                                                                )}
-
-                                                                <div className="min-w-0 flex-1 rounded-2xl bg-slate-50 px-4 py-3">
-                                                                    <p className="text-sm font-semibold text-slate-900">
-                                                                        {reply.author?.display_name ?? 'Unknown'}
-                                                                    </p>
-                                                                    <p className="mt-1 text-sm text-slate-600">
-                                                                        {reply.content}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <CommentItem
+                                        key={comment.id}
+                                        comment={comment}
+                                        replyingToCommentId={replyTarget?.parentCommentId ?? null}
+                                        replyPlacement={replyTarget?.placement ?? null}
+                                        replyContent={replyContent}
+                                        replyMedia={replyMedia}
+                                        isCreatingComment={isCreatingComment}
+                                        isUploadingReplyMedia={isUploadingCommentMedia}
+                                        onReplyClick={openReplyComposer}
+                                        onReplyCancel={() => {
+                                            setReplyTarget(null)
+                                            setReplyContent('')
+                                            setReplyMedia([])
+                                        }}
+                                        onReplyChange={setReplyContent}
+                                        onReplySubmit={handleSubmitReply}
+                                        onReplyMediaChange={handleUploadReplyMedia}
+                                        onReplyMediaRemove={handleRemoveReplyMedia}
+                                 
+                                    />
                                 ))}
                             </div>
                         ) : (

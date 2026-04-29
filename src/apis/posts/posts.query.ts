@@ -43,7 +43,7 @@ export const useUploadPostMedia = () => {
     })
 }
 
-export const useLikePost = () => {
+export const useLikePost = (commentPostId?: string) => {
     const queryClient = useQueryClient()
 
     return useMutation({
@@ -52,11 +52,17 @@ export const useLikePost = () => {
             await queryClient.refetchQueries({
                 queryKey: postsKeys.feed(),
             })
+
+            if (commentPostId) {
+                await queryClient.refetchQueries({
+                    queryKey: postsKeys.comments(commentPostId),
+                })
+            }
         },
     })
 }
 
-export const useUnlikePost = () => {
+export const useUnlikePost = (commentPostId?: string) => {
     const queryClient = useQueryClient()
 
     return useMutation({
@@ -65,6 +71,12 @@ export const useUnlikePost = () => {
             await queryClient.refetchQueries({
                 queryKey: postsKeys.feed(),
             })
+
+            if (commentPostId) {
+                await queryClient.refetchQueries({
+                    queryKey: postsKeys.comments(commentPostId),
+                })
+            }
         },
     })
 }

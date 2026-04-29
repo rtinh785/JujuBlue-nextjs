@@ -1,6 +1,6 @@
-import ProfileSummaryCard from '@/components/home/ProfileSummaryCard'
-import SuggestedUsersCard from '@/components/home/SuggestedUsersCard'
-import TrendingCard from '@/components/home/TrendingCard'
+import ProfileSummaryCard from '@/components/layout/Header/components/Aside/components/ProfileSummaryCard'
+import SuggestedUsersCard from '@/components/layout/Header/components/Aside/components/SuggestedUsersCard'
+import TrendingCard from '@/components/layout/Header/components/Aside/components/TrendingCard'
 import { User } from '@supabase/supabase-js'
 import React from 'react'
 

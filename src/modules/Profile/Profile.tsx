@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CalendarDays, MapPin } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/base/tabs'
-import Aside from '@/components/layout/Aside'
+import Aside from '@/components/layout/Header/components/Aside/Aside'
 import {
     useCurrentUser,
     useGetProfile,
@@ -232,7 +232,7 @@ const Profile = ({ profileId }: ProfileProps) => {
 
                         {/* Content bên dưới */}
                         <TabsContent value="posts">
-                            <PostsTab />
+                            {/* <PostsTab /> */}
                         </TabsContent>
 
                         <TabsContent value="following">

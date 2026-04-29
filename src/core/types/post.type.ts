@@ -50,7 +50,7 @@ export type GetCommentsRes = {
 
 export type CreateCommentReq = {
     content?: string
-    media?: unknown[] | null
+    media?: PostMediaItem[] | null
     parentPostId?: string
 }
 
