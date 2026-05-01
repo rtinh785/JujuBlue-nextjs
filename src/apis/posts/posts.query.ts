@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import postsApi from './posts.api'
 import { postsKeys } from './posts.key'
-import { CreateCommentReq } from '@/core/types/post.type'
+import { CreateCommentReq, UpdatePostReq } from '@/core/types/post.type'
 
 export const useCreatePost = () => {
     const queryClient = useQueryClient()
@@ -11,6 +11,38 @@ export const useCreatePost = () => {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
             await queryClient.invalidateQueries({ queryKey: postsKeys.postCounts() })
+        },
+    })
+}
+
+export const useUpdatePost = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ postId, body }: { postId: string; body: UpdatePostReq }) => postsApi.updatePost(postId, body),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.feed(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.bookmarks(),
+            })
+        },
+    })
+}
+
+export const useDeletePost = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (postId: string) => postsApi.deletePost(postId),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.feed(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.bookmarks(),
+            })
         },
     })
 }

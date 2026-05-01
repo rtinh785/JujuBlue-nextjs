@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/base/dialog'
 import { useFollowingList, useUnfollow } from '@/apis/follows/follows.query'
-
+import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
+import { UserMinus } from 'lucide-react'
 interface FollowingTabProps {
     currentUserId?: string
     isOwnProfile?: boolean
@@ -17,7 +17,8 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
     const { mutateAsync: unfollowMutation, isPending } = useUnfollow(currentUserId)
 
     const handleUnfollow = async () => {
-        if (!confirmId) return
+        if (!confirmId || isPending) return
+
         try {
             await unfollowMutation(confirmId)
             setConfirmId(null)
@@ -80,50 +81,19 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
             </section>
 
             {/* Confirm dialog dùng thư viện */}
-            <Dialog
+            <ConfirmActionDialog
                 open={!!confirmId}
+                title={`Huỷ follow ${userToUnfollow?.display_name ?? 'người này'}?`}
+                description="Bạn sẽ không còn thấy người này trong danh sách đang follow."
+                confirmText="Unfollow"
+                loadingText="Đang huỷ..."
+                isLoading={isPending}
+                icon={<UserMinus className="h-4 w-4 text-red-500" />}
                 onOpenChange={(open) => {
                     if (!open) setConfirmId(null)
                 }}
-            >
-                <DialogContent showCloseButton={false} className="gap-0 overflow-hidden px-4 pb-5">
-                    <DialogHeader className="gap-3 p-6 pb-0">
-                        <div className="flex size-11 items-center justify-center rounded-full bg-red-50">
-                            <svg className="size-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1.5}
-                                    d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"
-                                />
-                            </svg>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <DialogTitle className="text-base font-semibold text-slate-900">
-                                Bạn có chắc sẽ huỷ follow {userToUnfollow?.display_name}?
-                            </DialogTitle>
-                        </div>
-                    </DialogHeader>
-
-                    <DialogFooter className="mt-6 border-t-0 pb-2">
-                        <button
-                            type="button"
-                            onClick={() => handleUnfollow()}
-                            className="flex-1 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
-                        >
-                            Unfollow
-                        </button>
-                        <DialogClose asChild>
-                            <button
-                                type="button"
-                                className="flex-1 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                            >
-                                Huỷ
-                            </button>
-                        </DialogClose>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                onConfirm={handleUnfollow}
+            />
         </>
     )
 }

@@ -3,15 +3,25 @@ import { UploadMediaRes } from '@/core/types/media.type'
 import {
     CreateCommentReq,
     CreateCommentRes,
+    DeletePostRes,
     FeedPosts,
     GetCommentsRes,
     GetPostCountsRes,
     MessPostRes,
+    UpdatePostReq,
+    UpdatePostRes,
 } from '@/core/types/post.type'
 
 const postsApi = {
     createPost(body: { content?: string; media?: unknown[] | null; visibility: 'public' | 'followers' | 'private' }) {
         return http.post('posts', body)
+    },
+    updatePost(postId: string, body: UpdatePostReq) {
+        return http.patch<UpdatePostRes>(`posts/${postId}`, body)
+    },
+
+    deletePost(postId: string) {
+        return http.delete<DeletePostRes>(`posts/${postId}`)
     },
     getFeed() {
         return http.get<FeedPosts>('posts/feed')

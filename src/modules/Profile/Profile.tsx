@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CalendarDays, MapPin } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/base/tabs'
 import Aside from '@/components/layout/Header/components/Aside/Aside'
@@ -18,7 +18,6 @@ import ProfileCoverSection from '@/modules/Profile/components/ProfileCoverSectio
 import ProfileHeaderSection from '@/modules/Profile/components/ProfileHeaderSection/ProfileHeaderSection'
 import ProfileLoadingState from '@/modules/Profile/components/ProfileLoadingState'
 import FollowingTab from '@/modules/Profile/components/Tabs/FollowingTab'
-import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
 import { clampCoverOffsetY, formatDateOfBirth } from '@/utils/helper'
 
 import { useCheckFollowing, useFollow, useUnfollow } from '@/apis/follows/follows.query'
@@ -29,6 +28,11 @@ interface ProfileProps {
 }
 
 const Profile = ({ profileId }: ProfileProps) => {
+    const [hasMounted, setHasMounted] = useState(false)
+
+    useEffect(() => {
+        setHasMounted(true)
+    }, [])
     // Profile queries
     const { data: currentUser, isLoading: isUserLoading } = useCurrentUser()
     const isOwnProfile = !!currentUser?.id && (!profileId || profileId === currentUser.id)
@@ -136,16 +140,16 @@ const Profile = ({ profileId }: ProfileProps) => {
     }
 
     const handleFollowUnfollow = () => {
-       requireAuthAction(() => {
-        if (checkFollow?.isFollowing) {
-            unfollowMutation(profileId!)
-        } else {
-            followMutation(profileId!)
-        }
-    })
+        requireAuthAction(() => {
+            if (checkFollow?.isFollowing) {
+                unfollowMutation(profileId!)
+            } else {
+                followMutation(profileId!)
+            }
+        })
     }
 
-    if (isPageLoading) {
+    if (!hasMounted || isPageLoading) {
         return <ProfileLoadingState />
     }
 
@@ -231,9 +235,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                         </section>
 
                         {/* Content bên dưới */}
-                        <TabsContent value="posts">
-                            {/* <PostsTab /> */}
-                        </TabsContent>
+                        <TabsContent value="posts">{/* <PostsTab /> */}</TabsContent>
 
                         <TabsContent value="following">
                             <FollowingTab currentUserId={currentUser?.id} isOwnProfile={isOwnProfile} />

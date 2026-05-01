@@ -57,3 +57,18 @@ export type CreateCommentReq = {
 export type CreateCommentRes = {
     comment: PostWithStatus
 }
+
+export type UpdatePostReq = {
+    content?: string
+    visibility?: 'public' | 'followers' | 'private'
+}
+
+export type UpdatePostRes = {
+    message: string
+    post: PostWithStatus
+}
+
+export type DeletePostRes = {
+    message: string
+    deletedCount: number
+}
