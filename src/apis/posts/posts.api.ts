@@ -19,7 +19,6 @@ const postsApi = {
     updatePost(postId: string, body: UpdatePostReq) {
         return http.patch<UpdatePostRes>(`posts/${postId}`, body)
     },
-
     deletePost(postId: string) {
         return http.delete<DeletePostRes>(`posts/${postId}`)
     },
@@ -45,11 +44,9 @@ const postsApi = {
     likePost(postId: string) {
         return http.post<MessPostRes>(`posts/${postId}/like`)
     },
-
     unlikePost(postId: string) {
         return http.delete<MessPostRes>(`posts/${postId}/like`)
     },
-
     bookmarkPost(postId: string) {
         return http.post<MessPostRes>(`posts/${postId}/bookmark`)
     },

@@ -4,8 +4,17 @@ import { MessageCircle, Repeat2, Heart, MoreHorizontal, Pencil, Trash2, Bookmark
 import { useRef, useState, useEffect } from 'react'
 import { formatPostTime } from '../../utils/helper'
 import { VISIBILITY_LABEL_MAP } from '@/core/constants/common.constant'
-import { useBookmarkPost, useDeletePost, useLikePost, useUnbookmarkPost, useUnlikePost } from '@/apis/posts/posts.query'
+import {
+    useBookmarkPost,
+    useDeletePost,
+    useLikePost,
+    useUnbookmarkPost,
+    useUnlikePost,
+    useUpdatePost,
+} from '@/apis/posts/posts.query'
 import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
+import { EditPostFormValues } from '@/components/post/schema/edit-post.schema'
+import EditPostDialog from '@/components/post/components/EditPostDialog'
 
 type Props = {
     currentUserId?: string
@@ -39,6 +48,9 @@ const PostCard = ({
 
     const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost()
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+    const [editDialogOpen, setEditDialogOpen] = useState(false)
+    const { mutateAsync: updatePost, isPending: isUpdatingPost } = useUpdatePost()
 
     const handleDeletePost = async () => {
         if (isDeletingPost) return
@@ -82,6 +94,17 @@ const PostCard = ({
             return
         }
         onOpenDetail?.(post)
+    }
+
+    const handleUpdatePost = async (body: EditPostFormValues) => {
+        if (isUpdatingPost) return
+
+        await updatePost({
+            postId: post.id,
+            body,
+        })
+
+        setEditDialogOpen(false)
     }
 
     useEffect(() => {
@@ -139,6 +162,7 @@ const PostCard = ({
                                                 onClick={() => {
                                                     onEdit?.(post)
                                                     setMenuOpen(false)
+                                                    setEditDialogOpen(true)
                                                 }}
                                                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
                                             >
@@ -248,6 +272,14 @@ const PostCard = ({
                 icon={<Trash2 className="h-4 w-4 text-red-500" />}
                 onOpenChange={setDeleteDialogOpen}
                 onConfirm={handleDeletePost}
+            />
+
+            <EditPostDialog
+                post={post}
+                open={editDialogOpen}
+                isLoading={isUpdatingPost}
+                onOpenChange={setEditDialogOpen}
+                onSubmit={handleUpdatePost}
             />
         </>
     )

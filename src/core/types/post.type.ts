@@ -61,6 +61,7 @@ export type CreateCommentRes = {
 export type UpdatePostReq = {
     content?: string
     visibility?: 'public' | 'followers' | 'private'
+    media?: PostMediaItem[] | null
 }
 
 export type UpdatePostRes = {
