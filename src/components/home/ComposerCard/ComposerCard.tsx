@@ -1,12 +1,12 @@
 import { useMyProfile } from '@/apis/user/user.query'
-import MyButton from '@/components/MyButton'
 import { ImagePlus, Globe, Users, Lock, ChevronDown, X } from 'lucide-react'
 import { useRef, useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { composerSchema, type ComposerFormValues } from '../schema/composer.schema'
 import { useCreatePost, useUploadPostMedia } from '@/apis/posts/posts.query'
 import { toast } from 'sonner'
+import AutoResizeTextarea from '@/components/common/AutoResizeTextarea'
 
 const VISIBILITY_OPTIONS = [
     { value: 'public', label: 'Public', icon: Globe },
@@ -22,6 +22,7 @@ const ComposerCard = () => {
     const { mutateAsync: createPostMutation, isPending } = useCreatePost()
     const { mutateAsync: uploadMediaMutation, isPending: isUploadingMedia } = useUploadPostMedia()
     const {
+        control,
         register,
         handleSubmit,
         setValue,
@@ -125,11 +126,17 @@ const ComposerCard = () => {
                 )}
 
                 <div className="min-w-0 flex-1">
-                    <input
-                        type="text"
-                        placeholder="What's on your mind?"
-                        className="w-full border-none bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
-                        {...register('content')}
+                    <Controller
+                        control={control}
+                        name="content"
+                        render={({ field }) => (
+                            <AutoResizeTextarea
+                                {...field}
+                                placeholder="What's on your mind?"
+                                rows={2}
+                                className="max-h-[72px] min-h-12 w-full bg-transparent p-0 text-sm leading-6 text-slate-700 placeholder:text-slate-400"
+                            />
+                        )}
                     />
 
                     {/* Visibility Dropdown */}
@@ -205,7 +212,7 @@ const ComposerCard = () => {
                         </div>
                     )}
 
-                    <div className="mt-5 flex items-center justify-between">
+                    <div className="mt-3 flex items-center justify-between">
                         <button
                             type="button"
                             onClick={handleChooseMedia}

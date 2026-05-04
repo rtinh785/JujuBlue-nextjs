@@ -1,11 +1,13 @@
 'use client'
-import type { CommentItem, PostMediaItem } from '@/core/types/post.type'
+import type { CommentItem, PostMediaItem, PostWithStatus, UpdatePostReq } from '@/core/types/post.type'
 import FeedAction from '@/components/home/FeedAction'
 import { Heart } from 'lucide-react'
-import { useLikePost, useUnlikePost } from '@/apis/posts/posts.query'
+import { useLikePost, useUnlikePost, useUpdatePost, useUploadPostMedia } from '@/apis/posts/posts.query'
 import { useState } from 'react'
-import MediaPreviewList from '@/components/post/components/MediaPreviewList'
-import MediaPickerButton from '@/components/post/components/MediaPickerButton'
+import OwnerActionMenu from '@/components/post/components/OwnerActionMenu'
+import InlinePostEditor from '@/components/post/components/InlinePostEditor'
+import ReplyComposer from '@/components/post/components/ReplyComposer'
+import PostMediaViewer from '@/components/post/components/PostMediaViewer'
 
 type Props = {
     comment: CommentItem
@@ -15,13 +17,16 @@ type Props = {
     replyPlacement: 'parent' | 'reply' | null
     replyMedia: PostMediaItem[]
     isUploadingReplyMedia: boolean
-    replyMentionUsername?: string
     onReplyClick: (parentCommentId: string, username?: string, placement?: 'parent' | 'reply') => void
     onReplyCancel: () => void
     onReplyChange: (value: string) => void
     onReplySubmit: () => void
     onReplyMediaChange: (event: React.ChangeEvent<HTMLInputElement>) => void
     onReplyMediaRemove: (index: number) => void
+    currentUserId?: string
+    deletingPostId?: string | null
+
+    onDeletePost: (post: PostWithStatus) => void
 }
 
 const CommentItem = ({
@@ -38,11 +43,22 @@ const CommentItem = ({
     onReplySubmit,
     onReplyMediaChange,
     onReplyMediaRemove,
+    currentUserId,
+    deletingPostId,
+
+    onDeletePost,
 }: Props) => {
     const [pendingLikeIds, setPendingLikeIds] = useState<string[]>([])
 
     const { mutateAsync: likePost } = useLikePost(comment.root_post_id ?? comment.id)
     const { mutateAsync: unlikePost } = useUnlikePost(comment.root_post_id ?? comment.id)
+
+    const [editingPostId, setEditingPostId] = useState<string | null>(null)
+    const [editContent, setEditContent] = useState('')
+    const [editMedia, setEditMedia] = useState<PostMediaItem[]>([])
+
+    const { mutateAsync: uploadPostMedia, isPending: isUploadingEditMedia } = useUploadPostMedia()
+    const { mutateAsync: updatePost, isPending: isUpdatingPost } = useUpdatePost()
 
     const handleLikeTarget = async (targetId: string, isLiked: boolean) => {
         if (pendingLikeIds.includes(targetId)) return
@@ -60,6 +76,49 @@ const CommentItem = ({
         }
     }
 
+    const handleStartEdit = (target: PostWithStatus) => {
+        setEditingPostId(target.id)
+        setEditContent(target.content ?? '')
+        setEditMedia(target.media ?? [])
+    }
+
+    const handleCancelEdit = () => {
+        setEditingPostId(null)
+        setEditContent('')
+        setEditMedia([])
+    }
+
+    const handleUploadEditMedia = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(event.target.files ?? [])
+
+        if (files.length === 0) return
+
+        const res = await uploadPostMedia(files)
+        setEditMedia((prev) => [...prev, ...res.data.media])
+
+        event.target.value = ''
+    }
+
+    const handleSubmitEdit = async (postId: string) => {
+        const content = editContent.trim()
+
+        if ((!content && editMedia.length === 0) || isUpdatingPost || isUploadingEditMedia) return
+
+        await updatePost({
+            postId,
+            body: {
+                content,
+                media: editMedia.length > 0 ? editMedia : null,
+            },
+            rootPostId: comment.root_post_id ?? comment.id,
+        })
+
+        handleCancelEdit()
+    }
+
+    const isCommentOwner = currentUserId === comment.author.id
+    const isEditingComment = editingPostId === comment.id
+
     return (
         <div className="space-y-3">
             <div className="flex gap-3">
@@ -75,37 +134,45 @@ const CommentItem = ({
 
                 <div className="min-w-0 flex-1">
                     <div className="rounded-2xl bg-slate-100 px-4 py-3">
-                        <p className="text-sm font-semibold text-slate-900">
-                            {comment.author?.display_name ?? 'Unknown'}
-                        </p>
+                        <div className="flex items-start justify-between gap-3">
+                            <p className="text-sm font-semibold text-slate-900">
+                                {comment.author?.display_name ?? 'Unknown'}
+                            </p>
 
-                        {comment.content ? <p className="mt-1 text-sm text-slate-600">{comment.content}</p> : null}
+                            {isCommentOwner && (
+                                <OwnerActionMenu
+                                    isDeleting={deletingPostId === comment.id}
+                                    onEdit={() => handleStartEdit(comment)}
+                                    onDelete={() => onDeletePost(comment)}
+                                />
+                            )}
+                        </div>
 
-                        {comment.media && comment.media.length > 0 ? (
-                            <div className="mt-3 space-y-3">
-                                {comment.media.map((item, index) => {
-                                    if (item.type === 'image') {
-                                        return (
-                                            <img
-                                                key={`${item.url}-${index}`}
-                                                src={item.url}
-                                                alt="comment media"
-                                                className="max-h-64 w-1/2 rounded-2xl object-cover"
-                                            />
-                                        )
-                                    }
+                        {isEditingComment ? (
+                            <InlinePostEditor
+                                content={editContent}
+                                media={editMedia}
+                                placeholder="Viết bình luận..."
+                                maxMediaHeightClass="max-h-64"
+                                isSaving={isUpdatingPost}
+                                isUploading={isUploadingEditMedia}
+                                onContentChange={setEditContent}
+                                onMediaChange={handleUploadEditMedia}
+                                onMediaRemove={(index) => {
+                                    setEditMedia((prev) => prev.filter((_, mediaIndex) => mediaIndex !== index))
+                                }}
+                                onCancel={handleCancelEdit}
+                                onSubmit={() => handleSubmitEdit(comment.id)}
+                            />
+                        ) : (
+                            <>
+                                {comment.content ? (
+                                    <p className="mt-1 text-sm text-slate-600">{comment.content}</p>
+                                ) : null}
 
-                                    return (
-                                        <video
-                                            key={`${item.url}-${index}`}
-                                            src={item.url}
-                                            controls
-                                            className="max-h-64 w-1/2 rounded-2xl object-cover"
-                                        />
-                                    )
-                                })}
-                            </div>
-                        ) : null}
+                                <PostMediaViewer media={comment.media} alt="comment media" maxHeightClass="max-h-64" />
+                            </>
+                        )}
                     </div>
 
                     <div className="mt-2 flex items-center gap-3">
@@ -127,165 +194,127 @@ const CommentItem = ({
                     </div>
 
                     {replyingToCommentId === comment.id && replyPlacement === 'parent' && (
-                        <div className="mt-3 ml-4 space-y-3">
-                            <textarea
-                                value={replyContent}
-                                onChange={(event) => onReplyChange(event.target.value)}
-                                placeholder={`Trả lời ${comment.author?.display_name ?? 'comment'}...`}
-                                rows={2}
-                                className="w-full resize-none rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700 transition outline-none focus:border-slate-300"
-                            />
-
-                            <MediaPreviewList media={replyMedia} onRemove={onReplyMediaRemove} />
-
-                            <div className="flex items-center justify-between gap-2">
-                                <MediaPickerButton
-                                    onChange={onReplyMediaChange}
-                                    disabled={isUploadingReplyMedia || isCreatingComment}
-                                />
-
-                                <div className="flex gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={onReplyCancel}
-                                        className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-                                    >
-                                        Huỷ
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={onReplySubmit}
-                                        disabled={
-                                            (!replyContent.trim() && replyMedia.length === 0) ||
-                                            isCreatingComment ||
-                                            isUploadingReplyMedia
-                                        }
-                                        className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        {isCreatingComment ? 'Đang gửi...' : 'Trả lời'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <ReplyComposer
+                            value={replyContent}
+                            placeholder={`Trả lời ${comment.author?.display_name ?? 'comment'}...`}
+                            media={replyMedia}
+                            isCreating={isCreatingComment}
+                            isUploadingMedia={isUploadingReplyMedia}
+                            onChange={onReplyChange}
+                            onSubmit={onReplySubmit}
+                            onCancel={onReplyCancel}
+                            onMediaChange={onReplyMediaChange}
+                            onMediaRemove={onReplyMediaRemove}
+                        />
                     )}
 
                     {comment.replies.length > 0 && (
                         <div className="mt-3 ml-4 space-y-3">
-                            {comment.replies.map((reply) => (
-                                <div key={reply.id} className="flex gap-3">
-                                    {reply.author?.avatar_url ? (
-                                        <img
-                                            src={reply.author.avatar_url}
-                                            alt={reply.author.display_name}
-                                            className="size-8 rounded-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="size-8 rounded-full bg-slate-200" />
-                                    )}
-
-                                    <div className="min-w-0 flex-1">
-                                        <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                                            <p className="text-sm font-semibold text-slate-900">
-                                                {reply.author?.display_name ?? 'Unknown'}
-                                            </p>
-
-                                            {reply.content ? (
-                                                <p className="mt-1 text-sm text-slate-600">{reply.content}</p>
-                                            ) : null}
-
-                                            {reply.media && reply.media.length > 0 ? (
-                                                <div className="mt-3 space-y-3">
-                                                    {reply.media.map((item, index) => {
-                                                        if (item.type === 'image') {
-                                                            return (
-                                                                <img
-                                                                    key={`${item.url}-${index}`}
-                                                                    src={item.url}
-                                                                    alt="reply media"
-                                                                    className="max-h-56 w-1/2 rounded-2xl object-cover"
-                                                                />
-                                                            )
-                                                        }
-
-                                                        return (
-                                                            <video
-                                                                key={`${item.url}-${index}`}
-                                                                src={item.url}
-                                                                controls
-                                                                className="max-h-56 w-1/2 rounded-2xl object-cover"
-                                                            />
-                                                        )
-                                                    })}
-                                                </div>
-                                            ) : null}
-                                        </div>
-
-                                        <div className="mt-2 flex items-center gap-3">
-                                            <FeedAction
-                                                icon={<Heart className="size-4 fill-current" />}
-                                                value={reply.likes_count}
-                                                active={reply.is_liked}
-                                                disabled={pendingLikeIds.includes(reply.id)}
-                                                handleOnClick={() => handleLikeTarget(reply.id, reply.is_liked)}
+                            {comment.replies.map((reply) => {
+                                const isEditingReply = editingPostId === reply.id
+                                return (
+                                    <div key={reply.id} className="flex gap-3">
+                                        {reply.author?.avatar_url ? (
+                                            <img
+                                                src={reply.author.avatar_url}
+                                                alt={reply.author.display_name}
+                                                className="size-8 rounded-full object-cover"
                                             />
+                                        ) : (
+                                            <div className="size-8 rounded-full bg-slate-200" />
+                                        )}
 
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    onReplyClick(comment.id, reply.author?.username, 'reply')
-                                                }
-                                                className="text-xs font-medium text-slate-500 transition hover:text-slate-700"
-                                            >
-                                                Reply
-                                            </button>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <p className="text-sm font-semibold text-slate-900">
+                                                        {reply.author?.display_name ?? 'Unknown'}
+                                                    </p>
+
+                                                    {currentUserId === reply.author?.id && (
+                                                        <OwnerActionMenu
+                                                            isDeleting={deletingPostId === reply.id}
+                                                            onEdit={() => handleStartEdit(reply)}
+                                                            onDelete={() => onDeletePost(reply)}
+                                                        />
+                                                    )}
+                                                </div>
+
+                                                {isEditingReply ? (
+                                                    <InlinePostEditor
+                                                        content={editContent}
+                                                        media={editMedia}
+                                                        placeholder="Viết trả lời..."
+                                                        maxMediaHeightClass="max-h-56"
+                                                        isSaving={isUpdatingPost}
+                                                        isUploading={isUploadingEditMedia}
+                                                        onContentChange={setEditContent}
+                                                        onMediaChange={handleUploadEditMedia}
+                                                        onMediaRemove={(index) => {
+                                                            setEditMedia((prev) =>
+                                                                prev.filter((_, mediaIndex) => mediaIndex !== index),
+                                                            )
+                                                        }}
+                                                        onCancel={handleCancelEdit}
+                                                        onSubmit={() => handleSubmitEdit(reply.id)}
+                                                    />
+                                                ) : (
+                                                    <>
+                                                        {reply.content ? (
+                                                            <p className="mt-1 text-sm text-slate-600">
+                                                                {reply.content}
+                                                            </p>
+                                                        ) : null}
+
+                                                        <PostMediaViewer
+                                                            media={reply.media}
+                                                            alt="reply media"
+                                                            maxHeightClass="max-h-56"
+                                                            widthClass="w-1/2"
+                                                        />
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            <div className="mt-2 flex items-center gap-3">
+                                                <FeedAction
+                                                    icon={<Heart className="size-4 fill-current" />}
+                                                    value={reply.likes_count}
+                                                    active={reply.is_liked}
+                                                    disabled={pendingLikeIds.includes(reply.id)}
+                                                    handleOnClick={() => handleLikeTarget(reply.id, reply.is_liked)}
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        onReplyClick(comment.id, reply.author?.username, 'reply')
+                                                    }
+                                                    className="text-xs font-medium text-slate-500 transition hover:text-slate-700"
+                                                >
+                                                    Reply
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
 
                     {replyingToCommentId === comment.id && replyPlacement === 'reply' && (
-                        <div className="mt-3 ml-4 space-y-3">
-                            <textarea
-                                value={replyContent}
-                                onChange={(event) => onReplyChange(event.target.value)}
-                                placeholder={`Trả lời ${comment.author?.display_name ?? 'comment'}...`}
-                                rows={2}
-                                className="w-full resize-none rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700 transition outline-none focus:border-slate-300"
-                            />
-                            <MediaPreviewList media={replyMedia} onRemove={onReplyMediaRemove} />
-                            <div className="flex items-center justify-between gap-2">
-                                <MediaPickerButton
-                                    onChange={onReplyMediaChange}
-                                    disabled={isUploadingReplyMedia || isCreatingComment}
-                                />
-
-                                <div className="flex gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={onReplyCancel}
-                                        className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-                                    >
-                                        Huỷ
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={onReplySubmit}
-                                        disabled={
-                                            (!replyContent.trim() && replyMedia.length === 0) ||
-                                            isCreatingComment ||
-                                            isUploadingReplyMedia
-                                        }
-                                        className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        {isCreatingComment ? 'Đang gửi...' : 'Trả lời'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <ReplyComposer
+                            value={replyContent}
+                            placeholder={`Trả lời ${comment.author?.display_name ?? 'comment'}...`}
+                            media={replyMedia}
+                            isCreating={isCreatingComment}
+                            isUploadingMedia={isUploadingReplyMedia}
+                            onChange={onReplyChange}
+                            onSubmit={onReplySubmit}
+                            onCancel={onReplyCancel}
+                            onMediaChange={onReplyMediaChange}
+                            onMediaRemove={onReplyMediaRemove}
+                        />
                     )}
                 </div>
             </div>

@@ -19,14 +19,22 @@ export const useUpdatePost = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({ postId, body }: { postId: string; body: UpdatePostReq }) => postsApi.updatePost(postId, body),
-        onSuccess: async () => {
+        mutationFn: ({ postId, body }: { postId: string; body: UpdatePostReq; rootPostId?: string }) =>
+            postsApi.updatePost(postId, body),
+        onSuccess: async (_res, variables) => {
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.feed(),
             })
+
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.bookmarks(),
             })
+
+            if (variables.rootPostId) {
+                await queryClient.invalidateQueries({
+                    queryKey: postsKeys.comments(variables.rootPostId),
+                })
+            }
         },
     })
 }
@@ -35,14 +43,21 @@ export const useDeletePost = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: (postId: string) => postsApi.deletePost(postId),
-        onSuccess: async () => {
+        mutationFn: ({ postId }: { postId: string; rootPostId?: string }) => postsApi.deletePost(postId),
+        onSuccess: async (_res, variables) => {
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.feed(),
             })
+
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.bookmarks(),
             })
+
+            if (variables.rootPostId) {
+                await queryClient.invalidateQueries({
+                    queryKey: postsKeys.comments(variables.rootPostId),
+                })
+            }
         },
     })
 }

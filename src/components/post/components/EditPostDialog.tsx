@@ -135,7 +135,7 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                     <span className="text-xs text-slate-300">{formatPostTime(post.created_at)}</span>
                                 </div>
 
-                                {/* Visibility dropdown — same style as ComposerCard */}
+                                {/* Visibility dropdown */}
                                 <div ref={visibilityRef} className="relative mt-2 inline-block">
                                     <button
                                         type="button"
@@ -150,7 +150,7 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                     </button>
 
                                     {visibilityOpen && (
-                                        <div className="absolute left-0 top-full z-10 mt-1.5 w-36 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-md">
+                                        <div className="absolute top-full left-0 z-10 mt-1.5 w-36 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-md">
                                             {VISIBILITY_OPTIONS.map(({ value, label, icon: Icon }) => (
                                                 <button
                                                     key={value}
@@ -176,11 +176,11 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                     )}
                                 </div>
 
-                                {/* Textarea — auto-resize theo nội dung */}
+                                {/* Textarea */}
                                 <textarea
                                     rows={1}
                                     placeholder="Bạn đang nghĩ gì?"
-                                    className="mt-3 w-full resize-none overflow-hidden rounded-2xl  px-4 pr-3 text-sm text-slate-700 outline-none transition focus:border-slate-300"
+                                    className="mt-3 w-full resize-none overflow-hidden rounded-2xl px-4 pr-3 text-sm text-slate-700 transition outline-none focus:border-slate-300"
                                     onInput={(e) => {
                                         const el = e.currentTarget
                                         el.style.height = 'auto'
@@ -196,68 +196,68 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                 {errors.content?.message && (
                                     <p className="mt-1 text-xs text-red-500">{errors.content.message}</p>
                                 )}
+                            </div>
+                        </div>
 
-                                {/* Media preview */}
-                                {editingMedia.length > 0 && (
-                                    <div className="mt-3 flex flex-col gap-2">
-                                        {editingMedia.map((item, index) => (
-                                            <div
-                                                key={`${item.url}-${index}`}
-                                                className="group relative overflow-hidden rounded-2xl"
-                                            >
-                                                {item.type === 'image' ? (
-                                                    <img
-                                                        src={item.url}
-                                                        alt="post media"
-                                                        className="max-h-[500px] min-h-[200px] w-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <video
-                                                        src={item.url}
-                                                        controls
-                                                        className="max-h-[500px] min-h-[200px] w-full object-cover"
-                                                    />
-                                                )}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveMedia(index)}
-                                                    className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/75"
-                                                >
-                                                    <X className="size-4" />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Toolbar */}
-                                <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                                    <label className="flex size-8 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
-                                        <ImagePlus className="size-4" />
-                                        <input
-                                            type="file"
-                                            accept="image/*,video/*"
-                                            multiple
-                                            className="hidden"
-                                            disabled={isUploadingMedia || isLoading}
-                                            onChange={handleUploadMedia}
-                                        />
-                                    </label>
-
-                                    <div className="flex gap-2">
-                                        <Button
+                        {/* ✅ Media preview kéo ra ngoài flex, chiếm full width */}
+                        {editingMedia.length > 0 && (
+                            <div className="mt-3 flex flex-col gap-2">
+                                {editingMedia.map((item, index) => (
+                                    <div
+                                        key={`${item.url}-${index}`}
+                                        className="group relative overflow-hidden rounded-2xl"
+                                    >
+                                        {item.type === 'image' ? (
+                                            <img
+                                                src={item.url}
+                                                alt="post media"
+                                                className="max-h-[500px] min-h-[200px] w-full object-cover"
+                                            />
+                                        ) : (
+                                            <video
+                                                src={item.url}
+                                                controls
+                                                className="max-h-[500px] min-h-[200px] w-full object-cover"
+                                            />
+                                        )}
+                                        <button
                                             type="button"
-                                            variant="outline"
-                                            disabled={isLoading || isUploadingMedia}
-                                            onClick={() => onOpenChange(false)}
+                                            onClick={() => handleRemoveMedia(index)}
+                                            className="absolute top-3 right-3 flex size-8 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/75"
                                         >
-                                            Huỷ
-                                        </Button>
-                                        <Button type="submit" disabled={isLoading || isUploadingMedia}>
-                                            {isLoading || isUploadingMedia ? 'Đang lưu...' : 'Lưu thay đổi'}
-                                        </Button>
+                                            <X className="size-4" />
+                                        </button>
                                     </div>
-                                </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Toolbar */}
+                        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                            <label className="flex size-8 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
+                                <ImagePlus className="size-4" />
+                                <input
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    multiple
+                                    className="hidden"
+                                    disabled={isUploadingMedia || isLoading}
+                                    onChange={handleUploadMedia}
+                                />
+                            </label>
+
+                            <div className="flex gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={isLoading || isUploadingMedia}
+                                    onClick={() => onOpenChange(false)}
+                                >
+                                    Huỷ
+                                </Button>
+                                <Button type="submit" disabled={isLoading || isUploadingMedia}>
+                                    {isLoading || isUploadingMedia ? 'Đang lưu...' : 'Lưu thay đổi'}
+                                </Button>
                             </div>
                         </div>
                     </form>

@@ -1,7 +1,7 @@
 import FeedAction from '@/components/home/FeedAction'
-import { Post, PostWithStatus } from '@/core/types/post.type'
+import { Post, PostWithStatus, UpdatePostReq } from '@/core/types/post.type'
 import { MessageCircle, Repeat2, Heart, MoreHorizontal, Pencil, Trash2, Bookmark } from 'lucide-react'
-import { useRef, useState, useEffect } from 'react'
+import { useState } from 'react'
 import { formatPostTime } from '../../utils/helper'
 import { VISIBILITY_LABEL_MAP } from '@/core/constants/common.constant'
 import {
@@ -13,8 +13,8 @@ import {
     useUpdatePost,
 } from '@/apis/posts/posts.query'
 import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
-import { EditPostFormValues } from '@/components/post/schema/edit-post.schema'
 import EditPostDialog from '@/components/post/components/EditPostDialog'
+import OwnerActionMenu from '@/components/post/components/OwnerActionMenu'
 
 type Props = {
     currentUserId?: string
@@ -36,8 +36,7 @@ const PostCard = ({
     onOpenComments,
 }: Props) => {
     const isOwner = currentUserId === post.author?.id
-    const [menuOpen, setMenuOpen] = useState(false)
-    const menuRef = useRef<HTMLDivElement>(null)
+
     const { mutateAsync: likeMutation, isPending: isLiking } = useLikePost()
     const { mutateAsync: unlikeMutation, isPending: isUnliking } = useUnlikePost()
     const { mutateAsync: bookmarkeMutation, isPending: isBookmarking } = useBookmarkPost()
@@ -55,9 +54,18 @@ const PostCard = ({
     const handleDeletePost = async () => {
         if (isDeletingPost) return
 
-        await deletePost(post.id)
+        await deletePost({ postId: post.id })
         onDelete?.(post.id)
         setDeleteDialogOpen(false)
+    }
+
+    const handleOpenEditDialog = () => {
+        onEdit?.(post)
+        setEditDialogOpen(true)
+    }
+
+    const handleOpenDeleteDialog = () => {
+        setDeleteDialogOpen(true)
     }
 
     const handleLike = async () => {
@@ -96,7 +104,7 @@ const PostCard = ({
         onOpenDetail?.(post)
     }
 
-    const handleUpdatePost = async (body: EditPostFormValues) => {
+    const handleUpdatePost = async (body: UpdatePostReq) => {
         if (isUpdatingPost) return
 
         await updatePost({
@@ -106,17 +114,6 @@ const PostCard = ({
 
         setEditDialogOpen(false)
     }
-
-    useEffect(() => {
-        if (!menuOpen) return
-        const handleClickOutside = (e: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setMenuOpen(false)
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [menuOpen])
 
     return (
         <>
@@ -146,44 +143,11 @@ const PostCard = ({
                             </div>
 
                             {isOwner && (
-                                <div ref={menuRef} className="relative">
-                                    <button
-                                        type="button"
-                                        onClick={() => setMenuOpen((prev) => !prev)}
-                                        className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-                                    >
-                                        <MoreHorizontal className="size-4" />
-                                    </button>
-
-                                    {menuOpen && (
-                                        <div className="absolute top-8 right-0 z-10 w-36 rounded-xl border border-slate-200 bg-white py-1 shadow-md">
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    onEdit?.(post)
-                                                    setMenuOpen(false)
-                                                    setEditDialogOpen(true)
-                                                }}
-                                                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
-                                            >
-                                                <Pencil className="size-3.5" />
-                                                Chỉnh sửa
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setMenuOpen(false)
-                                                    setDeleteDialogOpen(true)
-                                                }}
-                                                disabled={isDeletingPost}
-                                                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                                            >
-                                                <Trash2 className="size-3.5" />
-                                                Xoá
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
+                                <OwnerActionMenu
+                                    isDeleting={isDeletingPost}
+                                    onEdit={handleOpenEditDialog}
+                                    onDelete={handleOpenDeleteDialog}
+                                />
                             )}
                         </div>
 

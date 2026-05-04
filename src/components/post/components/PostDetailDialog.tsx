@@ -1,7 +1,7 @@
 'use client'
 
 import PostCard from '@/components/post/PostCard'
-import { PostMediaItem, PostWithStatus } from '@/core/types/post.type'
+import { PostMediaItem, PostWithStatus, UpdatePostReq } from '@/core/types/post.type'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/base/dialog'
 import { useComments, useCreateComment, useUploadPostMedia } from '@/apis/posts/posts.query'
 
@@ -11,6 +11,11 @@ import CommentItem from '@/components/post/components/CommentItem'
 import MediaPickerButton from '@/components/post/components/MediaPickerButton'
 import MediaPreviewList from '@/components/post/components/MediaPreviewList'
 import { useMyProfile } from '@/apis/user/user.query'
+
+import EditPostDialog from '@/components/post/components/EditPostDialog'
+import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
+import { Trash2 } from 'lucide-react'
+import { useDeletePost, useUpdatePost } from '@/apis/posts/posts.query'
 
 type Props = {
     post: PostWithStatus | null
@@ -36,6 +41,11 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
     const [replyTarget, setReplyTarget] = useState<ReplyTarget>(null)
     const [replyContent, setReplyContent] = useState('')
     const [replyMedia, setReplyMedia] = useState<PostMediaItem[]>([])
+
+    const [editingPost, setEditingPost] = useState<PostWithStatus | null>(null)
+    const [deletingPost, setDeletingPost] = useState<PostWithStatus | null>(null)
+    const { mutateAsync: updatePost, isPending: isUpdatingPost } = useUpdatePost()
+    const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost()
 
     const handleFocusCommentInput = () => {
         commentInputRef.current?.focus()
@@ -123,6 +133,28 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
         setReplyMedia([])
     }
 
+    const handleUpdateCommentPost = async (body: UpdatePostReq) => {
+        if (!editingPost || isUpdatingPost) return
+
+        await updatePost({
+            postId: editingPost.id,
+            body,
+            rootPostId: post?.id,
+        })
+
+        setEditingPost(null)
+    }
+
+    const handleDeleteCommentPost = async () => {
+        if (!deletingPost || isDeletingPost) return
+
+        await deletePost({
+            postId: deletingPost.id,
+            rootPostId: post?.id,
+        })
+        setDeletingPost(null)
+    }
+
     useEffect(() => {
         if (!open || !shouldFocusComment) return
 
@@ -202,6 +234,7 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                                     <CommentItem
                                         key={comment.id}
                                         comment={comment}
+                                        currentUserId={currentUserId}
                                         replyingToCommentId={replyTarget?.parentCommentId ?? null}
                                         replyPlacement={replyTarget?.placement ?? null}
                                         replyContent={replyContent}
@@ -218,7 +251,8 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                                         onReplySubmit={handleSubmitReply}
                                         onReplyMediaChange={handleUploadReplyMedia}
                                         onReplyMediaRemove={handleRemoveReplyMedia}
-                                 
+                                        onEditPost={setEditingPost}
+                                        onDeletePost={setDeletingPost}
                                     />
                                 ))}
                             </div>
@@ -231,6 +265,29 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                     </div>
                 </div>
             </DialogContent>
+            <EditPostDialog
+                post={editingPost}
+                open={!!editingPost}
+                isLoading={isUpdatingPost}
+                onOpenChange={(open) => {
+                    if (!open) setEditingPost(null)
+                }}
+                onSubmit={handleUpdateCommentPost}
+            />
+
+            <ConfirmActionDialog
+                open={!!deletingPost}
+                title="Xoá bình luận?"
+                description="Bình luận này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác."
+                confirmText="Xoá bình luận"
+                loadingText="Đang xoá..."
+                isLoading={isDeletingPost}
+                icon={<Trash2 className="h-4 w-4 text-red-500" />}
+                onOpenChange={(open) => {
+                    if (!open) setDeletingPost(null)
+                }}
+                onConfirm={handleDeleteCommentPost}
+            />
         </Dialog>
     )
 }
