@@ -1,7 +1,7 @@
-import FeedAction from '@/components/home/FeedAction'
+import FeedAction from '@/components/common/FeedAction'
 import { Post, PostWithStatus, UpdatePostReq } from '@/core/types/post.type'
-import { MessageCircle, Repeat2, Heart, MoreHorizontal, Pencil, Trash2, Bookmark } from 'lucide-react'
-import { useState } from 'react'
+import { MessageCircle, Repeat2, Heart, Trash2, Bookmark } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { formatPostTime } from '../../utils/helper'
 import { VISIBILITY_LABEL_MAP } from '@/core/constants/common.constant'
 import {
@@ -51,6 +51,8 @@ const PostCard = ({
     const [editDialogOpen, setEditDialogOpen] = useState(false)
     const { mutateAsync: updatePost, isPending: isUpdatingPost } = useUpdatePost()
 
+    const [displayPost, setDisplayPost] = useState(post)
+
     const handleDeletePost = async () => {
         if (isDeletingPost) return
 
@@ -70,19 +72,46 @@ const PostCard = ({
 
     const handleLike = async () => {
         if (isLikePending) return
-        if (post.is_liked) {
-            await unlikeMutation(post.id)
-        } else {
-            await likeMutation(post.id)
+
+        const previousPost = displayPost
+        const nextIsLiked = !displayPost.is_liked
+
+        setDisplayPost((prev) => ({
+            ...prev,
+            is_liked: nextIsLiked,
+            likes_count: Math.max((prev.likes_count ?? 0) + (nextIsLiked ? 1 : -1), 0),
+        }))
+
+        try {
+            if (displayPost.is_liked) {
+                await unlikeMutation(displayPost.id)
+            } else {
+                await likeMutation(displayPost.id)
+            }
+        } catch {
+            setDisplayPost(previousPost)
         }
     }
 
     const handleBookmark = async () => {
         if (isBookmarkPending) return
-        if (post.is_bookmark) {
-            await unbookmarkeMutation(post.id)
-        } else {
-            await bookmarkeMutation(post.id)
+
+        const previousPost = displayPost
+        const nextIsBookmarked = !displayPost.is_bookmark
+
+        setDisplayPost((prev) => ({
+            ...prev,
+            is_bookmark: nextIsBookmarked,
+        }))
+
+        try {
+            if (displayPost.is_bookmark) {
+                await unbookmarkeMutation(displayPost.id)
+            } else {
+                await bookmarkeMutation(displayPost.id)
+            }
+        } catch {
+            setDisplayPost(previousPost)
         }
     }
 
@@ -114,6 +143,10 @@ const PostCard = ({
 
         setEditDialogOpen(false)
     }
+
+    useEffect(() => {
+        setDisplayPost(post)
+    }, [post])
 
     return (
         <>
@@ -206,20 +239,20 @@ const PostCard = ({
                     <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
                         <FeedAction
                             icon={<Heart className="size-4 fill-current" />}
-                            value={post.likes_count}
-                            active={post.is_liked}
+                            value={displayPost.likes_count}
+                            active={displayPost.is_liked}
                             disabled={isLikePending}
                             handleOnClick={currentUserId ? handleLike : undefined}
                         />
                         <FeedAction
                             icon={<MessageCircle className="size-4" />}
-                            value={post.comments_count}
+                            value={displayPost.comments_count}
                             handleOnClick={handleCommentClick}
                         />
                         <FeedAction icon={<Repeat2 className="size-4" />} value={0} />
                         <FeedAction
                             icon={<Bookmark className="size-4" />}
-                            active={post.is_bookmark}
+                            active={displayPost.is_bookmark}
                             disabled={isBookmarkPending}
                             handleOnClick={currentUserId ? handleBookmark : undefined}
                         />

@@ -6,7 +6,9 @@ import {
     DeletePostRes,
     FeedPosts,
     GetCommentsRes,
+    GetPostByIdRes,
     GetPostCountsRes,
+    GetProfilePostsRes,
     MessPostRes,
     UpdatePostReq,
     UpdatePostRes,
@@ -25,8 +27,11 @@ const postsApi = {
     getFeed() {
         return http.get<FeedPosts>('posts/feed')
     },
+    getPostById(postId: string) {
+        return http.get<GetPostByIdRes>(`posts/${postId}`)
+    },
     getProfilePosts(userId: string) {
-        return http.get(`posts/profile/${userId}`)
+        return http.get<GetProfilePostsRes>(`posts/profile/${userId}`)
     },
     uploadMedia(files: File[]) {
         const formData = new FormData()

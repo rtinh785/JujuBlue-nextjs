@@ -59,6 +59,9 @@ const Home = () => {
                         setShouldFocusComment(false)
                     }
                 }}
+                onDeleted={() => {
+                    setSelectedPost(null)
+                }}
             />
         </main>
     )

@@ -1,21 +1,17 @@
 'use client'
 
 import PostCard from '@/components/post/PostCard'
-import { PostMediaItem, PostWithStatus, UpdatePostReq } from '@/core/types/post.type'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/base/dialog'
-import { useComments, useCreateComment, useUploadPostMedia } from '@/apis/posts/posts.query'
-
+import type { PostMediaItem, PostWithStatus } from '@/core/types/post.type'
+import { useComments, useCreateComment, useDeletePost, usePostById, useUploadPostMedia } from '@/apis/posts/posts.query'
 import { useEffect, useRef, useState } from 'react'
 import CommentItem from '@/components/post/components/CommentItem'
 
 import MediaPickerButton from '@/components/post/components/MediaPickerButton'
 import MediaPreviewList from '@/components/post/components/MediaPreviewList'
 import { useMyProfile } from '@/apis/user/user.query'
-
-import EditPostDialog from '@/components/post/components/EditPostDialog'
 import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
 import { Trash2 } from 'lucide-react'
-import { useDeletePost, useUpdatePost } from '@/apis/posts/posts.query'
 
 type Props = {
     post: PostWithStatus | null
@@ -23,6 +19,7 @@ type Props = {
     open: boolean
     onOpenChange: (open: boolean) => void
     shouldFocusComment?: boolean
+    onDeleted?: (postId: string) => void
 }
 type ReplyTarget = {
     parentCommentId: string
@@ -30,21 +27,24 @@ type ReplyTarget = {
     placement: 'parent' | 'reply'
 } | null
 
-const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocusComment }: Props) => {
-    const { data: comments, isLoading } = useComments(post?.id)
+const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocusComment, onDeleted }: Props) => {
+    const postId = post?.id
+    const { data: latestPost } = usePostById(postId)
+
+    const displayPost = latestPost ?? post
+    const { data: comments, isLoading } = useComments(postId)
     const [commentContent, setCommentContent] = useState('')
     const [commentMedia, setCommentMedia] = useState<PostMediaItem[]>([])
     const commentInputRef = useRef<HTMLTextAreaElement | null>(null)
-    const { mutateAsync: createComment, isPending: isCreatingComment } = useCreateComment(post?.id)
+    const { mutateAsync: createComment, isPending: isCreatingComment } = useCreateComment(postId)
+
     const { mutateAsync: uploadPostMedia, isPending: isUploadingCommentMedia } = useUploadPostMedia()
 
     const [replyTarget, setReplyTarget] = useState<ReplyTarget>(null)
     const [replyContent, setReplyContent] = useState('')
     const [replyMedia, setReplyMedia] = useState<PostMediaItem[]>([])
 
-    const [editingPost, setEditingPost] = useState<PostWithStatus | null>(null)
     const [deletingPost, setDeletingPost] = useState<PostWithStatus | null>(null)
-    const { mutateAsync: updatePost, isPending: isUpdatingPost } = useUpdatePost()
     const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost()
 
     const handleFocusCommentInput = () => {
@@ -87,10 +87,11 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
         setCommentMedia((prev) => prev.filter((_, index) => index !== indexToRemove))
     }
 
+    // Tạo comment cấp 1 cho post hiện tại.
     const handleSubmitComment = async () => {
         const content = commentContent.trim()
 
-        if ((!content && commentMedia.length === 0) || !post?.id || isCreatingComment) return
+        if ((!content && commentMedia.length === 0) || !postId || isCreatingComment) return
 
         await createComment({
             content,
@@ -116,10 +117,11 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
         setReplyMedia([])
     }
 
+    // Tạo reply cấp 2. Nếu đang reply vào reply, parent vẫn là comment cha cấp 1.
     const handleSubmitReply = async () => {
         const content = replyContent.trim()
 
-        if ((!content && replyMedia.length === 0) || !post?.id || !replyTarget?.parentCommentId || isCreatingComment)
+        if ((!content && replyMedia.length === 0) || !postId || !replyTarget?.parentCommentId || isCreatingComment)
             return
 
         await createComment({
@@ -133,25 +135,15 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
         setReplyMedia([])
     }
 
-    const handleUpdateCommentPost = async (body: UpdatePostReq) => {
-        if (!editingPost || isUpdatingPost) return
-
-        await updatePost({
-            postId: editingPost.id,
-            body,
-            rootPostId: post?.id,
-        })
-
-        setEditingPost(null)
-    }
-
+    // Xoá comment/reply đang được chọn, rồi refetch lại comments của post gốc.
     const handleDeleteCommentPost = async () => {
-        if (!deletingPost || isDeletingPost) return
+        if (!deletingPost || !postId || isDeletingPost) return
 
         await deletePost({
             postId: deletingPost.id,
-            rootPostId: post?.id,
+            rootPostId: postId,
         })
+
         setDeletingPost(null)
     }
 
@@ -165,17 +157,25 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
         return () => window.clearTimeout(timeout)
     }, [open, shouldFocusComment])
 
-    if (!post) return null
+    if (!displayPost) return null
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-h-[90vh] !max-w-[840px] overflow-y-auto p-0" showCloseButton>
                 <DialogHeader className="border-b border-slate-100 px-4 py-4">
-                    <DialogTitle>Bài viết của {post.author?.display_name ?? 'Unknown'}</DialogTitle>
+                    <DialogTitle>Bài viết của {displayPost.author?.display_name ?? 'Unknown'}</DialogTitle>
                 </DialogHeader>
 
                 <div className="p-4">
-                    <PostCard post={post} currentUserId={currentUserId} onFocusCommentInput={handleFocusCommentInput} />
+                    <PostCard
+                        post={displayPost}
+                        currentUserId={currentUserId}
+                        onFocusCommentInput={handleFocusCommentInput}
+                        onDelete={(postId) => {
+                            onDeleted?.(postId)
+                            onOpenChange(false)
+                        }}
+                    />
 
                     <div className="mt-4 rounded-2xl border border-slate-100 bg-white p-4">
                         <h3 className="text-sm font-semibold text-slate-900">Bình luận</h3>
@@ -251,7 +251,6 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                                         onReplySubmit={handleSubmitReply}
                                         onReplyMediaChange={handleUploadReplyMedia}
                                         onReplyMediaRemove={handleRemoveReplyMedia}
-                                        onEditPost={setEditingPost}
                                         onDeletePost={setDeletingPost}
                                     />
                                 ))}
@@ -265,15 +264,6 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                     </div>
                 </div>
             </DialogContent>
-            <EditPostDialog
-                post={editingPost}
-                open={!!editingPost}
-                isLoading={isUpdatingPost}
-                onOpenChange={(open) => {
-                    if (!open) setEditingPost(null)
-                }}
-                onSubmit={handleUpdateCommentPost}
-            />
 
             <ConfirmActionDialog
                 open={!!deletingPost}

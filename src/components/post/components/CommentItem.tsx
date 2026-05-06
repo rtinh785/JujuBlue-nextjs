@@ -1,6 +1,6 @@
 'use client'
 import type { CommentItem, PostMediaItem, PostWithStatus, UpdatePostReq } from '@/core/types/post.type'
-import FeedAction from '@/components/home/FeedAction'
+import FeedAction from '@/components/common/FeedAction'
 import { Heart } from 'lucide-react'
 import { useLikePost, useUnlikePost, useUpdatePost, useUploadPostMedia } from '@/apis/posts/posts.query'
 import { useState } from 'react'

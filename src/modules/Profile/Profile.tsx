@@ -22,6 +22,9 @@ import { clampCoverOffsetY, formatDateOfBirth } from '@/utils/helper'
 
 import { useCheckFollowing, useFollow, useUnfollow } from '@/apis/follows/follows.query'
 import { requireAuthAction } from '@/utils/requireAuthAction'
+import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
+import PostDetailDialog from '@/components/post/components/PostDetailDialog'
+import type { PostWithStatus } from '@/core/types/post.type'
 
 interface ProfileProps {
     profileId?: string
@@ -40,6 +43,7 @@ const Profile = ({ profileId }: ProfileProps) => {
     const otherProfileQuery = useGetProfile(!isOwnProfile ? profileId : undefined)
     const profileData = isOwnProfile ? myProfileQuery.data : otherProfileQuery.data
     const isProfileLoading = isOwnProfile ? myProfileQuery.isLoading : otherProfileQuery.isLoading
+    const profilePostsUserId = profileId ?? currentUser?.id
 
     // Mutations
     const updateProfileMutation = useUpdateMyProfile()
@@ -48,6 +52,8 @@ const Profile = ({ profileId }: ProfileProps) => {
 
     // Local UI state
     const [openEditDialog, setOpenEditDialog] = useState(false)
+    const [selectedPost, setSelectedPost] = useState<PostWithStatus | null>(null)
+    const [shouldFocusComment, setShouldFocusComment] = useState(false)
 
     // Media state
     const {
@@ -149,6 +155,16 @@ const Profile = ({ profileId }: ProfileProps) => {
         })
     }
 
+    const handleOpenPostDetail = (post: PostWithStatus) => {
+        setSelectedPost(post)
+        setShouldFocusComment(false)
+    }
+
+    const handleOpenPostComments = (post: PostWithStatus) => {
+        setSelectedPost(post)
+        setShouldFocusComment(true)
+    }
+
     if (!hasMounted || isPageLoading) {
         return <ProfileLoadingState />
     }
@@ -235,16 +251,19 @@ const Profile = ({ profileId }: ProfileProps) => {
                         </section>
 
                         {/* Content bên dưới */}
-                        <TabsContent value="posts">{/* <PostsTab /> */}</TabsContent>
+                        <TabsContent value="posts">
+                            <PostsTab
+                                profileId={profilePostsUserId}
+                                currentUserId={currentUser?.id}
+                                onOpenDetail={handleOpenPostDetail}
+                                onOpenComments={handleOpenPostComments}
+                            />
+                        </TabsContent>
 
                         <TabsContent value="following">
                             <FollowingTab currentUserId={currentUser?.id} isOwnProfile={isOwnProfile} />
                         </TabsContent>
                     </Tabs>
-
-                    <div className="flex justify-center pt-2">
-                        <div className="size-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
-                    </div>
                 </section>
 
                 {isOwnProfile && profileData && (
@@ -280,6 +299,22 @@ const Profile = ({ profileId }: ProfileProps) => {
                 onOpenChange={setIsAvatarDialogOpen}
                 onCancel={handleCancelAvatarDialog}
                 onSave={handleSaveAvatarDialog}
+            />
+
+            <PostDetailDialog
+                post={selectedPost}
+                currentUserId={currentUser?.id}
+                open={!!selectedPost}
+                shouldFocusComment={shouldFocusComment}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setSelectedPost(null)
+                        setShouldFocusComment(false)
+                    }
+                }}
+                onDeleted={() => {
+                    setSelectedPost(null)
+                }}
             />
         </main>
     )

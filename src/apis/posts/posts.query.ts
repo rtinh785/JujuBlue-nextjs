@@ -10,6 +10,11 @@ export const useCreatePost = () => {
         mutationFn: postsApi.createPost,
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'profile'],
+            })
+
             await queryClient.invalidateQueries({ queryKey: postsKeys.postCounts() })
         },
     })
@@ -30,6 +35,12 @@ export const useUpdatePost = () => {
                 queryKey: postsKeys.bookmarks(),
             })
 
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'profile'],
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.detail(variables.postId),
+            })
             if (variables.rootPostId) {
                 await queryClient.invalidateQueries({
                     queryKey: postsKeys.comments(variables.rootPostId),
@@ -52,10 +63,19 @@ export const useDeletePost = () => {
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.bookmarks(),
             })
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'profile'],
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.postCounts(),
+            })
 
             if (variables.rootPostId) {
                 await queryClient.invalidateQueries({
                     queryKey: postsKeys.comments(variables.rootPostId),
+                })
+                await queryClient.invalidateQueries({
+                    queryKey: postsKeys.detail(variables.rootPostId),
                 })
             }
         },
@@ -90,6 +110,17 @@ export const useUploadPostMedia = () => {
     })
 }
 
+export const usePostById = (postId?: string) => {
+    return useQuery({
+        queryKey: postsKeys.detail(postId ?? ''),
+        queryFn: async () => {
+            const res = await postsApi.getPostById(postId ?? '')
+            return res.data.post
+        },
+        enabled: !!postId,
+    })
+}
+
 export const useLikePost = (commentPostId?: string) => {
     const queryClient = useQueryClient()
 
@@ -99,7 +130,12 @@ export const useLikePost = (commentPostId?: string) => {
             await queryClient.refetchQueries({
                 queryKey: postsKeys.feed(),
             })
-
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'profile'],
+            })
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'detail'],
+            })
             if (commentPostId) {
                 await queryClient.refetchQueries({
                     queryKey: postsKeys.comments(commentPostId),
@@ -118,7 +154,12 @@ export const useUnlikePost = (commentPostId?: string) => {
             await queryClient.refetchQueries({
                 queryKey: postsKeys.feed(),
             })
-
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'profile'],
+            })
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'detail'],
+            })
             if (commentPostId) {
                 await queryClient.refetchQueries({
                     queryKey: postsKeys.comments(commentPostId),
@@ -136,6 +177,12 @@ export const useBookmarkPost = () => {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
             await queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks() })
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'profile'],
+            })
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'detail'],
+            })
         },
     })
 }
@@ -148,6 +195,10 @@ export const useUnbookmarkPost = () => {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
             await queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks() })
+            await queryClient.invalidateQueries({ queryKey: ['posts', 'profile'] })
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'detail'],
+            })
         },
     })
 }
@@ -195,11 +246,20 @@ export const useCreateComment = (postId?: string) => {
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.comments(postId ?? ''),
             })
+
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.feed(),
             })
+
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.bookmarks(),
+            })
+
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'profile'],
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.detail(postId ?? ''),
             })
         },
     })

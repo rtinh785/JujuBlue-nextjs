@@ -32,6 +32,10 @@ export type PostWithStatus = Post & {
 
 export type FeedPosts = PostWithStatus[]
 
+export type GetProfilePostsRes = {
+    posts: PostWithStatus[]
+}
+
 export type MessPostRes = {
     message: string
 }
@@ -72,4 +76,8 @@ export type UpdatePostRes = {
 export type DeletePostRes = {
     message: string
     deletedCount: number
+}
+
+export type GetPostByIdRes = {
+    post: PostWithStatus
 }
