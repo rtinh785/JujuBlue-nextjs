@@ -10,6 +10,8 @@ import {
     GetPostCountsRes,
     GetProfilePostsRes,
     MessPostRes,
+    SharePostReq,
+    SharePostRes,
     UpdatePostReq,
     UpdatePostRes,
 } from '@/core/types/post.type'
@@ -71,6 +73,9 @@ const postsApi = {
 
     createComment(postId: string, body: CreateCommentReq) {
         return http.post<CreateCommentRes>(`posts/${postId}/comments`, body)
+    },
+    sharePost(postId: string, body: SharePostReq) {
+        return http.post<SharePostRes>(`posts/${postId}/share`, body)
     },
 }
 

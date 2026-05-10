@@ -1,13 +1,8 @@
-import FeedAction from '@/components/common/FeedAction'
-import { Post, PostWithStatus, UpdatePostReq } from '@/core/types/post.type'
-import { MessageCircle, Repeat2, Heart, Trash2, Bookmark } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { formatPostTime } from '../../utils/helper'
-import { VISIBILITY_LABEL_MAP } from '@/core/constants/common.constant'
 import {
     useBookmarkPost,
     useDeletePost,
     useLikePost,
+    useSharePost,
     useUnbookmarkPost,
     useUnlikePost,
     useUpdatePost,
@@ -15,6 +10,15 @@ import {
 import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
 import EditPostDialog from '@/components/post/components/EditPostDialog'
 import OwnerActionMenu from '@/components/post/components/OwnerActionMenu'
+import PostActions from '@/components/post/components/PostActions'
+import PostBody from '@/components/post/components/PostBody'
+import SharePostDialog from '@/components/post/components/SharePostDialog'
+import { VISIBILITY_LABEL_MAP } from '@/core/constants/common.constant'
+import { Post, PostWithStatus, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
+import { Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { formatPostTime } from '../../utils/helper'
+import { toast } from 'sonner'
 
 type Props = {
     currentUserId?: string
@@ -35,39 +39,65 @@ const PostCard = ({
     onFocusCommentInput,
     onOpenComments,
 }: Props) => {
-    const isOwner = currentUserId === post.author?.id
+    const [displayPost, setDisplayPost] = useState(post)
 
+    const isOwner = currentUserId === displayPost.author?.id
+    const isOriginalSharedPostMissing = displayPost.was_shared_post && !displayPost.shared_post
+    const shareDisabledReason = isOriginalSharedPostMissing ? 'Không thể chia sẻ vì bài gốc đã bị xoá' : undefined
+
+    // Like / bookmark
     const { mutateAsync: likeMutation, isPending: isLiking } = useLikePost()
     const { mutateAsync: unlikeMutation, isPending: isUnliking } = useUnlikePost()
-    const { mutateAsync: bookmarkeMutation, isPending: isBookmarking } = useBookmarkPost()
-    const { mutateAsync: unbookmarkeMutation, isPending: isUnbookmarking } = useUnbookmarkPost()
+    const { mutateAsync: bookmarkMutation, isPending: isBookmarking } = useBookmarkPost()
+    const { mutateAsync: unbookmarkMutation, isPending: isUnbookmarking } = useUnbookmarkPost()
 
     const isLikePending = isLiking || isUnliking
     const isBookmarkPending = isBookmarking || isUnbookmarking
 
-    const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost()
+    // Delete
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost()
 
+    // Edit
     const [editDialogOpen, setEditDialogOpen] = useState(false)
     const { mutateAsync: updatePost, isPending: isUpdatingPost } = useUpdatePost()
 
-    const [displayPost, setDisplayPost] = useState(post)
+    // Share
+    const [shareDialogOpen, setShareDialogOpen] = useState(false)
+    const { mutateAsync: sharePost, isPending: isSharingPost } = useSharePost()
 
-    const handleDeletePost = async () => {
-        if (isDeletingPost) return
-
-        await deletePost({ postId: post.id })
-        onDelete?.(post.id)
-        setDeleteDialogOpen(false)
+    const handleUnavailableShare = () => {
+        toast.error('Không thể chia sẻ vì bài gốc đã bị xoá', {
+            position: 'top-left',
+        })
     }
 
-    const handleOpenEditDialog = () => {
-        onEdit?.(post)
-        setEditDialogOpen(true)
+    const handleOpenDetail = () => {
+        if (!currentUserId) return
+
+        onOpenDetail?.(displayPost)
     }
 
-    const handleOpenDeleteDialog = () => {
-        setDeleteDialogOpen(true)
+    const handleCommentClick = () => {
+        if (!currentUserId) return
+
+        if (onFocusCommentInput) {
+            onFocusCommentInput()
+            return
+        }
+
+        if (onOpenComments) {
+            onOpenComments(displayPost)
+            return
+        }
+
+        onOpenDetail?.(displayPost)
+    }
+
+    const handleOpenSharedPost = (sharedPost: PostWithStatus['shared_post']) => {
+        if (!sharedPost || !currentUserId) return
+
+        onOpenDetail?.(sharedPost as PostWithStatus)
     }
 
     const handleLike = async () => {
@@ -106,42 +136,58 @@ const PostCard = ({
 
         try {
             if (displayPost.is_bookmark) {
-                await unbookmarkeMutation(displayPost.id)
+                await unbookmarkMutation(displayPost.id)
             } else {
-                await bookmarkeMutation(displayPost.id)
+                await bookmarkMutation(displayPost.id)
             }
         } catch {
             setDisplayPost(previousPost)
         }
     }
 
-    const handleOpenDetail = () => {
-        if (!currentUserId) return
-        onOpenDetail?.(post)
+    const handleOpenDeleteDialog = () => {
+        setDeleteDialogOpen(true)
     }
 
-    const handleCommentClick = () => {
-        if (!currentUserId) return
-        if (onFocusCommentInput) {
-            onFocusCommentInput()
-            return
-        }
-        if (onOpenComments) {
-            onOpenComments(post)
-            return
-        }
-        onOpenDetail?.(post)
+    const handleDeletePost = async () => {
+        if (isDeletingPost) return
+
+        await deletePost({ postId: displayPost.id })
+        onDelete?.(displayPost.id)
+        setDeleteDialogOpen(false)
+    }
+
+    const handleOpenEditDialog = () => {
+        onEdit?.(displayPost)
+        setEditDialogOpen(true)
     }
 
     const handleUpdatePost = async (body: UpdatePostReq) => {
         if (isUpdatingPost) return
 
         await updatePost({
-            postId: post.id,
+            postId: displayPost.id,
             body,
         })
 
         setEditDialogOpen(false)
+    }
+
+    const handleOpenShareDialog = () => {
+        if (!currentUserId) return
+
+        setShareDialogOpen(true)
+    }
+
+    const handleSharePost = async (postId: string, body: SharePostReq) => {
+        if (isSharingPost) return
+
+        await sharePost({
+            postId,
+            body,
+        })
+
+        setShareDialogOpen(false)
     }
 
     useEffect(() => {
@@ -151,12 +197,11 @@ const PostCard = ({
     return (
         <>
             <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-                {/* Header */}
                 <div className="flex items-start gap-3">
-                    {post.author?.avatar_url ? (
+                    {displayPost.author?.avatar_url ? (
                         <img
-                            src={post.author.avatar_url}
-                            alt={post.author.display_name}
+                            src={displayPost.author.avatar_url}
+                            alt={displayPost.author.display_name}
                             className="size-11 rounded-full object-cover"
                         />
                     ) : (
@@ -167,12 +212,14 @@ const PostCard = ({
                         <div className="flex items-start justify-between gap-y-3">
                             <div className="flex flex-wrap items-center gap-2">
                                 <h3 className="text-sm font-semibold text-slate-900">
-                                    {post.author?.display_name ?? 'Unknown'}
+                                    {displayPost.author?.display_name ?? 'Unknown'}
                                 </h3>
-                                {post.author?.username ? (
-                                    <span className="text-xs text-slate-400">@{post.author.username}</span>
+
+                                {displayPost.author?.username ? (
+                                    <span className="text-xs text-slate-400">@{displayPost.author.username}</span>
                                 ) : null}
-                                <span className="text-xs text-slate-300">{formatPostTime(post.created_at)}</span>
+
+                                <span className="text-xs text-slate-300">{formatPostTime(displayPost.created_at)}</span>
                             </div>
 
                             {isOwner && (
@@ -185,80 +232,36 @@ const PostCard = ({
                         </div>
 
                         <p className="mt-[-4px] w-fit rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400">
-                            {VISIBILITY_LABEL_MAP[post.visibility]}
+                            {VISIBILITY_LABEL_MAP[displayPost.visibility]}
                         </p>
                     </div>
                 </div>
 
-                {/* Body */}
-                <div className="mt-2">
-                    {post.content && (
-                        <p
-                            role="button"
-                            tabIndex={0}
-                            onClick={handleOpenDetail}
-                            className={`text-sm leading-6 text-slate-600 ${
-                                currentUserId ? 'cursor-pointer' : 'cursor-default'
-                            }`}
-                        >
-                            {post.content}
-                        </p>
-                    )}
+                <PostBody
+                    post={displayPost}
+                    canOpenDetail={!!currentUserId}
+                    onOpenDetail={handleOpenDetail}
+                    onOpenSharedPost={handleOpenSharedPost}
+                />
 
-                    {post.media && post.media.length > 0 && (
-                        <div className="mt-3 space-y-3">
-                            {post.media.map((item, index) => {
-                                if (item.type === 'image') {
-                                    return (
-                                        <img
-                                            key={`${item.url}-${index}`}
-                                            src={item.url}
-                                            alt={post.author.display_name}
-                                            onClick={handleOpenDetail}
-                                            className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
-                                                currentUserId ? 'cursor-pointer' : 'cursor-default'
-                                            }`}
-                                        />
-                                    )
-                                }
-                                return (
-                                    <video
-                                        key={`${item.url}-${index}`}
-                                        src={item.url}
-                                        onClick={handleOpenDetail}
-                                        controls
-                                        className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
-                                            currentUserId ? 'cursor-pointer' : 'cursor-default'
-                                        }`}
-                                    />
-                                )
-                            })}
-                        </div>
-                    )}
-
-                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                        <FeedAction
-                            icon={<Heart className="size-4 fill-current" />}
-                            value={displayPost.likes_count}
-                            active={displayPost.is_liked}
-                            disabled={isLikePending}
-                            handleOnClick={currentUserId ? handleLike : undefined}
-                        />
-                        <FeedAction
-                            icon={<MessageCircle className="size-4" />}
-                            value={displayPost.comments_count}
-                            handleOnClick={handleCommentClick}
-                        />
-                        <FeedAction icon={<Repeat2 className="size-4" />} value={0} />
-                        <FeedAction
-                            icon={<Bookmark className="size-4" />}
-                            active={displayPost.is_bookmark}
-                            disabled={isBookmarkPending}
-                            handleOnClick={currentUserId ? handleBookmark : undefined}
-                        />
-                    </div>
-                </div>
+                <PostActions
+                    likesCount={displayPost.likes_count}
+                    commentsCount={displayPost.comments_count}
+                    sharesCount={displayPost.shares_count ?? 0}
+                    isLiked={displayPost.is_liked}
+                    isBookmarked={displayPost.is_bookmark}
+                    isLikePending={isLikePending}
+                    isBookmarkPending={isBookmarkPending}
+                    isSharePending={isSharingPost}
+                    canInteract={!!currentUserId}
+                    shareDisabledReason={shareDisabledReason}
+                    onLike={handleLike}
+                    onComment={handleCommentClick}
+                    onShare={isOriginalSharedPostMissing ? handleUnavailableShare : handleOpenShareDialog}
+                    onBookmark={handleBookmark}
+                />
             </article>
+
             <ConfirmActionDialog
                 open={deleteDialogOpen}
                 title="Xoá bài viết?"
@@ -272,11 +275,20 @@ const PostCard = ({
             />
 
             <EditPostDialog
-                post={post}
+                post={displayPost}
                 open={editDialogOpen}
                 isLoading={isUpdatingPost}
                 onOpenChange={setEditDialogOpen}
                 onSubmit={handleUpdatePost}
+            />
+
+            <SharePostDialog
+                post={displayPost}
+                open={shareDialogOpen}
+                isLoading={isSharingPost}
+                onOpenChange={setShareDialogOpen}
+                onSubmit={handleSharePost}
+                onOpenOriginalPost={handleOpenSharedPost}
             />
         </>
     )

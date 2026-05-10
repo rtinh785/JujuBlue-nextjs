@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import postsApi from './posts.api'
 import { postsKeys } from './posts.key'
-import { CreateCommentReq, UpdatePostReq } from '@/core/types/post.type'
+import { CreateCommentReq, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
 
 export const useCreatePost = () => {
     const queryClient = useQueryClient()
@@ -260,6 +260,35 @@ export const useCreateComment = (postId?: string) => {
             })
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.detail(postId ?? ''),
+            })
+        },
+    })
+}
+
+export const useSharePost = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ postId, body }: { postId: string; body: SharePostReq }) => postsApi.sharePost(postId, body),
+        onSuccess: async (_res, variables) => {
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.feed(),
+            })
+
+            await queryClient.invalidateQueries({
+                queryKey: ['posts', 'profile'],
+            })
+
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.postCounts(),
+            })
+
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.bookmarks(),
+            })
+
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.detail(variables.postId),
             })
         },
     })
