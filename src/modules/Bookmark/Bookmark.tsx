@@ -9,6 +9,7 @@ import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import { PostWithStatus } from '@/core/types/post.type'
 import { useUnbookmarkPost } from '@/apis/posts/posts.query'
 import ConfirmUnbookmarkDialog from '@/components/post/components/ConfirmUnbookmarkDialog'
+import { BOOKMARK_TEXT } from '@/core/constants/bookmark.constant'
 
 const Bookmark = () => {
     const { data: user } = useCurrentUser()
@@ -36,8 +37,8 @@ const Bookmark = () => {
             <div className="relative lg:pr-[344px]">
                 <section className="space-y-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900">Đã lưu</h1>
-                        <p className="mt-1 text-sm text-slate-500">Các bài viết bạn đã bookmark.</p>
+                        <h1 className="text-2xl font-bold text-slate-900">{BOOKMARK_TEXT.PAGE_TITLE}</h1>
+                        <p className="mt-1 text-sm text-slate-500">{BOOKMARK_TEXT.PAGE_DESCRIPTION}</p>
                     </div>
 
                     <div className="space-y-3">

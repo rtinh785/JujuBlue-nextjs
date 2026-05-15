@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useFollowingList, useUnfollow } from '@/apis/follows/follows.query'
 import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
+import { PROFILE_ACTION_LABEL, PROFILE_DIALOG, PROFILE_TEXT } from '@/core/constants/profile.constant'
 import { UserMinus } from 'lucide-react'
 interface FollowingTabProps {
     currentUserId?: string
@@ -47,8 +48,8 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
                                 />
                             </svg>
                         </div>
-                        <p className="text-sm font-medium text-slate-700">Chưa follow ai</p>
-                        <p className="mt-1 text-sm text-slate-400">Những người bạn follow sẽ xuất hiện ở đây.</p>
+                        <p className="text-sm font-medium text-slate-700">{PROFILE_TEXT.FOLLOWING_EMPTY_TITLE}</p>
+                        <p className="mt-1 text-sm text-slate-400">{PROFILE_TEXT.FOLLOWING_EMPTY_DESCRIPTION}</p>
                     </div>
                 ) : (
                     <ul className="divide-y divide-slate-100">
@@ -71,7 +72,7 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
                                         onClick={() => setConfirmId(user.id)}
                                         className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100"
                                     >
-                                        Unfollow
+                                        {PROFILE_ACTION_LABEL.UNFOLLOW}
                                     </button>
                                 )}
                             </li>
@@ -83,10 +84,10 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
             {/* Confirm dialog dùng thư viện */}
             <ConfirmActionDialog
                 open={!!confirmId}
-                title={`Huỷ follow ${userToUnfollow?.display_name ?? 'người này'}?`}
-                description="Bạn sẽ không còn thấy người này trong danh sách đang follow."
-                confirmText="Unfollow"
-                loadingText="Đang huỷ..."
+                title={`${PROFILE_DIALOG.UNFOLLOW_TITLE_PREFIX} ${userToUnfollow?.display_name ?? PROFILE_TEXT.UNFOLLOW_TARGET_FALLBACK}?`}
+                description={PROFILE_DIALOG.UNFOLLOW_DESCRIPTION}
+                confirmText={PROFILE_DIALOG.UNFOLLOW_CONFIRM}
+                loadingText={PROFILE_DIALOG.UNFOLLOW_LOADING}
                 isLoading={isPending}
                 icon={<UserMinus className="h-4 w-4 text-red-500" />}
                 onOpenChange={(open) => {

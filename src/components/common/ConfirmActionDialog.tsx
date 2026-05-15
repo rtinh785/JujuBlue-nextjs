@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/base/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/base/dialog'
+import { COMMON_ACTION_LABEL } from '@/core/constants/common.constant'
 
 type Props = {
     open: boolean
@@ -47,7 +48,7 @@ const ConfirmActionDialog = ({
                         disabled={isLoading}
                         onClick={() => onOpenChange(false)}
                     >
-                        Huỷ
+                        {COMMON_ACTION_LABEL.CANCEL}
                     </Button>
 
                     <Button

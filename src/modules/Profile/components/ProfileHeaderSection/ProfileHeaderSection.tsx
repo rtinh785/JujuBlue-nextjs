@@ -1,4 +1,5 @@
 import AvatarUploader from '@/modules/Profile/components/ImagesUploader/Avatar/AvatarUploader'
+import { PROFILE_ACTION_LABEL } from '@/core/constants/profile.constant'
 
 type ProfileHeaderSectionProps = {
     isOwnProfile: boolean
@@ -44,14 +45,14 @@ const ProfileHeaderSection = ({
                                 : 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors duration-200 hover:bg-slate-50'
                         }
                     >
-                        {isFollowed ? 'Unfollow' : 'Follow'}
+                        {isFollowed ? PROFILE_ACTION_LABEL.UNFOLLOW : PROFILE_ACTION_LABEL.FOLLOW}
                     </button>
 
                     <button
                         type="button"
                         className="bg-primary hover:bg-primary/90 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-white"
                     >
-                        Message
+                        {PROFILE_ACTION_LABEL.MESSAGE}
                     </button>
                 </div>
             ) : (
@@ -61,7 +62,7 @@ const ProfileHeaderSection = ({
                         onClick={onOpenEditDialog}
                         className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                     >
-                        Edit Profile
+                        {PROFILE_ACTION_LABEL.EDIT_PROFILE}
                     </button>
                 </div>
             )}

@@ -1,5 +1,6 @@
 'use client'
 
+import { POST_MEDIA_INPUT } from '@/core/constants/post.constant'
 import { ImagePlus } from 'lucide-react'
 
 type Props = {
@@ -18,7 +19,7 @@ const MediaPickerButton = ({ disabled = false, multiple = true, onChange }: Prop
             <ImagePlus className="size-4" />
             <input
                 type="file"
-                accept="image/*,video/*"
+                accept={POST_MEDIA_INPUT.ACCEPT}
                 multiple={multiple}
                 className="hidden"
                 onChange={onChange}

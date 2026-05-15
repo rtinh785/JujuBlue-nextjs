@@ -1,5 +1,6 @@
 import { Pencil } from 'lucide-react'
 import Cropper from 'react-easy-crop'
+import { PROFILE_ACTION_LABEL, PROFILE_TEXT } from '@/core/constants/profile.constant'
 
 type ProfileCoverSectionProps = {
     isOwnProfile: boolean
@@ -35,14 +36,14 @@ const ProfileCoverSection = ({
                         onClick={onCancelCoverPhoto}
                         className="rounded-lg bg-white/20 px-4 py-2 text-sm font-medium text-white"
                     >
-                        Hủy
+                        {PROFILE_ACTION_LABEL.CANCEL}
                     </button>
                     <button
                         type="button"
                         onClick={onSaveCoverPhoto}
                         className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white"
                     >
-                        Lưu thay đổi
+                        {PROFILE_ACTION_LABEL.SAVE_CHANGES}
                     </button>
                 </div>
             )}
@@ -66,7 +67,7 @@ const ProfileCoverSection = ({
                 ) : (
                     <img
                         src={currentCoverPhotoSrc}
-                        alt="Cover preview"
+                        alt={PROFILE_TEXT.COVER_PREVIEW_ALT}
                         className="h-full w-full object-cover"
                         style={{
                             objectPosition: `center calc(50% + ${currentCoverPhotoOffsetY}px)`,
@@ -82,7 +83,7 @@ const ProfileCoverSection = ({
                     type="button"
                     onClick={onOpenCoverPhotoPicker}
                     className="absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full bg-black/55 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 focus-visible:opacity-100"
-                    aria-label="Đổi ảnh bìa"
+                    aria-label={PROFILE_TEXT.CHANGE_COVER_PHOTO}
                 >
                     <Pencil className="size-4" />
                 </button>

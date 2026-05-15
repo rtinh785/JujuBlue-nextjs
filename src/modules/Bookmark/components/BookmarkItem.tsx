@@ -1,5 +1,7 @@
 'use client'
 
+import { BOOKMARK_TEXT } from '@/core/constants/bookmark.constant'
+import { POST_TEXT } from '@/core/constants/post.constant'
 import { PostWithStatus } from '@/core/types/post.type'
 import { MoreHorizontal, Play } from 'lucide-react'
 
@@ -11,7 +13,7 @@ type Props = {
 
 const BookmarkItem = ({ post, onOpenDetail, onRequestUnbookmark }: Props) => {
     const firstMedia = post.media?.[0]
-    const authorName = post.author?.display_name ?? 'Unknown'
+    const authorName = post.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR
     const authorAvatar = post.author?.avatar_url
 
     const handleRequestUnbookmark = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -49,13 +51,14 @@ const BookmarkItem = ({ post, onOpenDetail, onRequestUnbookmark }: Props) => {
 
             <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-base leading-6 font-semibold text-slate-900">
-                    {post.content || 'Bài viết không có nội dung'}
+                    {post.content || BOOKMARK_TEXT.EMPTY_POST_CONTENT}
                 </p>
 
-                <p className="mt-1 text-sm text-slate-500">Bài viết</p>
+                <p className="mt-1 text-sm text-slate-500">{BOOKMARK_TEXT.POST_TYPE_LABEL}</p>
 
                 <p className="mt-3 text-sm text-slate-600">
-                    Đã lưu từ bài viết của <span className="font-semibold text-slate-900">{authorName}</span>
+                    {BOOKMARK_TEXT.SAVED_FROM_AUTHOR_PREFIX}{' '}
+                    <span className="font-semibold text-slate-900">{authorName}</span>
                 </p>
             </div>
 

@@ -1,3 +1,6 @@
+import { PROFILE_UPLOAD } from '@/core/constants/profile.constant'
+import type { Area } from 'react-easy-crop'
+
 export const createImage = (url: string): Promise<HTMLImageElement> =>
     new Promise((resolve, reject) => {
         const image = new Image()
@@ -7,15 +10,13 @@ export const createImage = (url: string): Promise<HTMLImageElement> =>
         image.src = url
     })
 
-import type { Area } from 'react-easy-crop'
-
 export const getCroppedAvatarImage = async (imageSrc: string, pixelCrop: Area) => {
     const image = await createImage(imageSrc)
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
 
     if (!ctx) {
-        throw new Error('Không thể tạo canvas')
+        throw new Error(PROFILE_UPLOAD.CANVAS_CREATE_FAILED)
     }
 
     canvas.width = pixelCrop.width
@@ -36,11 +37,11 @@ export const getCroppedAvatarImage = async (imageSrc: string, pixelCrop: Area) =
     return new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((file) => {
             if (!file) {
-                reject(new Error('Không thể tạo blob ảnh'))
+                reject(new Error(PROFILE_UPLOAD.IMAGE_BLOB_CREATE_FAILED))
                 return
             }
 
             resolve(file)
-        }, 'image/jpeg')
+        }, PROFILE_UPLOAD.AVATAR_MIME_TYPE)
     })
 }

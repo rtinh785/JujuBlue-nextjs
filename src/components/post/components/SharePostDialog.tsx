@@ -9,12 +9,13 @@ import { Button } from '@/components/base/button'
 import AutoResizeTextarea from '@/components/common/AutoResizeTextarea'
 import SharedPostPreview from '@/components/post/components/SharedPostPreview'
 import type { PostWithStatus, SharePostReq } from '@/core/types/post.type'
-import { sharePostSchema, type SharePostFormValues } from '@/components/post/schema/share-post.schema'
+import { sharePostSchema, type SharePostFormValues } from '@/schema/sharePost.schema'
+import { POST_ACTION_LABEL, POST_TEXT, POST_VISIBILITY, POST_VISIBILITY_LABEL } from '@/core/constants/post.constant'
 
 const VISIBILITY_OPTIONS = [
-    { value: 'public', label: 'Công khai', icon: Globe },
-    { value: 'followers', label: 'Người theo dõi', icon: Users },
-    { value: 'private', label: 'Riêng tư', icon: Lock },
+    { value: POST_VISIBILITY.PUBLIC, label: POST_VISIBILITY_LABEL.public, icon: Globe },
+    { value: POST_VISIBILITY.FOLLOWERS, label: POST_VISIBILITY_LABEL.followers, icon: Users },
+    { value: POST_VISIBILITY.PRIVATE, label: POST_VISIBILITY_LABEL.private, icon: Lock },
 ] as const
 
 type Props = {
@@ -38,7 +39,7 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
         resolver: yupResolver(sharePostSchema),
         defaultValues: {
             content: '',
-            visibility: 'public',
+            visibility: POST_VISIBILITY.PUBLIC,
         },
     })
 
@@ -50,7 +51,7 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
 
         reset({
             content: '',
-            visibility: 'public',
+            visibility: POST_VISIBILITY.PUBLIC,
         })
     }, [open, reset])
 
@@ -59,7 +60,7 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
     const handleShare = (values: SharePostFormValues) => {
         onSubmit(post.id, {
             content: values.content?.trim() || undefined,
-            visibility: values.visibility ?? 'public',
+            visibility: values.visibility ?? POST_VISIBILITY.PUBLIC,
         })
     }
 
@@ -67,7 +68,7 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="!max-w-xl">
                 <DialogHeader>
-                    <DialogTitle className="text-base">Chia sẻ bài viết</DialogTitle>
+                    <DialogTitle className="text-base">{POST_TEXT.SHARE_DIALOG_TITLE}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(handleShare)} className="space-y-4">
@@ -77,7 +78,7 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
                         render={({ field }) => (
                             <AutoResizeTextarea
                                 {...field}
-                                placeholder="Bạn muốn nói gì về bài viết này?"
+                                placeholder={POST_TEXT.SHARE_PLACEHOLDER}
                                 className="min-h-20 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 text-slate-700 placeholder:text-slate-400 focus:border-slate-300"
                             />
                         )}
@@ -122,11 +123,11 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
                             disabled={isLoading}
                             onClick={() => onOpenChange(false)}
                         >
-                            Huỷ
+                            {POST_ACTION_LABEL.CANCEL}
                         </Button>
 
                         <Button type="submit" disabled={isLoading}>
-                            {isLoading ? 'Đang chia sẻ...' : 'Chia sẻ'}
+                            {isLoading ? POST_ACTION_LABEL.SHARING : POST_ACTION_LABEL.SHARE}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -1,9 +1,10 @@
 'use client'
 
-import { X } from 'lucide-react'
 import AutoResizeTextarea from '@/components/common/AutoResizeTextarea'
 import MediaPickerButton from '@/components/post/components/MediaPickerButton'
+import { POST_ACTION_LABEL, POST_MEDIA_TYPE, POST_TEXT } from '@/core/constants/post.constant'
 import type { PostMediaItem } from '@/core/types/post.type'
+import { X } from 'lucide-react'
 
 type Props = {
     content: string
@@ -47,10 +48,10 @@ const InlinePostEditor = ({
                 <div className="space-y-3">
                     {media.map((item, index) => (
                         <div key={`${item.url}-${index}`} className="group relative overflow-hidden rounded-2xl">
-                            {item.type === 'image' ? (
+                            {item.type === POST_MEDIA_TYPE.IMAGE ? (
                                 <img
                                     src={item.url}
-                                    alt="edit media"
+                                    alt={POST_TEXT.EDIT_MEDIA_ALT}
                                     className={`${maxMediaHeightClass} w-full rounded-2xl object-cover`}
                                 />
                             ) : (
@@ -58,7 +59,9 @@ const InlinePostEditor = ({
                                     src={item.url}
                                     controls
                                     className={`${maxMediaHeightClass} w-full rounded-2xl object-cover`}
-                                />
+                                >
+                                    <track kind="captions" />
+                                </video>
                             )}
 
                             <button
@@ -82,7 +85,7 @@ const InlinePostEditor = ({
                         onClick={onCancel}
                         className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
                     >
-                        Huỷ
+                        {POST_ACTION_LABEL.CANCEL}
                     </button>
 
                     <button
@@ -91,7 +94,7 @@ const InlinePostEditor = ({
                         disabled={submitDisabled}
                         className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {isSaving ? 'Đang lưu...' : 'Lưu'}
+                        {isSaving ? POST_ACTION_LABEL.SAVING : POST_ACTION_LABEL.SAVE_CHANGES}
                     </button>
                 </div>
             </div>

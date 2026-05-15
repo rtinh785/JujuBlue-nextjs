@@ -1,27 +1,32 @@
+import { PROFILE_VALIDATION_MESSAGE } from '@/core/constants/profile.constant'
 import * as yup from 'yup'
 
 export const editProfileSchema = yup.object({
-    display_name: yup.string().trim().required('Tên hiển thị là bắt buộc').max(50, 'Tên hiển thị tối đa 50 ký tự'),
+    display_name: yup
+        .string()
+        .trim()
+        .required(PROFILE_VALIDATION_MESSAGE.DISPLAY_NAME_REQUIRED)
+        .max(50, PROFILE_VALIDATION_MESSAGE.DISPLAY_NAME_MAX),
 
     bio: yup
         .string()
         .nullable()
         .transform((value) => value ?? '')
-        .max(160, 'Tiểu sử tối đa 160 ký tự')
+        .max(160, PROFILE_VALIDATION_MESSAGE.BIO_MAX)
         .defined(),
 
     location: yup
         .string()
         .nullable()
         .transform((value) => value ?? '')
-        .max(80, 'Địa điểm tối đa 80 ký tự')
+        .max(80, PROFILE_VALIDATION_MESSAGE.LOCATION_MAX)
         .defined(),
 
     website: yup
         .string()
         .nullable()
         .transform((value) => value ?? '')
-        .test('is-valid-url', 'URL phải có dạng https://www.example.com', (value) => {
+        .test('is-valid-url', PROFILE_VALIDATION_MESSAGE.WEBSITE_INVALID, (value) => {
             if (!value) return true
 
             try {

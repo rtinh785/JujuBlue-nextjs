@@ -3,6 +3,7 @@
 import { useRef } from 'react'
 import { Pencil } from 'lucide-react'
 import { toast } from 'sonner'
+import { PROFILE_UPLOAD } from '@/core/constants/profile.constant'
 
 type ImageUploaderBaseProps = {
     imageUrl?: string | null
@@ -10,8 +11,6 @@ type ImageUploaderBaseProps = {
     variant: 'avatar' | 'cover'
     onFileSelect?: (file: File) => void
 }
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024
 
 const ImageUploaderBase = ({ imageUrl, alt, variant, onFileSelect }: ImageUploaderBaseProps) => {
     const inputRef = useRef<HTMLInputElement | null>(null)
@@ -26,12 +25,12 @@ const ImageUploaderBase = ({ imageUrl, alt, variant, onFileSelect }: ImageUpload
         }
 
         if (!file.type.startsWith('image/')) {
-            toast.error('Vui long chon file anh')
+            toast.error(PROFILE_UPLOAD.INVALID_IMAGE_TYPE)
             return
         }
 
-        if (file.size > MAX_FILE_SIZE) {
-            toast.error('Anh phai nho hon 2MB')
+        if (file.size > PROFILE_UPLOAD.MAX_IMAGE_SIZE_BYTES) {
+            toast.error(PROFILE_UPLOAD.IMAGE_TOO_LARGE)
             return
         }
 

@@ -6,6 +6,7 @@ import { Dialog as DialogPrimitive } from 'radix-ui'
 import { XIcon } from 'lucide-react'
 import { cn } from '@/utils'
 import { Button } from './button'
+import { DIALOG_LABEL } from '@/core/constants/ui/dialog.constant'
 
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
     return <DialogPrimitive.Root data-slot="dialog" {...props} />
@@ -29,6 +30,7 @@ function DialogOverlay({ className, ...props }: React.ComponentProps<typeof Dial
             data-slot="dialog-overlay"
             className={cn(
                 'data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs',
+                className,
             )}
             {...props}
         />
@@ -59,7 +61,7 @@ function DialogContent({
                     <DialogPrimitive.Close data-slot="dialog-close" asChild>
                         <Button variant="ghost" className="absolute top-2 right-2" size="icon-sm">
                             <XIcon />
-                            <span className="sr-only">Close</span>
+                            <span className="sr-only">{DIALOG_LABEL.CLOSE}</span>
                         </Button>
                     </DialogPrimitive.Close>
                 )}
@@ -92,7 +94,7 @@ function DialogFooter({
             {children}
             {showCloseButton && (
                 <DialogPrimitive.Close asChild>
-                    <Button variant="outline">Close</Button>
+                    <Button variant="outline">{DIALOG_LABEL.CLOSE}</Button>
                 </DialogPrimitive.Close>
             )}
         </div>

@@ -1,5 +1,5 @@
 'use client'
-import type { CommentItem, PostMediaItem, PostWithStatus, UpdatePostReq } from '@/core/types/post.type'
+import type { CommentItem, PostMediaItem, PostWithStatus } from '@/core/types/post.type'
 import FeedAction from '@/components/common/FeedAction'
 import { Heart } from 'lucide-react'
 import { useLikePost, useUnlikePost, useUpdatePost, useUploadPostMedia } from '@/apis/posts/posts.query'
@@ -8,6 +8,8 @@ import OwnerActionMenu from '@/components/post/components/OwnerActionMenu'
 import InlinePostEditor from '@/components/post/components/InlinePostEditor'
 import ReplyComposer from '@/components/post/components/ReplyComposer'
 import PostMediaViewer from '@/components/post/components/PostMediaViewer'
+import { COMMENT_TEXT, POST_ACTION_LABEL, POST_TEXT } from '@/core/constants/post.constant'
+import { LAYOUT_ALT } from '@/core/constants/layout.constant'
 
 type Props = {
     comment: CommentItem
@@ -125,7 +127,7 @@ const CommentItem = ({
                 {comment.author?.avatar_url ? (
                     <img
                         src={comment.author.avatar_url}
-                        alt={comment.author.display_name}
+                        alt={comment.author.display_name || LAYOUT_ALT.AVATAR}
                         className="size-9 rounded-full object-cover"
                     />
                 ) : (
@@ -136,7 +138,7 @@ const CommentItem = ({
                     <div className="rounded-2xl bg-slate-100 px-4 py-3">
                         <div className="flex items-start justify-between gap-3">
                             <p className="text-sm font-semibold text-slate-900">
-                                {comment.author?.display_name ?? 'Unknown'}
+                                {comment.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
                             </p>
 
                             {isCommentOwner && (
@@ -152,7 +154,7 @@ const CommentItem = ({
                             <InlinePostEditor
                                 content={editContent}
                                 media={editMedia}
-                                placeholder="Viết bình luận..."
+                                placeholder={COMMENT_TEXT.PLACEHOLDER}
                                 maxMediaHeightClass="max-h-64"
                                 isSaving={isUpdatingPost}
                                 isUploading={isUploadingEditMedia}
@@ -170,7 +172,11 @@ const CommentItem = ({
                                     <p className="mt-1 text-sm text-slate-600">{comment.content}</p>
                                 ) : null}
 
-                                <PostMediaViewer media={comment.media} alt="comment media" maxHeightClass="max-h-64" />
+                                <PostMediaViewer
+                                    media={comment.media}
+                                    alt={COMMENT_TEXT.COMMENT_MEDIA_ALT}
+                                    maxHeightClass="max-h-64"
+                                />
                             </>
                         )}
                     </div>
@@ -189,14 +195,14 @@ const CommentItem = ({
                             onClick={() => onReplyClick(comment.id, comment.author?.username, 'parent')}
                             className="text-xs font-medium text-slate-500 transition hover:text-slate-700"
                         >
-                            Reply
+                            {POST_ACTION_LABEL.REPLY}
                         </button>
                     </div>
 
                     {replyingToCommentId === comment.id && replyPlacement === 'parent' && (
                         <ReplyComposer
                             value={replyContent}
-                            placeholder={`Trả lời ${comment.author?.display_name ?? 'comment'}...`}
+                            placeholder={`${COMMENT_TEXT.REPLY_PLACEHOLDER_PREFIX} ${comment.author?.display_name ?? COMMENT_TEXT.REPLY_FALLBACK_TARGET}...`}
                             media={replyMedia}
                             isCreating={isCreatingComment}
                             isUploadingMedia={isUploadingReplyMedia}
@@ -217,7 +223,7 @@ const CommentItem = ({
                                         {reply.author?.avatar_url ? (
                                             <img
                                                 src={reply.author.avatar_url}
-                                                alt={reply.author.display_name}
+                                                alt={reply.author.display_name || LAYOUT_ALT.AVATAR}
                                                 className="size-8 rounded-full object-cover"
                                             />
                                         ) : (
@@ -228,7 +234,7 @@ const CommentItem = ({
                                             <div className="rounded-2xl bg-slate-50 px-4 py-3">
                                                 <div className="flex items-start justify-between gap-3">
                                                     <p className="text-sm font-semibold text-slate-900">
-                                                        {reply.author?.display_name ?? 'Unknown'}
+                                                        {reply.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
                                                     </p>
 
                                                     {currentUserId === reply.author?.id && (
@@ -244,7 +250,7 @@ const CommentItem = ({
                                                     <InlinePostEditor
                                                         content={editContent}
                                                         media={editMedia}
-                                                        placeholder="Viết trả lời..."
+                                                        placeholder={`${COMMENT_TEXT.REPLY_PLACEHOLDER_PREFIX} ${reply.author?.display_name ?? COMMENT_TEXT.REPLY_FALLBACK_TARGET}...`}
                                                         maxMediaHeightClass="max-h-56"
                                                         isSaving={isUpdatingPost}
                                                         isUploading={isUploadingEditMedia}
@@ -268,7 +274,7 @@ const CommentItem = ({
 
                                                         <PostMediaViewer
                                                             media={reply.media}
-                                                            alt="reply media"
+                                                            alt={COMMENT_TEXT.REPLY_MEDIA_ALT}
                                                             maxHeightClass="max-h-56"
                                                             widthClass="w-1/2"
                                                         />
@@ -292,7 +298,7 @@ const CommentItem = ({
                                                     }
                                                     className="text-xs font-medium text-slate-500 transition hover:text-slate-700"
                                                 >
-                                                    Reply
+                                                    {POST_ACTION_LABEL.REPLY}
                                                 </button>
                                             </div>
                                         </div>
@@ -305,7 +311,7 @@ const CommentItem = ({
                     {replyingToCommentId === comment.id && replyPlacement === 'reply' && (
                         <ReplyComposer
                             value={replyContent}
-                            placeholder={`Trả lời ${comment.author?.display_name ?? 'comment'}...`}
+                            placeholder={`${COMMENT_TEXT.REPLY_PLACEHOLDER_PREFIX} ${comment.author?.display_name ?? COMMENT_TEXT.REPLY_FALLBACK_TARGET}...`}
                             media={replyMedia}
                             isCreating={isCreatingComment}
                             isUploadingMedia={isUploadingReplyMedia}

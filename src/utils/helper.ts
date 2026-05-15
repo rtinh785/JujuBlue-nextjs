@@ -1,10 +1,9 @@
-import { setCookie } from '@/utils/cookie'
-import { type SupportedLocale, LOCALE_KEY } from '@/core/constants/common.constant'
+import { COMMON_TEXT, DATE_TIME_LOCALE, LOCALE_KEY, type SupportedLocale } from '@/core/constants/common.constant'
 import { loadCatalog } from '@/translations/clientI18n'
+import { setCookie } from '@/utils/cookie'
 import { i18n } from '@lingui/core'
 import clsx, { ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { msg } from '@lingui/core/macro'
 
 export const changeLanguage = async (lang: SupportedLocale) => {
     const messages = await loadCatalog(lang)
@@ -19,13 +18,13 @@ export function cn(...inputs: ClassValue[]) {
 
 export const formatDateOfBirth = (dateOfBirth?: string | null) => {
     if (!dateOfBirth) {
-        return i18n._(msg`Chưa cập nhật`)
+        return COMMON_TEXT.NOT_UPDATED
     }
 
     const [year, month, day] = dateOfBirth.split('-')
 
     if (!year || !month || !day) {
-        return 'Chua cap nhat'
+        return COMMON_TEXT.NOT_UPDATED
     }
 
     return `${day}/${month}/${year}`
@@ -38,7 +37,7 @@ export const formatPostTime = (dateString?: string | null) => {
 
     if (Number.isNaN(date.getTime())) return ''
 
-    return new Intl.DateTimeFormat('vi-VN', {
+    return new Intl.DateTimeFormat(DATE_TIME_LOCALE.POST_TIME, {
         hour: '2-digit',
         minute: '2-digit',
         day: '2-digit',

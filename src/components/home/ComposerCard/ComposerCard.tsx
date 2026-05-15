@@ -1,17 +1,27 @@
 import { useMyProfile } from '@/apis/user/user.query'
-import { ImagePlus, Globe, Users, Lock, ChevronDown, X } from 'lucide-react'
-import { useRef, useState, useEffect } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { composerSchema, type ComposerFormValues } from './schema/composer.schema'
-import { useCreatePost, useUploadPostMedia } from '@/apis/posts/posts.query'
-import { toast } from 'sonner'
 import AutoResizeTextarea from '@/components/common/AutoResizeTextarea'
+import { LAYOUT_ALT } from '@/core/constants/layout.constant'
+import {
+    POST_ACTION_LABEL,
+    POST_MEDIA_INPUT,
+    POST_MEDIA_TYPE,
+    POST_MESSAGE,
+    POST_TEXT,
+    POST_VISIBILITY,
+    POST_VISIBILITY_LABEL,
+} from '@/core/constants/post.constant'
+import { composerSchema, type ComposerFormValues } from '@/schema/composer.schema'
+import { useCreatePost, useUploadPostMedia } from '@/apis/posts/posts.query'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { ChevronDown, Globe, ImagePlus, Lock, Users, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 const VISIBILITY_OPTIONS = [
-    { value: 'public', label: 'Public', icon: Globe },
-    { value: 'followers', label: 'Followers', icon: Users },
-    { value: 'private', label: 'Private', icon: Lock },
+    { value: POST_VISIBILITY.PUBLIC, label: POST_VISIBILITY_LABEL[POST_VISIBILITY.PUBLIC], icon: Globe },
+    { value: POST_VISIBILITY.FOLLOWERS, label: POST_VISIBILITY_LABEL[POST_VISIBILITY.FOLLOWERS], icon: Users },
+    { value: POST_VISIBILITY.PRIVATE, label: POST_VISIBILITY_LABEL[POST_VISIBILITY.PRIVATE], icon: Lock },
 ] as const
 
 const ComposerCard = () => {
@@ -21,20 +31,12 @@ const ComposerCard = () => {
     const [visibilityOpen, setVisibilityOpen] = useState(false)
     const { mutateAsync: createPostMutation, isPending } = useCreatePost()
     const { mutateAsync: uploadMediaMutation, isPending: isUploadingMedia } = useUploadPostMedia()
-    const {
-        control,
-        register,
-        handleSubmit,
-        setValue,
-        watch,
-        reset,
-        formState: { errors },
-    } = useForm<ComposerFormValues>({
+    const { control, handleSubmit, setValue, watch, reset } = useForm<ComposerFormValues>({
         resolver: yupResolver(composerSchema),
         defaultValues: {
             content: '',
             media: null,
-            visibility: 'public',
+            visibility: POST_VISIBILITY.PUBLIC,
         },
     })
 
@@ -42,7 +44,8 @@ const ComposerCard = () => {
     const selectedVisibility = watch('visibility')
     const mediaFiles = selectedMedia ? Array.from(selectedMedia) : []
 
-    const currentOption = VISIBILITY_OPTIONS.find((o) => o.value === selectedVisibility) ?? VISIBILITY_OPTIONS[0]
+    const currentOption =
+        VISIBILITY_OPTIONS.find((option) => option.value === selectedVisibility) ?? VISIBILITY_OPTIONS[0]
     const CurrentIcon = currentOption.icon
 
     const handleChooseMedia = () => {
@@ -54,15 +57,17 @@ const ComposerCard = () => {
     }
 
     const handleRemoveMedia = (indexToRemove: number) => {
-        const newFiles = mediaFiles.filter((_, i) => i !== indexToRemove)
+        const newFiles = mediaFiles.filter((_, index) => index !== indexToRemove)
+
         if (newFiles.length === 0) {
             setValue('media', null, { shouldValidate: true })
             if (fileInputRef.current) fileInputRef.current.value = ''
-        } else {
-            const dt = new DataTransfer()
-            newFiles.forEach((f) => dt.items.add(f))
-            setValue('media', dt.files, { shouldValidate: true })
+            return
         }
+
+        const dataTransfer = new DataTransfer()
+        newFiles.forEach((file) => dataTransfer.items.add(file))
+        setValue('media', dataTransfer.files, { shouldValidate: true })
     }
 
     const onSubmit = async (values: ComposerFormValues) => {
@@ -70,7 +75,7 @@ const ComposerCard = () => {
         const hasMedia = !!values.media && values.media.length > 0
 
         if (!hasContent && !hasMedia) {
-            toast.error('Phải có nội dung hoặc media mới đăng được', { position: 'top-left' })
+            toast.error(POST_MESSAGE.MISSING_CONTENT_OR_MEDIA, { position: 'top-left' })
             return
         }
 
@@ -91,7 +96,7 @@ const ComposerCard = () => {
         reset({
             content: '',
             media: null,
-            visibility: 'public',
+            visibility: POST_VISIBILITY.PUBLIC,
         })
 
         if (fileInputRef.current) {
@@ -100,12 +105,14 @@ const ComposerCard = () => {
     }
 
     useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setVisibilityOpen(false)
             }
         }
+
         document.addEventListener('mousedown', handleClickOutside)
+
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
@@ -118,7 +125,7 @@ const ComposerCard = () => {
                 {profile?.avatar_url ? (
                     <img
                         src={profile.avatar_url}
-                        alt={profile.username}
+                        alt={profile.username || LAYOUT_ALT.AVATAR}
                         className="size-11 rounded-full object-cover"
                     />
                 ) : (
@@ -132,14 +139,13 @@ const ComposerCard = () => {
                         render={({ field }) => (
                             <AutoResizeTextarea
                                 {...field}
-                                placeholder="What's on your mind?"
+                                placeholder={POST_TEXT.COMPOSER_PLACEHOLDER}
                                 rows={2}
                                 className="max-h-[72px] min-h-12 w-full bg-transparent p-0 text-sm leading-6 text-slate-700 placeholder:text-slate-400"
                             />
                         )}
                     />
 
-                    {/* Visibility Dropdown */}
                     <div ref={dropdownRef} className="relative mt-3 inline-block">
                         <button
                             type="button"
@@ -177,12 +183,11 @@ const ComposerCard = () => {
                         )}
                     </div>
 
-                    {/* Media preview */}
                     {mediaFiles.length > 0 && (
                         <div className="mt-4 grid grid-cols-1 gap-3">
                             {mediaFiles.map((file, index) => {
                                 const previewUrl = URL.createObjectURL(file)
-                                const isImage = file.type.startsWith('image/')
+                                const isImage = file.type.startsWith(POST_MEDIA_TYPE.IMAGE_PREFIX)
 
                                 return (
                                     <div key={`${file.name}-${index}`} className="group relative">
@@ -197,7 +202,9 @@ const ComposerCard = () => {
                                                 src={previewUrl}
                                                 controls
                                                 className="max-h-[500px] min-h-[200px] w-full rounded-xl object-cover"
-                                            />
+                                            >
+                                                <track kind="captions" />
+                                            </video>
                                         )}
                                         <button
                                             type="button"
@@ -223,7 +230,7 @@ const ComposerCard = () => {
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept="image/*,video/*"
+                            accept={POST_MEDIA_INPUT.ACCEPT}
                             multiple
                             className="hidden"
                             onChange={handleMediaChange}
@@ -234,7 +241,7 @@ const ComposerCard = () => {
                             disabled={isPending || isUploadingMedia}
                             className="bg-primary rounded-full px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
                         >
-                            {isPending || isUploadingMedia ? 'Posting...' : 'Post'}
+                            {isPending || isUploadingMedia ? POST_ACTION_LABEL.POSTING : POST_ACTION_LABEL.POST}
                         </button>
                     </div>
                 </div>

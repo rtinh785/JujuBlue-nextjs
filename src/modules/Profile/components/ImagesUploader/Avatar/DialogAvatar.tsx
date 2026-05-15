@@ -1,5 +1,6 @@
 import { Button } from '@/components/base/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/base/dialog'
+import { PROFILE_ACTION_LABEL, PROFILE_TEXT, PROFILE_UPLOAD } from '@/core/constants/profile.constant'
 import { getCroppedAvatarImage } from '@/modules/Profile/components/ImagesUploader/Avatar/avatarCrop.utils'
 import Cropper, { type Area } from 'react-easy-crop'
 import { useState } from 'react'
@@ -23,8 +24,8 @@ const DialogAvatar = ({ open, imageSrc, onOpenChange, onCancel, onSave }: Dialog
         }
 
         const croppedBlob = await getCroppedAvatarImage(imageSrc, croppedAreaPixels)
-        const croppedFile = new File([croppedBlob], 'avatar.jpg', {
-            type: 'image/jpeg',
+        const croppedFile = new File([croppedBlob], PROFILE_UPLOAD.DEFAULT_AVATAR_FILE_NAME, {
+            type: PROFILE_UPLOAD.AVATAR_MIME_TYPE,
         })
 
         await onSave(croppedFile)
@@ -34,7 +35,7 @@ const DialogAvatar = ({ open, imageSrc, onOpenChange, onCancel, onSave }: Dialog
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-[520px]">
                 <DialogHeader>
-                    <DialogTitle>Chọn ảnh đại diện</DialogTitle>
+                    <DialogTitle>{PROFILE_TEXT.AVATAR_DIALOG_TITLE}</DialogTitle>
                 </DialogHeader>
 
                 <div className="py-4">
@@ -73,10 +74,10 @@ const DialogAvatar = ({ open, imageSrc, onOpenChange, onCancel, onSave }: Dialog
 
                 <DialogFooter>
                     <Button type="button" variant="outline" onClick={onCancel}>
-                        Hủy
+                        {PROFILE_ACTION_LABEL.CANCEL}
                     </Button>
                     <Button type="button" onClick={handleSaveClick}>
-                        Lưu
+                        {PROFILE_ACTION_LABEL.SAVE_CHANGES}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -12,7 +12,7 @@ import {
 } from '@/apis/user/user.query'
 import { useProfileMedia } from '@/hooks/useProfileMedia'
 import EditProfileDialog from '@/modules/Profile/components/EditProfile/EditProfileDialog'
-import type { EditProfileFormValues } from '@/modules/Profile/components/EditProfile/editProfile.schema'
+import type { EditProfileFormValues } from '@/schema/editProfile.schema'
 import DialogAvatar from '@/modules/Profile/components/ImagesUploader/Avatar/DialogAvatar'
 import ProfileCoverSection from '@/modules/Profile/components/ProfileCoverSection/ProfileCoverSection'
 import ProfileHeaderSection from '@/modules/Profile/components/ProfileHeaderSection/ProfileHeaderSection'
@@ -25,6 +25,7 @@ import { requireAuthAction } from '@/utils/requireAuthAction'
 import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import type { PostWithStatus } from '@/core/types/post.type'
+import { PROFILE_TAB, PROFILE_TAB_LABEL, PROFILE_TEXT } from '@/core/constants/profile.constant'
 
 interface ProfileProps {
     profileId?: string
@@ -173,7 +174,7 @@ const Profile = ({ profileId }: ProfileProps) => {
         <main className="mx-auto w-full max-w-[1180px] px-3 pt-4 pb-10 lg:px-4">
             <div className="relative lg:pr-[344px]">
                 <section className="space-y-4">
-                    <Tabs defaultValue="posts" orientation="horizontal" className="flex-col">
+                    <Tabs defaultValue={PROFILE_TAB.POSTS} orientation="horizontal" className="flex-col">
                         {/* Card profile + tab bar dính liền */}
                         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
                             {/* Cover photo */}
@@ -197,7 +198,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                                     avatarUrl={
                                         profileData?.avatar_url ?? currentUser?.user_metadata?.avatar_url ?? undefined
                                     }
-                                    avatarAlt={profileData?.display_name ?? 'Avatar'}
+                                    avatarAlt={profileData?.display_name ?? PROFILE_TEXT.AVATAR_ALT}
                                     isFollowed={checkFollow?.isFollowing}
                                     onSelectAvatar={handleSelectAvatar}
                                     onFollowUnfollow={handleFollowUnfollow}
@@ -235,23 +236,23 @@ const Profile = ({ profileId }: ProfileProps) => {
                                     className="mt-4 w-full justify-start rounded-none border-b border-slate-200 bg-transparent px-0"
                                 >
                                     <TabsTrigger
-                                        value="posts"
+                                        value={PROFILE_TAB.POSTS}
                                         className="mr-6 rounded-none border-0 bg-transparent px-0 py-3 text-sm font-medium text-slate-400 shadow-none data-[state=active]:border-b-2 data-[state=active]:border-slate-800 data-[state=active]:bg-transparent data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
                                     >
-                                        Posts
+                                        {PROFILE_TAB_LABEL.POSTS}
                                     </TabsTrigger>
                                     <TabsTrigger
-                                        value="following"
+                                        value={PROFILE_TAB.FOLLOWING}
                                         className="rounded-none border-0 bg-transparent px-0 py-3 text-sm font-medium text-slate-400 shadow-none data-[state=active]:border-b-2 data-[state=active]:border-slate-800 data-[state=active]:bg-transparent data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
                                     >
-                                        Following
+                                        {PROFILE_TAB_LABEL.FOLLOWING}
                                     </TabsTrigger>
                                 </TabsList>
                             </div>
                         </section>
 
                         {/* Content bên dưới */}
-                        <TabsContent value="posts">
+                        <TabsContent value={PROFILE_TAB.POSTS}>
                             <PostsTab
                                 profileId={profilePostsUserId}
                                 currentUserId={currentUser?.id}
@@ -260,7 +261,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                             />
                         </TabsContent>
 
-                        <TabsContent value="following">
+                        <TabsContent value={PROFILE_TAB.FOLLOWING}>
                             <FollowingTab currentUserId={currentUser?.id} isOwnProfile={isOwnProfile} />
                         </TabsContent>
                     </Tabs>

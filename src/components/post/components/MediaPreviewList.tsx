@@ -1,5 +1,6 @@
 'use client'
 
+import { POST_MEDIA_TYPE, POST_TEXT } from '@/core/constants/post.constant'
 import type { PostMediaItem } from '@/core/types/post.type'
 import { X } from 'lucide-react'
 
@@ -18,10 +19,12 @@ const MediaPreviewList = ({ media, onRemove }: Props) => {
                     key={`${item.url}-${index}`}
                     className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
                 >
-                    {item.type === 'image' ? (
-                        <img src={item.url} alt="preview" className="h-40 w-full object-cover" />
+                    {item.type === POST_MEDIA_TYPE.IMAGE ? (
+                        <img src={item.url} alt={POST_TEXT.MEDIA_PREVIEW_ALT} className="h-40 w-full object-cover" />
                     ) : (
-                        <video src={item.url} className="h-40 w-full object-cover" />
+                        <video src={item.url} className="h-40 w-full object-cover">
+                            <track kind="captions" />
+                        </video>
                     )}
 
                     {onRemove && (

@@ -1,5 +1,6 @@
 'use client'
 
+import { POST_MEDIA_TYPE, POST_TEXT } from '@/core/constants/post.constant'
 import type { PostMediaItem } from '@/core/types/post.type'
 
 type Props = {
@@ -9,7 +10,12 @@ type Props = {
     widthClass?: string
 }
 
-const PostMediaViewer = ({ media, alt = 'post media', maxHeightClass = 'max-h-64', widthClass = 'w-full' }: Props) => {
+const PostMediaViewer = ({
+    media,
+    alt = POST_TEXT.MEDIA_ALT,
+    maxHeightClass = 'max-h-64',
+    widthClass = 'w-full',
+}: Props) => {
     if (!media || media.length === 0) return null
 
     return (
@@ -17,11 +23,15 @@ const PostMediaViewer = ({ media, alt = 'post media', maxHeightClass = 'max-h-64
             {media.map((item, index) => {
                 const className = `${maxHeightClass} ${widthClass} rounded-2xl object-cover`
 
-                if (item.type === 'image') {
+                if (item.type === POST_MEDIA_TYPE.IMAGE) {
                     return <img key={`${item.url}-${index}`} src={item.url} alt={alt} className={className} />
                 }
 
-                return <video key={`${item.url}-${index}`} src={item.url} controls className={className} />
+                return (
+                    <video key={`${item.url}-${index}`} src={item.url} controls className={className}>
+                        <track kind="captions" />
+                    </video>
+                )
             })}
         </div>
     )

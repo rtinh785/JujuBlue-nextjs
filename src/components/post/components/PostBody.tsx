@@ -1,5 +1,6 @@
-import type { PostWithStatus } from '@/core/types/post.type'
 import SharedPostPreview from '@/components/post/components/SharedPostPreview'
+import { POST_MEDIA_TYPE, POST_TEXT } from '@/core/constants/post.constant'
+import type { PostWithStatus } from '@/core/types/post.type'
 
 type Props = {
     post: PostWithStatus
@@ -12,27 +13,26 @@ const PostBody = ({ post, canOpenDetail = false, onOpenDetail, onOpenSharedPost 
     return (
         <div className="mt-2">
             {post.content ? (
-                <p
-                    role="button"
-                    tabIndex={0}
+                <button
+                    type="button"
                     onClick={canOpenDetail ? onOpenDetail : undefined}
-                    className={`text-sm leading-6 text-slate-600 ${
+                    className={`block w-full text-left text-sm leading-6 text-slate-600 ${
                         canOpenDetail ? 'cursor-pointer' : 'cursor-default'
                     }`}
                 >
                     {post.content}
-                </p>
+                </button>
             ) : null}
 
             {post.media && post.media.length > 0 ? (
                 <div className="mt-3 space-y-3">
                     {post.media.map((item, index) => {
-                        if (item.type === 'image') {
+                        if (item.type === POST_MEDIA_TYPE.IMAGE) {
                             return (
                                 <img
                                     key={`${item.url}-${index}`}
                                     src={item.url}
-                                    alt={post.author.display_name}
+                                    alt={post.author.display_name || POST_TEXT.MEDIA_ALT}
                                     onClick={canOpenDetail ? onOpenDetail : undefined}
                                     className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
                                         canOpenDetail ? 'cursor-pointer' : 'cursor-default'
@@ -50,7 +50,9 @@ const PostBody = ({ post, canOpenDetail = false, onOpenDetail, onOpenSharedPost 
                                 className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
                                     canOpenDetail ? 'cursor-pointer' : 'cursor-default'
                                 }`}
-                            />
+                            >
+                                <track kind="captions" />
+                            </video>
                         )
                     })}
                 </div>
@@ -60,10 +62,8 @@ const PostBody = ({ post, canOpenDetail = false, onOpenDetail, onOpenSharedPost 
                 <SharedPostPreview post={post.shared_post} onOpen={onOpenSharedPost} />
             ) : post.was_shared_post ? (
                 <div className="mt-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center">
-                    <p className="text-sm font-medium text-slate-500">Bài viết gốc không còn tồn tại</p>
-                    <p className="mt-1 text-xs text-slate-400">
-                        Nội dung được chia sẻ đã bị xoá hoặc không còn khả dụng.
-                    </p>
+                    <p className="text-sm font-medium text-slate-500">{POST_TEXT.ORIGINAL_POST_UNAVAILABLE_TITLE}</p>
+                    <p className="mt-1 text-xs text-slate-400">{POST_TEXT.ORIGINAL_POST_UNAVAILABLE_DESCRIPTION}</p>
                 </div>
             ) : null}
         </div>

@@ -1,7 +1,9 @@
 'use client'
 
-import type { SharedPostItem } from '@/core/types/post.type'
 import PostMediaViewer from '@/components/post/components/PostMediaViewer'
+import { LAYOUT_ALT } from '@/core/constants/layout.constant'
+import { POST_TEXT } from '@/core/constants/post.constant'
+import type { SharedPostItem } from '@/core/types/post.type'
 
 type Props = {
     post: SharedPostItem
@@ -10,7 +12,6 @@ type Props = {
 
 const SharedPostPreview = ({ post, onOpen }: Props) => {
     const handleOpen = (event: React.MouseEvent<HTMLDivElement>) => {
-        // chặn click lan ra ngoài. Nếu không có nó, click vào preview bài gốc sẽ bị PostCard cha hiểu là click vào post share.
         event.stopPropagation()
         onOpen?.(post)
     }
@@ -33,7 +34,7 @@ const SharedPostPreview = ({ post, onOpen }: Props) => {
                 {post.author?.avatar_url ? (
                     <img
                         src={post.author.avatar_url}
-                        alt={post.author.display_name}
+                        alt={post.author.display_name || LAYOUT_ALT.AVATAR}
                         className="size-9 rounded-full object-cover"
                     />
                 ) : (
@@ -41,7 +42,9 @@ const SharedPostPreview = ({ post, onOpen }: Props) => {
                 )}
 
                 <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-900">{post.author?.display_name ?? 'Unknown'}</p>
+                    <p className="text-sm font-semibold text-slate-900">
+                        {post.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
+                    </p>
                     <p className="text-xs text-slate-400">@{post.author?.username}</p>
 
                     {post.content ? (

@@ -2,6 +2,7 @@
 
 import MediaPickerButton from '@/components/post/components/MediaPickerButton'
 import MediaPreviewList from '@/components/post/components/MediaPreviewList'
+import { POST_ACTION_LABEL } from '@/core/constants/post.constant'
 import type { PostMediaItem } from '@/core/types/post.type'
 
 type Props = {
@@ -52,7 +53,7 @@ const ReplyComposer = ({
                         onClick={onCancel}
                         className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
                     >
-                        Huỷ
+                        {POST_ACTION_LABEL.CANCEL}
                     </button>
 
                     <button
@@ -61,7 +62,7 @@ const ReplyComposer = ({
                         disabled={submitDisabled}
                         className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {isCreating ? 'Đang gửi...' : 'Trả lời'}
+                        {isCreating ? POST_ACTION_LABEL.SENDING : POST_ACTION_LABEL.REPLY}
                     </button>
                 </div>
             </div>

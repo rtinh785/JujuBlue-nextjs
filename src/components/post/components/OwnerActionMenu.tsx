@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { POST_ACTION_LABEL } from '@/core/constants/post.constant'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 type Props = {
     isDeleting?: boolean
@@ -23,6 +24,7 @@ const OwnerActionMenu = ({ isDeleting = false, onEdit, onDelete }: Props) => {
         }
 
         document.addEventListener('mousedown', handleClickOutside)
+
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [menuOpen])
 
@@ -47,7 +49,7 @@ const OwnerActionMenu = ({ isDeleting = false, onEdit, onDelete }: Props) => {
                         className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
                     >
                         <Pencil className="size-3.5" />
-                        Chỉnh sửa
+                        {POST_ACTION_LABEL.EDIT}
                     </button>
 
                     <button
@@ -60,7 +62,7 @@ const OwnerActionMenu = ({ isDeleting = false, onEdit, onDelete }: Props) => {
                         className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <Trash2 className="size-3.5" />
-                        Xoá
+                        {POST_ACTION_LABEL.DELETE}
                     </button>
                 </div>
             )}

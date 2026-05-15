@@ -1,9 +1,7 @@
 'use client'
 import Link from 'next/link'
-import { AUTH_MESSAGES } from '@/core/constants/messages/auth/auth.messages'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
-import { registerSchema, type RegisterFormValues } from './register.schema'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import InputField from '@/components/form/InputField'
@@ -13,6 +11,10 @@ import { saveAccesTokenToLS, saveRefreshTokenToLS } from '@/utils/auth'
 import { useRouter } from 'next/navigation'
 import http from '@/apis/axios'
 import { useGuestGuard } from '@/hooks/useGuestGuard'
+import { AUTH_LABEL, AUTH_MESSAGE, AUTH_TEXT, AUTH_URL } from '@/core/constants/auth.constant'
+import { ROUTE } from '@/core/constants/route.constant'
+import { RegisterFormValues, registerSchema } from '@/schema/register.schema'
+
 const Register = () => {
     useGuestGuard()
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
@@ -39,13 +41,13 @@ const Register = () => {
         registerAccountMutation.mutate(
             { email, password },
             {
-                onSuccess: (data) => {
-                    toast('Bạn đã đăng ký thành công hãy check email xác để thực')
+                onSuccess: () => {
+                    toast.success(AUTH_MESSAGE.REGISTER_SUCCESS)
                     reset()
                 },
                 onError: (error: any) => {
                     setError('email', {
-                        message: error.response?.data?.message || AUTH_MESSAGES.REGISTER_FAILED,
+                        message: error.response?.data?.message || AUTH_MESSAGE.REGISTER_FAILED,
                     })
                 },
             },
@@ -54,7 +56,7 @@ const Register = () => {
 
     const handleGoogleRegister = async () => {
         setIsGoogleLoading(true)
-        window.location.href = 'http://localhost:4000/auth/google'
+        window.location.href = AUTH_URL.GOOGLE_LOGIN
     }
 
     useEffect(() => {
@@ -71,11 +73,11 @@ const Register = () => {
             if (access_token && refresh_token) {
                 saveAccesTokenToLS(access_token)
                 saveRefreshTokenToLS(refresh_token)
-                window.history.replaceState(null, '', '/login')
+                window.history.replaceState(null, '', ROUTE.LOGIN)
 
                 await http.get('profiles/me')
 
-                router.push('/home')
+                router.push(ROUTE.HOME)
             }
         }
 
@@ -95,9 +97,9 @@ const Register = () => {
                     </div>
                 </div>
                 <h1 className="py-3 pb-2 text-center text-2xl font-bold lg:text-left lg:text-3xl lg:whitespace-nowrap">
-                    Nice to meet you!
+                    {AUTH_TEXT.REGISTER_TITLE}
                 </h1>
-                <p className="mb-5 font-normal text-[#64748B]">Create an account.</p>
+                <p className="mb-5 font-normal text-[#64748B]">{AUTH_TEXT.REGISTER_DESCRIPTION}</p>
 
                 <button
                     type="button"
@@ -107,40 +109,40 @@ const Register = () => {
                 >
                     <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
                     <span className="font-semibold text-[#0F172A]">
-                        {isGoogleLoading ? 'Connecting...' : 'Continue with Google'}
+                        {isGoogleLoading ? AUTH_LABEL.GOOGLE_CONNECTING : AUTH_LABEL.CONTINUE_WITH_GOOGLE}
                     </span>
                 </button>
 
                 <div className="my-2 flex items-center gap-4 md:my-6">
                     <hr className="flex-1 border-gray-200" />
-                    <span className="text-sm text-gray-400">or</span>
+                    <span className="text-sm text-gray-400">{AUTH_TEXT.OR}</span>
                     <hr className="flex-1 border-gray-200" />
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} noValidate>
                     {/* email */}
                     <InputField<RegisterFormValues>
-                        label="Email address"
+                        label={AUTH_TEXT.EMAIL_LABEL}
                         type="email"
-                        placeholder="name@example.com"
+                        placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
                         name="email"
                         register={register}
                         errors={errors}
                     />
                     {/* password */}
                     <InputField<RegisterFormValues>
-                        label="Password"
+                        label={AUTH_TEXT.PASSWORD_LABEL}
                         type="password"
-                        placeholder="••••••••"
+                        placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
                         name="password"
                         register={register}
                         errors={errors}
                     />
                     {/* confirm password */}
                     <InputField<RegisterFormValues>
-                        label="Confirm Password"
+                        label={AUTH_TEXT.CONFIRM_PASSWORD_LABEL}
                         type="password"
-                        placeholder="••••••••"
+                        placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
                         name="confirmPassword"
                         register={register}
                         errors={errors}
@@ -149,14 +151,14 @@ const Register = () => {
                         className="bg-primary mt-[18px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? 'Creating...' : 'Create account'}
+                        {isSubmitting ? AUTH_LABEL.CREATING_ACCOUNT : AUTH_LABEL.CREATE_ACCOUNT}
                     </button>
                 </form>
 
                 <div className="mt-4 text-center">
-                    <span className="text-[14px] font-normal text-[#64748B]">Already have an account?</span>
-                    <Link href="/login" className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                        Sign in
+                    <span className="text-[14px] font-normal text-[#64748B]">{AUTH_TEXT.ALREADY_HAVE_ACCOUNT}</span>
+                    <Link href={ROUTE.LOGIN} className="text-primary pl-1 text-[14px] font-semibold hover:underline">
+                        {AUTH_LABEL.SIGN_IN}
                     </Link>
                 </div>
             </div>

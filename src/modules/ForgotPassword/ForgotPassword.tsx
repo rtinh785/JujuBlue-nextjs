@@ -1,20 +1,19 @@
 'use client'
 
 import InputField from '@/components/form/InputField'
-import { AUTH_MESSAGES } from '@/core/constants/messages/auth/auth.messages'
-import { envConfig } from '@/core/configs/env.config'
-
-import { ForgotPasswordFormValues, forgotPasswordSchema } from '@/modules/ForgotPassword/forgotPassword.schema'
+import { ForgotPasswordFormValues, forgotPasswordSchema } from '@/schema/forgotPassword.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useForgotPasswordMutation } from '@/apis/auth/auth.query'
 import { useGuestGuard } from '@/hooks/useGuestGuard'
+import { AUTH_LABEL, AUTH_MESSAGE, AUTH_TEXT } from '@/core/constants/auth.constant'
+import { ROUTE } from '@/core/constants/route.constant'
 
 const ForgotPassword = () => {
     useGuestGuard()
-    const { mutateAsync: forgotPasswordMutation, isPending } = useForgotPasswordMutation()
+    const { mutateAsync: forgotPasswordMutation } = useForgotPasswordMutation()
 
     const {
         register,
@@ -29,16 +28,15 @@ const ForgotPassword = () => {
     })
 
     const onSubmit = async (values: { email: string }) => {
-    try {
-        await forgotPasswordMutation({ email: values.email })
-        toast.success('Đã gửi email khôi phục mật khẩu', { position: 'top-left' })
-        reset()
-    } catch (error) {
-        console.log('forgot password error:', error)
-        toast.error('Gửi email thất bại', { position: 'top-left' })
+        try {
+            await forgotPasswordMutation({ email: values.email })
+            toast.success(AUTH_MESSAGE.FORGOT_PASSWORD_SUCCESS, { position: 'top-left' })
+            reset()
+        } catch (error) {
+            console.log('forgot password error:', error)
+            toast.error(AUTH_MESSAGE.FORGOT_PASSWORD_FAILED, { position: 'top-left' })
+        }
     }
-}
-
 
     return (
         <section className="flex items-center justify-center bg-white px-4 py-8 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">
@@ -53,17 +51,15 @@ const ForgotPassword = () => {
                     </div>
                 </div>
                 <h1 className="pb-2 text-center text-3xl font-bold lg:text-left lg:whitespace-nowrap">
-                    Forgot Password?
+                    {AUTH_TEXT.FORGOT_PASSWORD_TITLE}
                 </h1>
-                <p className="mb-8 font-normal text-[#64748B]">
-                    Enter your email address and we'll send you a link to reset your password.
-                </p>
+                <p className="mb-8 font-normal text-[#64748B]">{AUTH_TEXT.FORGOT_PASSWORD_DESCRIPTION}</p>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <InputField
-                        label="Email address"
+                        label={AUTH_TEXT.EMAIL_LABEL}
                         type="email"
-                        placeholder="name@example.com"
+                        placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
                         name="email"
                         register={register}
                         errors={errors}
@@ -73,13 +69,13 @@ const ForgotPassword = () => {
                         disabled={isSubmitting}
                         className="bg-primary mt-[28px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white disabled:opacity-50"
                     >
-                        {isSubmitting ? 'Sending...' : 'Send'}
+                        {isSubmitting ? AUTH_LABEL.SENDING : AUTH_LABEL.SEND}
                     </button>
                 </form>
 
                 <div className="pt-8 text-center">
-                    <Link href="/register" className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                        Go back to Sign up
+                    <Link href={ROUTE.REGISTER} className="text-primary pl-1 text-[14px] font-semibold hover:underline">
+                        {AUTH_LABEL.BACK_TO_SIGN_UP}
                     </Link>
                 </div>
             </div>

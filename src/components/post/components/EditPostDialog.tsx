@@ -6,10 +6,19 @@ import { useForm } from 'react-hook-form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/base/dialog'
 import { Button } from '@/components/base/button'
 import type { PostMediaItem, PostWithStatus } from '@/core/types/post.type'
-import { EditPostFormValues, editPostSchema } from '@/components/post/schema/edit-post.schema'
+import { EditPostFormValues, editPostSchema } from '@/schema/editPost.schema'
 import { useUploadPostMedia } from '@/apis/posts/posts.query'
 import { formatPostTime } from '@/utils/helper'
 import { ChevronDown, Globe, ImagePlus, Lock, Users, X } from 'lucide-react'
+import {
+    POST_ACTION_LABEL,
+    POST_MEDIA_INPUT,
+    POST_MEDIA_TYPE,
+    POST_TEXT,
+    POST_VISIBILITY,
+    POST_VISIBILITY_LABEL,
+} from '@/core/constants/post.constant'
+import { LAYOUT_ALT } from '@/core/constants/layout.constant'
 
 type Props = {
     post: PostWithStatus | null
@@ -24,9 +33,9 @@ const VISIBILITY_OPTIONS: {
     label: string
     icon: React.ElementType
 }[] = [
-    { value: 'public', label: 'Public', icon: Globe },
-    { value: 'followers', label: 'Followers', icon: Users },
-    { value: 'private', label: 'Private', icon: Lock },
+    { value: POST_VISIBILITY.PUBLIC, label: POST_VISIBILITY_LABEL.public, icon: Globe },
+    { value: POST_VISIBILITY.FOLLOWERS, label: POST_VISIBILITY_LABEL.followers, icon: Users },
+    { value: POST_VISIBILITY.PRIVATE, label: POST_VISIBILITY_LABEL.private, icon: Lock },
 ]
 
 const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit }: Props) => {
@@ -41,7 +50,7 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
         resolver: yupResolver(editPostSchema),
         defaultValues: {
             content: '',
-            visibility: 'public',
+            visibility: POST_VISIBILITY.PUBLIC,
         },
     })
 
@@ -50,7 +59,7 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
     const visibilityRef = useRef<HTMLDivElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
-    // Auto-resize textarea khi dialog mở với nội dung có sẵn
+    // Keep textarea height in sync with existing content when the dialog opens.
     useEffect(() => {
         if (!open || !textareaRef.current) return
         const el = textareaRef.current
@@ -96,7 +105,7 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
         if (!post || !open) return
         reset({
             content: post.content ?? '',
-            visibility: (post.visibility as EditPostFormValues['visibility']) ?? 'public',
+            visibility: (post.visibility as EditPostFormValues['visibility']) ?? POST_VISIBILITY.PUBLIC,
         })
         setEditingMedia(post.media ?? [])
     }, [post, open, reset])
@@ -107,7 +116,9 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-h-[90vh] !max-w-[840px] overflow-y-auto p-0" showCloseButton>
                 <DialogHeader className="border-b border-slate-100 px-4 py-4">
-                    <DialogTitle>Chỉnh sửa bài viết của {post.author?.display_name ?? 'Unknown'}</DialogTitle>
+                    <DialogTitle>
+                        {POST_TEXT.EDIT_DIALOG_TITLE_PREFIX} {post.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
+                    </DialogTitle>
                 </DialogHeader>
 
                 <div className="p-4">
@@ -116,7 +127,7 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                             {post.author?.avatar_url ? (
                                 <img
                                     src={post.author.avatar_url}
-                                    alt={post.author.display_name}
+                                    alt={post.author.display_name || LAYOUT_ALT.AVATAR}
                                     className="size-11 rounded-full object-cover"
                                 />
                             ) : (
@@ -124,10 +135,9 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                             )}
 
                             <div className="min-w-0 flex-1">
-                                {/* Author meta */}
                                 <div className="flex flex-wrap items-center gap-2">
                                     <span className="text-sm font-semibold text-slate-900">
-                                        {post.author?.display_name ?? 'Unknown'}
+                                        {post.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
                                     </span>
                                     {post.author?.username && (
                                         <span className="text-xs text-slate-400">@{post.author.username}</span>
@@ -135,7 +145,6 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                     <span className="text-xs text-slate-300">{formatPostTime(post.created_at)}</span>
                                 </div>
 
-                                {/* Visibility dropdown */}
                                 <div ref={visibilityRef} className="relative mt-2 inline-block">
                                     <button
                                         type="button"
@@ -176,10 +185,9 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                     )}
                                 </div>
 
-                                {/* Textarea */}
                                 <textarea
                                     rows={1}
-                                    placeholder="Bạn đang nghĩ gì?"
+                                    placeholder={POST_TEXT.COMPOSER_PLACEHOLDER}
                                     className="mt-3 w-full resize-none overflow-hidden rounded-2xl px-4 pr-3 text-sm text-slate-700 transition outline-none focus:border-slate-300"
                                     onInput={(e) => {
                                         const el = e.currentTarget
@@ -199,7 +207,6 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                             </div>
                         </div>
 
-                        {/* ✅ Media preview kéo ra ngoài flex, chiếm full width */}
                         {editingMedia.length > 0 && (
                             <div className="mt-3 flex flex-col gap-2">
                                 {editingMedia.map((item, index) => (
@@ -207,10 +214,10 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                         key={`${item.url}-${index}`}
                                         className="group relative overflow-hidden rounded-2xl"
                                     >
-                                        {item.type === 'image' ? (
+                                        {item.type === POST_MEDIA_TYPE.IMAGE ? (
                                             <img
                                                 src={item.url}
-                                                alt="post media"
+                                                alt={POST_TEXT.MEDIA_ALT}
                                                 className="max-h-[500px] min-h-[200px] w-full object-cover"
                                             />
                                         ) : (
@@ -218,7 +225,9 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                                 src={item.url}
                                                 controls
                                                 className="max-h-[500px] min-h-[200px] w-full object-cover"
-                                            />
+                                            >
+                                                <track kind="captions" />
+                                            </video>
                                         )}
                                         <button
                                             type="button"
@@ -232,13 +241,12 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                             </div>
                         )}
 
-                        {/* Toolbar */}
                         <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
                             <label className="flex size-8 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
                                 <ImagePlus className="size-4" />
                                 <input
                                     type="file"
-                                    accept="image/*,video/*"
+                                    accept={POST_MEDIA_INPUT.ACCEPT}
                                     multiple
                                     className="hidden"
                                     disabled={isUploadingMedia || isLoading}
@@ -253,10 +261,12 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                     disabled={isLoading || isUploadingMedia}
                                     onClick={() => onOpenChange(false)}
                                 >
-                                    Huỷ
+                                    {POST_ACTION_LABEL.CANCEL}
                                 </Button>
                                 <Button type="submit" disabled={isLoading || isUploadingMedia}>
-                                    {isLoading || isUploadingMedia ? 'Đang lưu...' : 'Lưu thay đổi'}
+                                    {isLoading || isUploadingMedia
+                                        ? POST_ACTION_LABEL.SAVING
+                                        : POST_ACTION_LABEL.SAVE_CHANGES}
                                 </Button>
                             </div>
                         </div>

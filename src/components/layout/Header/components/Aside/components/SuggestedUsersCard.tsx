@@ -1,7 +1,9 @@
 'use client'
 import { useFollow, useSuggestedProfiles } from '@/apis/follows/follows.query'
+import { ASIDE_ACTION_LABEL, ASIDE_TEXT, LAYOUT_ALT } from '@/core/constants/layout.constant'
+import { ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { User } from '@supabase/supabase-js'
-import Link from 'next/dist/client/link'
+import Link from 'next/link'
 import React from 'react'
 
 type SuggestedUsersCardProps = {
@@ -14,16 +16,16 @@ const SuggestedUsersCard = ({ user }: SuggestedUsersCardProps) => {
 
     return (
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-            <h2 className="text-sm font-semibold text-slate-900">Who to follow</h2>
+            <h2 className="text-sm font-semibold text-slate-900">{ASIDE_TEXT.WHO_TO_FOLLOW}</h2>
 
             <div className="mt-4 space-y-4">
                 {suggestedUsersArray?.map((user) => (
                     <div key={user.id} className="flex items-center justify-between gap-3">
-                        <Link href={`/profile/${user.id}`} className="flex items-center gap-3">
+                        <Link href={ROUTE_BUILDER.profileDetail(user.id)} className="flex items-center gap-3">
                             {user.avatar_url ? (
                                 <img
                                     src={user.avatar_url}
-                                    alt={user.display_name}
+                                    alt={user.display_name || LAYOUT_ALT.AVATAR}
                                     className="size-10 rounded-full object-cover"
                                 />
                             ) : (
@@ -41,7 +43,7 @@ const SuggestedUsersCard = ({ user }: SuggestedUsersCardProps) => {
                             className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
                             onClick={() => followMutation(user.id)}
                         >
-                            Follow
+                            {ASIDE_ACTION_LABEL.FOLLOW}
                         </button>
                     </div>
                 ))}

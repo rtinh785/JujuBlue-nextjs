@@ -13,7 +13,7 @@ import OwnerActionMenu from '@/components/post/components/OwnerActionMenu'
 import PostActions from '@/components/post/components/PostActions'
 import PostBody from '@/components/post/components/PostBody'
 import SharePostDialog from '@/components/post/components/SharePostDialog'
-import { VISIBILITY_LABEL_MAP } from '@/core/constants/common.constant'
+import { POST_DIALOG, POST_MESSAGE, POST_TEXT, POST_VISIBILITY_LABEL } from '@/core/constants/post.constant'
 import { Post, PostWithStatus, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
 import { Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -43,7 +43,7 @@ const PostCard = ({
 
     const isOwner = currentUserId === displayPost.author?.id
     const isOriginalSharedPostMissing = displayPost.was_shared_post && !displayPost.shared_post
-    const shareDisabledReason = isOriginalSharedPostMissing ? 'Không thể chia sẻ vì bài gốc đã bị xoá' : undefined
+    const shareDisabledReason = isOriginalSharedPostMissing ? POST_MESSAGE.SHARE_UNAVAILABLE : undefined
 
     // Like / bookmark
     const { mutateAsync: likeMutation, isPending: isLiking } = useLikePost()
@@ -67,7 +67,7 @@ const PostCard = ({
     const { mutateAsync: sharePost, isPending: isSharingPost } = useSharePost()
 
     const handleUnavailableShare = () => {
-        toast.error('Không thể chia sẻ vì bài gốc đã bị xoá', {
+        toast.error(POST_MESSAGE.SHARE_UNAVAILABLE, {
             position: 'top-left',
         })
     }
@@ -212,7 +212,7 @@ const PostCard = ({
                         <div className="flex items-start justify-between gap-y-3">
                             <div className="flex flex-wrap items-center gap-2">
                                 <h3 className="text-sm font-semibold text-slate-900">
-                                    {displayPost.author?.display_name ?? 'Unknown'}
+                                    {displayPost.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
                                 </h3>
 
                                 {displayPost.author?.username ? (
@@ -232,7 +232,7 @@ const PostCard = ({
                         </div>
 
                         <p className="mt-[-4px] w-fit rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400">
-                            {VISIBILITY_LABEL_MAP[displayPost.visibility]}
+                            {POST_VISIBILITY_LABEL[displayPost.visibility]}
                         </p>
                     </div>
                 </div>
@@ -264,10 +264,10 @@ const PostCard = ({
 
             <ConfirmActionDialog
                 open={deleteDialogOpen}
-                title="Xoá bài viết?"
-                description="Bài viết này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác."
-                confirmText="Xoá bài viết"
-                loadingText="Đang xoá..."
+                title={POST_DIALOG.DELETE_TITLE}
+                description={POST_DIALOG.DELETE_DESCRIPTION}
+                confirmText={POST_DIALOG.DELETE_CONFIRM}
+                loadingText={POST_DIALOG.DELETE_LOADING}
                 isLoading={isDeletingPost}
                 icon={<Trash2 className="h-4 w-4 text-red-500" />}
                 onOpenChange={setDeleteDialogOpen}
