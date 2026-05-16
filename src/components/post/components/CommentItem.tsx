@@ -19,7 +19,12 @@ type Props = {
     replyPlacement: 'parent' | 'reply' | null
     replyMedia: PostMediaItem[]
     isUploadingReplyMedia: boolean
-    onReplyClick: (parentCommentId: string, username?: string, placement?: 'parent' | 'reply') => void
+    onReplyClick: (
+        parentCommentId: string,
+        username?: string,
+        placement?: 'parent' | 'reply',
+        targetPostId?: string,
+    ) => void
     onReplyCancel: () => void
     onReplyChange: (value: string) => void
     onReplySubmit: () => void
@@ -294,7 +299,12 @@ const CommentItem = ({
                                                 <button
                                                     type="button"
                                                     onClick={() =>
-                                                        onReplyClick(comment.id, reply.author?.username, 'reply')
+                                                        onReplyClick(
+                                                            comment.id,
+                                                            reply.author?.username,
+                                                            'reply',
+                                                            reply.id,
+                                                        )
                                                     }
                                                     className="text-xs font-medium text-slate-500 transition hover:text-slate-700"
                                                 >

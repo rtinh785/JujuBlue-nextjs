@@ -8,8 +8,10 @@ export const ROUTE = {
     BOOKMARK: '/bookmark',
     MESSAGES: '/messages',
     LANGUAGE: '/#',
+    POSTS: '/posts',
 } as const
 
 export const ROUTE_BUILDER = {
     profileDetail: (userId: string) => `${ROUTE.PROFILE}/${userId}`,
+    postDetail: (postId: string) => `${ROUTE.POSTS}/${postId}`,
 } as const

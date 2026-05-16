@@ -21,7 +21,7 @@ import HeaderLoadingState from '@/components/layout/Header/components/HeaderLoad
 import { useCurrentUser, useMyProfile } from '@/apis/user/user.query'
 import { userKeys } from '@/apis/user/user.key'
 import authApi from '@/apis/auth/auth.api'
-
+import NotificationButton from '@/components/notifications/NotificationButton'
 import { postsKeys } from '@/apis/posts/posts.key'
 import { LAYOUT_ALT, LAYOUT_ASSET, NAV_LABEL } from '@/core/constants/layout.constant'
 import { ROUTE, ROUTE_BUILDER } from '@/core/constants/route.constant'
@@ -111,41 +111,62 @@ const Header = () => {
                     )}
                 </div>
 
-                <div
-                    className="hidden items-center gap-x-2 lg:flex"
-                    onMouseEnter={() => setIsAvatarMenuOpen(true)}
-                    onMouseLeave={() => setIsAvatarMenuOpen(false)}
-                >
-                    {user && <NavItem icon={Earth} isDesktop={true} href={ROUTE.LANGUAGE} />}
+                <div className="hidden items-center gap-x-2 lg:flex">
+                    {user && <NotificationButton enabled={!!user} />}
                     {user ? (
-                        <DropdownMenu modal={false} open={isAvatarMenuOpen} onOpenChange={setIsAvatarMenuOpen}>
-                            <DropdownMenuTrigger asChild>
-                                <button
-                                    type="button"
-                                    className="group relative hidden cursor-pointer outline-none lg:block"
-                                >
-                                    {profile?.avatar_url ? (
-                                        <img
-                                            src={profile?.avatar_url}
-                                            alt={LAYOUT_ALT.AVATAR}
-                                            className="group-hover:ring-primary size-10 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
-                                        />
-                                    ) : (
-                                        <div className="flex size-10 items-center justify-center rounded-full bg-gray-300" />
-                                    )}
-                                </button>
-                            </DropdownMenuTrigger>
+                        <div
+                            onMouseEnter={() => setIsAvatarMenuOpen(true)}
+                            onMouseLeave={() => setIsAvatarMenuOpen(false)}
+                        >
+                            <DropdownMenu modal={false} open={isAvatarMenuOpen} onOpenChange={setIsAvatarMenuOpen}>
+                                <DropdownMenuTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className="group relative hidden cursor-pointer outline-none lg:block"
+                                    >
+                                        {profile?.avatar_url ? (
+                                            <img
+                                                src={profile?.avatar_url}
+                                                alt={LAYOUT_ALT.AVATAR}
+                                                className="group-hover:ring-primary size-10 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
+                                            />
+                                        ) : (
+                                            <div className="flex size-10 items-center justify-center rounded-full bg-gray-300" />
+                                        )}
+                                    </button>
+                                </DropdownMenuTrigger>
 
-                            <DropdownMenuContent
-                                align="end"
-                                sideOffset={10}
-                                className="w-52 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl shadow-gray-200/60"
-                            >
-                                <DropdownMenuItem
-                                    asChild
-                                    className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 focus:bg-gray-50"
+                                <DropdownMenuContent
+                                    align="end"
+                                    sideOffset={10}
+                                    className="w-52 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl shadow-gray-200/60"
                                 >
-                                    <Link href={ROUTE.PROFILE}>
+                                    <DropdownMenuItem
+                                        asChild
+                                        className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 focus:bg-gray-50"
+                                    >
+                                        <Link href={ROUTE.PROFILE}>
+                                            <svg
+                                                className="group-hover:text-primary size-4 text-gray-400 transition-colors"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={1.8}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                                                />
+                                            </svg>
+                                            {NAV_LABEL.PROFILE}
+                                        </Link>
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem
+                                        onClick={() => {}}
+                                        className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 focus:bg-gray-50"
+                                    >
                                         <svg
                                             className="group-hover:text-primary size-4 text-gray-400 transition-colors"
                                             fill="none"
@@ -158,59 +179,39 @@ const Header = () => {
                                                 strokeLinejoin="round"
                                                 d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
                                             />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802"
+                                            />
                                         </svg>
-                                        {NAV_LABEL.PROFILE}
-                                    </Link>
-                                </DropdownMenuItem>
+                                        {NAV_LABEL.LANGUAGE}
+                                    </DropdownMenuItem>
 
-                                <DropdownMenuItem
-                                    onClick={() => {}}
-                                    className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 focus:bg-gray-50"
-                                >
-                                    <svg
-                                        className="group-hover:text-primary size-4 text-gray-400 transition-colors"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        strokeWidth={1.8}
+                                    <div className="my-1 h-px bg-gray-100" />
+
+                                    <DropdownMenuItem
+                                        onClick={handleSignOut}
+                                        className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-50 focus:bg-red-50"
                                     >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-                                        />
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802"
-                                        />
-                                    </svg>
-                                    {NAV_LABEL.LANGUAGE}
-                                </DropdownMenuItem>
-
-                                <div className="my-1 h-px bg-gray-100" />
-
-                                <DropdownMenuItem
-                                    onClick={handleSignOut}
-                                    className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-50 focus:bg-red-50"
-                                >
-                                    <svg
-                                        className="size-4"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        strokeWidth={1.8}
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
-                                        />
-                                    </svg>
-                                    {NAV_LABEL.SIGN_OUT}
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                        <svg
+                                            className="size-4"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            strokeWidth={1.8}
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+                                            />
+                                        </svg>
+                                        {NAV_LABEL.SIGN_OUT}
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     ) : (
                         <div className="flex items-center gap-x-3">
                             <MyButton href={ROUTE.REGISTER} name={NAV_LABEL.SIGN_UP} />

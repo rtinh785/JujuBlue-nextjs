@@ -25,6 +25,7 @@ type Props = {
 }
 type ReplyTarget = {
     parentCommentId: string
+    targetPostId: string
     mentionUsername?: string
     placement: 'parent' | 'reply'
 } | null
@@ -107,9 +108,11 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
         parentCommentId: string,
         username?: string,
         placement: 'parent' | 'reply' = 'parent',
+        targetPostId = parentCommentId,
     ) => {
         setReplyTarget({
             parentCommentId,
+            targetPostId,
             mentionUsername: username,
             placement,
         })
@@ -127,7 +130,7 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
         await createComment({
             content,
             media: replyMedia,
-            parentPostId: replyTarget.parentCommentId,
+            parentPostId: replyTarget.targetPostId,
         })
 
         setReplyContent('')
