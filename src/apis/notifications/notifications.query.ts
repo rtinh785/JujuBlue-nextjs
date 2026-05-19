@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { NOTIFICATION_QUERY } from '@/core/constants/notification.constant'
 import notificationsApi from './notifications.api'
 import { notificationsKeys } from './notifications.key'
 
@@ -26,6 +27,25 @@ export const useGroupedNotifications = (enabled = true) => {
     })
 }
 
+export const useInfiniteGroupedNotifications = (enabled = true) => {
+    return useInfiniteQuery({
+        queryKey: notificationsKeys.groupedInfinite(),
+        initialPageParam: null as string | null,
+        queryFn: async ({ pageParam }) => {
+            const res = await notificationsApi.getGroupedNotifications({
+                limit: pageParam ? NOTIFICATION_QUERY.LOAD_MORE_LIMIT : NOTIFICATION_QUERY.INITIAL_LIMIT,
+                cursor: pageParam,
+            })
+
+            return res.data
+        },
+        getNextPageParam: (lastPage) => {
+            return lastPage.hasMore ? lastPage.nextCursor : undefined
+        },
+        enabled,
+    })
+}
+
 export const useMarkNotificationClicked = () => {
     const queryClient = useQueryClient()
 
@@ -34,6 +54,7 @@ export const useMarkNotificationClicked = () => {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: notificationsKeys.unreadCount() })
             await queryClient.invalidateQueries({ queryKey: notificationsKeys.grouped() })
+            await queryClient.invalidateQueries({ queryKey: notificationsKeys.groupedInfinite() })
         },
     })
 }
@@ -46,6 +67,7 @@ export const useMarkNotificationGroupClicked = () => {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: notificationsKeys.unreadCount() })
             await queryClient.invalidateQueries({ queryKey: notificationsKeys.grouped() })
+            await queryClient.invalidateQueries({ queryKey: notificationsKeys.groupedInfinite() })
         },
     })
 }

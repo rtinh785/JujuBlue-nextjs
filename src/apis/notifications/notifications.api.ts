@@ -11,8 +11,20 @@ const notificationsApi = {
         return http.get<GetUnreadNotificationsCountRes>('notifications/unread-count')
     },
 
-    getGroupedNotifications() {
-        return http.get<GetGroupedNotificationsRes>('notifications/grouped')
+    getGroupedNotifications(params?: { limit?: number; cursor?: string | null }) {
+        const searchParams = new URLSearchParams()
+
+        if (params?.limit) {
+            searchParams.set('limit', String(params.limit))
+        }
+
+        if (params?.cursor) {
+            searchParams.set('cursor', params.cursor)
+        }
+
+        const queryString = searchParams.toString()
+
+        return http.get<GetGroupedNotificationsRes>(`notifications/grouped${queryString ? `?${queryString}` : ''}`)
     },
 
     markClicked(notificationId: string) {

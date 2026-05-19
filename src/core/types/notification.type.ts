@@ -31,8 +31,9 @@ export type GetUnreadNotificationsCountRes = {
 
 export type GetGroupedNotificationsRes = {
     notifications: NotificationListItem[]
+    nextCursor: string | null
+    hasMore: boolean
 }
-
 export type MarkNotificationClickedRes = {
     message: string
 }

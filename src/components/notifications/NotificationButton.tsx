@@ -1,7 +1,7 @@
 'use client'
 
 import {
-    useGroupedNotifications,
+    useInfiniteGroupedNotifications,
     useMarkNotificationClicked,
     useMarkNotificationGroupClicked,
     useUnreadNotificationsCount,
@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/base/skeleton'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import { formatNotificationTime, getNotificationMessage } from '@/utils/notification'
 import { Bell } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { NotificationListItem } from '@/core/types/notification.type'
 import { ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { useRouter } from 'next/navigation'
@@ -29,10 +29,24 @@ const NotificationButton = ({ enabled = true }: Props) => {
     const [open, setOpen] = useState(false)
 
     const { data: unreadCount = 0 } = useUnreadNotificationsCount(enabled)
-    const { data: notifications = [], isLoading } = useGroupedNotifications(enabled)
+    const {
+        data: notificationsPages,
+        isLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteGroupedNotifications(open && enabled)
+
+    // Đi qua từng page, lấy page.notifications, rồi gộp thành một mảng.
+    const notifications = useMemo(
+        () => notificationsPages?.pages.flatMap((page) => page.notifications) ?? [],
+        [notificationsPages],
+    )
 
     const router = useRouter()
     const queryClient = useQueryClient()
+    const notificationsListRef = useRef<HTMLDivElement | null>(null)
+    const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null)
     const { mutateAsync: markClicked } = useMarkNotificationClicked()
     const { mutateAsync: markGroupClicked } = useMarkNotificationGroupClicked()
     const [selectedFollowGroupKey, setSelectedFollowGroupKey] = useState<string | null>(null)
@@ -40,6 +54,31 @@ const NotificationButton = ({ enabled = true }: Props) => {
     const [shouldFocusComment, setShouldFocusComment] = useState(false)
     const { data: selectedPost } = usePostById(selectedPostId ?? undefined)
     const { data: myProfile } = useMyProfile()
+
+    useEffect(() => {
+        const notificationsList = notificationsListRef.current
+        const loadMoreTrigger = loadMoreTriggerRef.current
+
+        if (!notificationsList || !loadMoreTrigger || !hasNextPage) return
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (!entry) return
+
+                if (entry.isIntersecting && !isFetchingNextPage) {
+                    void fetchNextPage()
+                }
+            },
+            {
+                root: notificationsList,
+                threshold: 1,
+            },
+        )
+
+        observer.observe(loadMoreTrigger)
+
+        return () => observer.disconnect()
+    }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
     const openPostDetail = async (postId: string, focusComment = false) => {
         await Promise.all([
@@ -122,7 +161,7 @@ const NotificationButton = ({ enabled = true }: Props) => {
                         <h3 className="text-sm font-semibold text-slate-900">Notifications</h3>
                     </div>
 
-                    <div className="max-h-[420px] overflow-y-auto">
+                    <div ref={notificationsListRef} className="max-h-[420px] overflow-y-auto">
                         {isLoading && notifications.length === 0 ? (
                             <div className="space-y-3 px-4 py-4">
                                 <Skeleton className="h-12 w-full rounded-xl" />
@@ -166,6 +205,16 @@ const NotificationButton = ({ enabled = true }: Props) => {
                                         ) : null}
                                     </button>
                                 ))}
+
+                                {hasNextPage ? (
+                                    <div ref={loadMoreTriggerRef} className="px-4 py-3">
+                                        {isFetchingNextPage ? (
+                                            <Skeleton className="h-10 w-full rounded-xl" />
+                                        ) : (
+                                            <div className="h-2" />
+                                        )}
+                                    </div>
+                                ) : null}
                             </div>
                         ) : (
                             <div className="px-4 py-8 text-center">
