@@ -56,6 +56,12 @@ export type PostWithStatus = Post & {
 
 export type FeedPosts = PostWithStatus[]
 
+export type GetFeedPostsRes = {
+    posts: PostWithStatus[]
+    nextCursor: string | null
+    hasMore: boolean
+}
+
 export type GetProfilePostsRes = {
     posts: PostWithStatus[]
 }
@@ -114,4 +120,8 @@ export type SharePostReq = {
 export type SharePostRes = {
     message: string
     post: PostWithStatus
+}
+
+export type GetTrendingPostsRes = {
+    posts: PostWithStatus[]
 }

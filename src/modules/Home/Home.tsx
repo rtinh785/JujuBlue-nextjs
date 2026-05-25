@@ -3,15 +3,32 @@ import ComposerCard from '@/components/home/ComposerCard/ComposerCard'
 import PostCard from '@/components/post/PostCard'
 import Aside from '@/components/layout/Header/components/Aside/Aside'
 import { useCurrentUser } from '@/apis/user/user.query'
-import { useFeedPosts } from '@/apis/posts/posts.query'
+import { useInfiniteFeedPosts } from '@/apis/posts/posts.query'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import { PostWithStatus } from '@/core/types/post.type'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useInfiniteScrollTrigger } from '@/hooks/useInfiniteScrollTrigger'
+
 const Home = () => {
     const { data: user } = useCurrentUser()
-    const { data: feedPosts } = useFeedPosts()
+    const {
+        data: feedPostsPages,
+        isLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteFeedPosts()
     const [selectedPost, setSelectedPost] = useState<PostWithStatus | null>(null)
     const [shouldFocusComment, setShouldFocusComment] = useState(false)
+    const { loadMoreTriggerRef } = useInfiniteScrollTrigger({
+        hasNextPage,
+        isFetchingNextPage,
+        fetchNextPage: () => {
+            void fetchNextPage()
+        },
+    })
+
+    const feedPosts = useMemo(() => feedPostsPages?.pages.flatMap((page) => page.posts) ?? [], [feedPostsPages])
 
     const handleOpenPostDetail = (post: PostWithStatus) => {
         setSelectedPost(post)
@@ -30,7 +47,7 @@ const Home = () => {
 
                     {/* list bai post */}
                     <div className="space-y-4">
-                        {feedPosts?.map((post) => (
+                        {feedPosts.map((post) => (
                             <PostCard
                                 key={post.id}
                                 post={post}
@@ -41,9 +58,19 @@ const Home = () => {
                         ))}
                     </div>
                     {/* loading cac bai post */}
-                    <div className="flex justify-center pt-2">
-                        <div className="size-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
-                    </div>
+                    {isLoading && feedPosts.length === 0 ? (
+                        <div className="flex justify-center pt-2">
+                            <div className="size-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
+                        </div>
+                    ) : null}
+
+                    {hasNextPage ? (
+                        <div ref={loadMoreTriggerRef} className="flex min-h-12 justify-center pt-2">
+                            {isFetchingNextPage ? (
+                                <div className="size-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
+                            ) : null}
+                        </div>
+                    ) : null}
                 </section>
 
                 <Aside user={user} />

@@ -1,24 +1,50 @@
-import { ASIDE_TEXT, TRENDING_TOPICS } from '@/core/constants/layout.constant'
-import React from 'react'
+import { useTrendingPosts } from '@/apis/posts/posts.query'
+import { ASIDE_TEXT } from '@/core/constants/layout.constant'
+import { PostWithStatus } from '@/core/types/post.type'
+import { getPostInteractions, getTrendingPostTitle } from '@/utils/post'
 
-const TrendingCard = () => {
+type Props = {
+    onOpenPost?: (post: PostWithStatus) => void
+}
+
+const TrendingCard = ({ onOpenPost }: Props) => {
+    const { data: trendingPosts = [], isLoading } = useTrendingPosts()
     return (
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
             <h2 className="text-sm font-semibold text-slate-900">{ASIDE_TEXT.TRENDING}</h2>
 
             <div className="mt-4 space-y-4">
-                {TRENDING_TOPICS.map((topic) => (
-                    <div key={topic.title}>
-                        <p className="text-xs text-slate-400">{topic.category}</p>
-                        <p className="mt-1 text-sm font-semibold text-slate-900">{topic.title}</p>
-                        <p className="mt-1 text-xs text-slate-400">{topic.posts}</p>
-                    </div>
-                ))}
+                {isLoading ? (
+                    <p className="text-xs text-slate-400">Loading trending posts...</p>
+                ) : trendingPosts.length > 0 ? (
+                    trendingPosts.map((post) => {
+                        const interactions = getPostInteractions(post)
+
+                        return (
+                            <button
+                                key={post.id}
+                                type="button"
+                                className="block w-full rounded-xl text-left transition hover:bg-slate-50"
+                                onClick={() => onOpenPost?.(post)}
+                            >
+                                <p className="text-xs text-slate-400">Post · Trending</p>
+                                <div className="mt-1 flex min-w-0 items-center gap-1.5 text-sm">
+                                    <span className="truncate font-semibold text-slate-900">
+                                        {getTrendingPostTitle(post)}
+                                    </span>
+                                    <span className="shrink-0 text-xs text-slate-400">
+                                        · {interactions} {interactions === 1 ? 'interaction' : 'interactions'}
+                                    </span>
+                                </div>
+                            </button>
+                        )
+                    })
+                ) : (
+                    <p className="text-xs text-slate-400">No trending posts yet.</p>
+                )}
             </div>
 
-            <button type="button" className="mt-4 text-sm font-medium text-blue-500 hover:text-blue-600">
-                {ASIDE_TEXT.SHOW_MORE}
-            </button>
+            
         </section>
     )
 }

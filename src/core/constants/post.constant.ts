@@ -94,3 +94,8 @@ export const POST_MEDIA_TYPE = {
     IMAGE_PREFIX: 'image/',
     VIDEO_PREFIX: 'video/',
 } as const
+
+export const FEED_QUERY = {
+    INITIAL_LIMIT: 5,
+    LOAD_MORE_LIMIT: 5,
+} as const

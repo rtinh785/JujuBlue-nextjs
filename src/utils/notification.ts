@@ -1,4 +1,10 @@
-import type { NotificationListItem } from '@/core/types/notification.type'
+import type { NotificationListItem, NotificationType } from '@/core/types/notification.type'
+
+const GROUPED_NOTIFICATION_TYPES: NotificationType[] = ['like_post', 'follow_user']
+
+export const isGroupedNotificationType = (type: NotificationType) => {
+    return GROUPED_NOTIFICATION_TYPES.includes(type)
+}
 
 export const getNotificationMessage = (notification: NotificationListItem) => {
     const otherCount = notification.other_actor_count

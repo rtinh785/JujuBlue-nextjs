@@ -5,6 +5,7 @@ import {
     CreateCommentRes,
     DeletePostRes,
     FeedPosts,
+    GetFeedPostsRes,
     GetCommentsRes,
     GetPostByIdRes,
     GetPostCountsRes,
@@ -14,6 +15,7 @@ import {
     SharePostRes,
     UpdatePostReq,
     UpdatePostRes,
+    GetTrendingPostsRes,
 } from '@/core/types/post.type'
 
 const postsApi = {
@@ -26,8 +28,20 @@ const postsApi = {
     deletePost(postId: string) {
         return http.delete<DeletePostRes>(`posts/${postId}`)
     },
-    getFeed() {
-        return http.get<FeedPosts>('posts/feed')
+    getFeed(params?: { limit?: number; cursor?: string | null }) {
+        const searchParams = new URLSearchParams()
+
+        if (params?.limit) {
+            searchParams.set('limit', String(params.limit))
+        }
+
+        if (params?.cursor) {
+            searchParams.set('cursor', params.cursor)
+        }
+
+        const queryString = searchParams.toString()
+
+        return http.get<GetFeedPostsRes>(`posts/feed${queryString ? `?${queryString}` : ''}`)
     },
     getPostById(postId: string) {
         return http.get<GetPostByIdRes>(`posts/${postId}`)
@@ -76,6 +90,9 @@ const postsApi = {
     },
     sharePost(postId: string, body: SharePostReq) {
         return http.post<SharePostRes>(`posts/${postId}/share`, body)
+    },
+    getTrendingPosts() {
+        return http.get<GetTrendingPostsRes>('posts/trending')
     },
 }
 

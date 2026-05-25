@@ -1,7 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import postsApi from './posts.api'
 import { postsKeys } from './posts.key'
 import { CreateCommentReq, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
+import { FEED_QUERY } from '@/core/constants/post.constant'
 
 export const useCreatePost = () => {
     const queryClient = useQueryClient()
@@ -10,6 +11,8 @@ export const useCreatePost = () => {
         mutationFn: postsApi.createPost,
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+            await queryClient.invalidateQueries({ queryKey: postsKeys.feedInfinite() })
+            await queryClient.invalidateQueries({ queryKey: postsKeys.trending() })
 
             await queryClient.invalidateQueries({
                 queryKey: ['posts', 'profile'],
@@ -29,6 +32,12 @@ export const useUpdatePost = () => {
         onSuccess: async (_res, variables) => {
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.feed(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.feedInfinite(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.trending(),
             })
 
             await queryClient.invalidateQueries({
@@ -59,6 +68,12 @@ export const useDeletePost = () => {
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.feed(),
             })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.feedInfinite(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.trending(),
+            })
 
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.bookmarks(),
@@ -87,9 +102,37 @@ export const useFeedPosts = () => {
         queryKey: postsKeys.feed(),
         queryFn: async () => {
             const res = await postsApi.getFeed()
-            return res.data
+            return res.data.posts
         },
         staleTime: 0,
+    })
+}
+
+export const useTrendingPosts = () => {
+    return useQuery({
+        queryKey: postsKeys.trending(),
+        queryFn: async () => {
+            const res = await postsApi.getTrendingPosts()
+            return res.data.posts
+        },
+    })
+}
+
+export const useInfiniteFeedPosts = () => {
+    return useInfiniteQuery({
+        queryKey: postsKeys.feedInfinite(),
+        initialPageParam: null as string | null,
+        queryFn: async ({ pageParam }) => {
+            const res = await postsApi.getFeed({
+                limit: pageParam ? FEED_QUERY.LOAD_MORE_LIMIT : FEED_QUERY.INITIAL_LIMIT,
+                cursor: pageParam,
+            })
+
+            return res.data
+        },
+        getNextPageParam: (lastPage) => {
+            return lastPage.hasMore ? lastPage.nextCursor : undefined
+        },
     })
 }
 
@@ -130,6 +173,12 @@ export const useLikePost = (commentPostId?: string) => {
             await queryClient.refetchQueries({
                 queryKey: postsKeys.feed(),
             })
+            await queryClient.refetchQueries({
+                queryKey: postsKeys.feedInfinite(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.trending(),
+            })
             await queryClient.invalidateQueries({
                 queryKey: ['posts', 'profile'],
             })
@@ -154,6 +203,12 @@ export const useUnlikePost = (commentPostId?: string) => {
             await queryClient.refetchQueries({
                 queryKey: postsKeys.feed(),
             })
+            await queryClient.refetchQueries({
+                queryKey: postsKeys.feedInfinite(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.trending(),
+            })
             await queryClient.invalidateQueries({
                 queryKey: ['posts', 'profile'],
             })
@@ -176,6 +231,7 @@ export const useBookmarkPost = () => {
         mutationFn: postsApi.bookmarkPost,
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+            await queryClient.invalidateQueries({ queryKey: postsKeys.feedInfinite() })
             await queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks() })
             await queryClient.invalidateQueries({
                 queryKey: ['posts', 'profile'],
@@ -194,6 +250,7 @@ export const useUnbookmarkPost = () => {
         mutationFn: postsApi.unBookmarkPost,
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
+            await queryClient.invalidateQueries({ queryKey: postsKeys.feedInfinite() })
             await queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks() })
             await queryClient.invalidateQueries({ queryKey: ['posts', 'profile'] })
             await queryClient.invalidateQueries({
@@ -250,6 +307,12 @@ export const useCreateComment = (postId?: string) => {
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.feed(),
             })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.feedInfinite(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.trending(),
+            })
 
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.bookmarks(),
@@ -273,6 +336,12 @@ export const useSharePost = () => {
         onSuccess: async (_res, variables) => {
             await queryClient.invalidateQueries({
                 queryKey: postsKeys.feed(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.feedInfinite(),
+            })
+            await queryClient.invalidateQueries({
+                queryKey: postsKeys.trending(),
             })
 
             await queryClient.invalidateQueries({

@@ -12,14 +12,15 @@ import { postsKeys } from '@/apis/posts/posts.key'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/base/popover'
 import { Skeleton } from '@/components/base/skeleton'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
-import { formatNotificationTime, getNotificationMessage } from '@/utils/notification'
+import { formatNotificationTime, getNotificationMessage, isGroupedNotificationType } from '@/utils/notification'
 import { Bell } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { NotificationListItem } from '@/core/types/notification.type'
 import { ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { useRouter } from 'next/navigation'
 import FollowGroupDialog from '@/components/notifications/FollowGroupDialog'
 import { useQueryClient } from '@tanstack/react-query'
+import { useInfiniteScrollTrigger } from '@/hooks/useInfiniteScrollTrigger'
 
 type Props = {
     enabled?: boolean
@@ -27,6 +28,13 @@ type Props = {
 
 const NotificationButton = ({ enabled = true }: Props) => {
     const [open, setOpen] = useState(false)
+    const [selectedFollowGroupKey, setSelectedFollowGroupKey] = useState<string | null>(null)
+    const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
+    const [shouldFocusComment, setShouldFocusComment] = useState(false)
+
+    const router = useRouter()
+    const queryClient = useQueryClient()
+    const notificationsListRef = useRef<HTMLDivElement | null>(null)
 
     const { data: unreadCount = 0 } = useUnreadNotificationsCount(enabled)
     const {
@@ -36,49 +44,26 @@ const NotificationButton = ({ enabled = true }: Props) => {
         hasNextPage,
         isFetchingNextPage,
     } = useInfiniteGroupedNotifications(open && enabled)
+    const { data: selectedPost } = usePostById(selectedPostId ?? undefined)
+    const { data: myProfile } = useMyProfile()
 
-    // Đi qua từng page, lấy page.notifications, rồi gộp thành một mảng.
+    const { mutateAsync: markClicked } = useMarkNotificationClicked()
+    const { mutateAsync: markGroupClicked } = useMarkNotificationGroupClicked()
+
+    const { loadMoreTriggerRef } = useInfiniteScrollTrigger({
+        enabled: open && enabled,
+        hasNextPage,
+        isFetchingNextPage,
+        fetchNextPage: () => {
+            void fetchNextPage()
+        },
+        rootRef: notificationsListRef,
+    })
+
     const notifications = useMemo(
         () => notificationsPages?.pages.flatMap((page) => page.notifications) ?? [],
         [notificationsPages],
     )
-
-    const router = useRouter()
-    const queryClient = useQueryClient()
-    const notificationsListRef = useRef<HTMLDivElement | null>(null)
-    const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null)
-    const { mutateAsync: markClicked } = useMarkNotificationClicked()
-    const { mutateAsync: markGroupClicked } = useMarkNotificationGroupClicked()
-    const [selectedFollowGroupKey, setSelectedFollowGroupKey] = useState<string | null>(null)
-    const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
-    const [shouldFocusComment, setShouldFocusComment] = useState(false)
-    const { data: selectedPost } = usePostById(selectedPostId ?? undefined)
-    const { data: myProfile } = useMyProfile()
-
-    useEffect(() => {
-        const notificationsList = notificationsListRef.current
-        const loadMoreTrigger = loadMoreTriggerRef.current
-
-        if (!notificationsList || !loadMoreTrigger || !hasNextPage) return
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (!entry) return
-
-                if (entry.isIntersecting && !isFetchingNextPage) {
-                    void fetchNextPage()
-                }
-            },
-            {
-                root: notificationsList,
-                threshold: 1,
-            },
-        )
-
-        observer.observe(loadMoreTrigger)
-
-        return () => observer.disconnect()
-    }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
     const openPostDetail = async (postId: string, focusComment = false) => {
         await Promise.all([
@@ -97,7 +82,7 @@ const NotificationButton = ({ enabled = true }: Props) => {
     }
 
     const handleNotificationClick = async (notification: NotificationListItem) => {
-        const shouldMarkGroup = notification.type === 'like_post' || notification.type === 'follow_user'
+        const shouldMarkGroup = isGroupedNotificationType(notification.type)
 
         setOpen(false)
 
