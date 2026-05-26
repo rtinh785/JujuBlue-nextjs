@@ -70,20 +70,19 @@ const Header = () => {
                     <MobileDrawer user={user} profile={profile} logOut={handleSignOut} />
                 </div>
 
-                <button
-                    type="button"
-                    onClick={() => router.push(ROUTE.HOME)}
-                    className="hidden cursor-pointer items-center gap-x-2 lg:flex"
-                >
-                    <div className="bg-primary flex size-10 items-center justify-center rounded-[12px] px-2 py-1">
-                        <img
-                            src={LAYOUT_ASSET.LOGO}
-                            alt={LAYOUT_ALT.LOGO}
-                            className="h-1/2 w-[13px] fill-[#fff] object-cover"
-                        />
-                    </div>
+                <div className="hidden items-center gap-x-2 lg:flex">
+                    <button type="button" onClick={() => router.push(ROUTE.HOME)} className="cursor-pointer">
+                        <div className="bg-primary flex size-10 items-center justify-center rounded-[12px] px-2 py-1">
+                            <img
+                                src={LAYOUT_ASSET.LOGO}
+                                alt={LAYOUT_ALT.LOGO}
+                                className="h-1/2 w-[13px] fill-[#fff] object-cover"
+                            />
+                        </div>
+                    </button>
+
                     <SearchInput desktopOnly={true} />
-                </button>
+                </div>
 
                 <div className="hidden lg:absolute lg:left-1/2 lg:block lg:-translate-x-1/2">
                     <NavSection isDesktop={true}>
