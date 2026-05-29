@@ -9,6 +9,7 @@ type ProfileHeaderSectionProps = {
     isFollowed?: boolean
     onSelectAvatar: (file: File) => void
     onFollowUnfollow: () => void
+    onMessage: () => void
     onOpenEditDialog: () => void
 }
 
@@ -20,6 +21,7 @@ const ProfileHeaderSection = ({
     isFollowed,
     onSelectAvatar,
     onFollowUnfollow,
+    onMessage,
     onOpenEditDialog,
 }: ProfileHeaderSectionProps) => {
     return (
@@ -50,6 +52,7 @@ const ProfileHeaderSection = ({
 
                     <button
                         type="button"
+                        onClick={onMessage}
                         className="bg-primary hover:bg-primary/90 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-white"
                     >
                         {PROFILE_ACTION_LABEL.MESSAGE}

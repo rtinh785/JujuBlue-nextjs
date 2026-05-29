@@ -19,13 +19,15 @@ import ProfileHeaderSection from '@/modules/Profile/components/ProfileHeaderSect
 import ProfileLoadingState from '@/modules/Profile/components/ProfileLoadingState'
 import FollowingTab from '@/modules/Profile/components/Tabs/FollowingTab'
 import { clampCoverOffsetY, formatDateOfBirth } from '@/utils/helper'
-
 import { useCheckFollowing, useFollow, useUnfollow } from '@/apis/follows/follows.query'
 import { requireAuthAction } from '@/utils/requireAuthAction'
 import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import type { PostWithStatus } from '@/core/types/post.type'
 import { PROFILE_TAB, PROFILE_TAB_LABEL, PROFILE_TEXT } from '@/core/constants/profile.constant'
+import { useRouter } from 'next/navigation'
+import { useCreateOrGetConversation } from '@/apis/messages/messages.query'
+import { ROUTE } from '@/core/constants/route.constant'
 
 interface ProfileProps {
     profileId?: string
@@ -33,7 +35,7 @@ interface ProfileProps {
 
 const Profile = ({ profileId }: ProfileProps) => {
     const [hasMounted, setHasMounted] = useState(false)
-
+    const router = useRouter()
     useEffect(() => {
         setHasMounted(true)
     }, [])
@@ -50,7 +52,7 @@ const Profile = ({ profileId }: ProfileProps) => {
     const updateProfileMutation = useUpdateMyProfile()
     const updateAvatarMutation = useUpdateAvatar()
     const updateCoverPhotoMutation = useUpdateCoverPhoto()
-
+    const createOrGetConversationMutation = useCreateOrGetConversation()
     // Local UI state
     const [openEditDialog, setOpenEditDialog] = useState(false)
     const [selectedPost, setSelectedPost] = useState<PostWithStatus | null>(null)
@@ -156,6 +158,16 @@ const Profile = ({ profileId }: ProfileProps) => {
         })
     }
 
+    const handleMessage = () => {
+        requireAuthAction(async () => {
+            if (!profileId) return
+
+            const conversation = await createOrGetConversationMutation.mutateAsync(profileId)
+
+            router.push(`${ROUTE.MESSAGES}?conversationId=${conversation.data.conversation.id}`)
+        })
+    }
+
     const handleOpenPostDetail = (post: PostWithStatus) => {
         setSelectedPost(post)
         setShouldFocusComment(false)
@@ -202,6 +214,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                                     isFollowed={checkFollow?.isFollowing}
                                     onSelectAvatar={handleSelectAvatar}
                                     onFollowUnfollow={handleFollowUnfollow}
+                                    onMessage={handleMessage}
                                     onOpenEditDialog={() => setOpenEditDialog(true)}
                                 />
 

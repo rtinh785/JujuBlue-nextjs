@@ -25,6 +25,8 @@ import NotificationButton from '@/components/notifications/NotificationButton'
 import { postsKeys } from '@/apis/posts/posts.key'
 import { LAYOUT_ALT, LAYOUT_ASSET, NAV_LABEL } from '@/core/constants/layout.constant'
 import { ROUTE, ROUTE_BUILDER } from '@/core/constants/route.constant'
+import { useUnreadMessagesCount } from '@/apis/messages/messages.query'
+import { useMessagesRealtime } from '@/hooks/useMessagesRealtime'
 
 const Header = () => {
     const [mounted, setMounted] = useState(false)
@@ -33,6 +35,8 @@ const Header = () => {
     const pathname = usePathname()
     const { data: user, isLoading: isUserLoading } = useCurrentUser()
     const { data: profileData, isLoading: isProfileLoading } = useMyProfile(!!user)
+    const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount(!!user)
+    useMessagesRealtime(!!user)
 
     useEffect(() => {
         setMounted(true)
@@ -87,7 +91,16 @@ const Header = () => {
                 <div className="hidden lg:absolute lg:left-1/2 lg:block lg:-translate-x-1/2">
                     <NavSection isDesktop={true}>
                         {user && <NavItem icon={Home} isDesktop={true} href={ROUTE.HOME} />}
-                        {user && <NavItem icon={MessageSquareText} isDesktop={true} href={ROUTE.MESSAGES} />}
+                        {user && (
+                            <div className="relative">
+                                <NavItem icon={MessageSquareText} isDesktop={true} href={ROUTE.MESSAGES} />
+                                {unreadMessagesCount > 0 ? (
+                                    <span className="absolute -top-1 -right-1 flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-semibold text-white">
+                                        {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                                    </span>
+                                ) : null}
+                            </div>
+                        )}
                         {user && <NavItem icon={Bookmark} isDesktop={true} href={ROUTE.BOOKMARK} />}
                     </NavSection>
                 </div>
