@@ -2,7 +2,14 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import type { InfiniteData, QueryClient, QueryKey } from '@tanstack/react-query'
 import { searchKeys } from '@/apis/search/search.key'
 import { FEED_QUERY } from '@/core/constants/post.constant'
-import { CreateCommentReq, GetFeedPostsRes, PostWithStatus, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
+import {
+    CreateCommentReq,
+    GetFeedPostsRes,
+    PostWithStatus,
+    SharePostReq,
+    UpdatePostReq,
+    UpdatePostRes,
+} from '@/core/types/post.type'
 import postsApi from './posts.api'
 import { postsKeys } from './posts.key'
 
@@ -74,9 +81,11 @@ export const useUpdatePost = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({ postId, body }: { postId: string; body: UpdatePostReq; rootPostId?: string }) =>
-            postsApi.updatePost(postId, body),
-        onSuccess: (_res, variables) => {
+        mutationFn: async ({ postId, body }: { postId: string; body: UpdatePostReq; rootPostId?: string }) => {
+            const res = await postsApi.updatePost(postId, body)
+            return res.data.post
+        },
+        onSuccess: (_updatedPost: UpdatePostRes['post'], variables) => {
             invalidateFeedCaches(queryClient)
             invalidateQueries(queryClient, [
                 postsKeys.trending(),

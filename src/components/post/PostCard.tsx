@@ -203,12 +203,30 @@ const PostCard = ({
     const handleUpdatePost = async (body: UpdatePostReq) => {
         if (isUpdatingPost) return
 
-        await updatePost({
-            postId: displayPost.id,
-            body,
-        })
+        const previousPost = displayPost
+        const nextPost = {
+            ...previousPost,
+            ...(body.content !== undefined ? { content: body.content } : {}),
+            ...(body.visibility !== undefined ? { visibility: body.visibility } : {}),
+            ...(body.media !== undefined ? { media: body.media } : {}),
+            updated_at: new Date().toISOString(),
+        }
 
+        setDisplayPost(nextPost)
         setEditDialogOpen(false)
+
+        try {
+            const updatedPost = await updatePost({
+                postId: displayPost.id,
+                body,
+            })
+
+            setDisplayPost(updatedPost)
+        } catch {
+            setDisplayPost(previousPost)
+            setEditDialogOpen(true)
+            toast.error('Không thể cập nhật bài viết. Vui lòng thử lại.')
+        }
     }
 
     const handleOpenShareDialog = () => {
