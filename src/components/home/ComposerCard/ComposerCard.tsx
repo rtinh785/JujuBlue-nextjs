@@ -8,6 +8,7 @@ import {
     POST_MESSAGE,
     POST_TEXT,
     POST_VISIBILITY,
+    POST_VISIBILITY_DESCRIPTION,
     POST_VISIBILITY_LABEL,
 } from '@/core/constants/post.constant'
 import { composerSchema, type ComposerFormValues } from '@/schema/composer.schema'
@@ -19,9 +20,24 @@ import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 const VISIBILITY_OPTIONS = [
-    { value: POST_VISIBILITY.PUBLIC, label: POST_VISIBILITY_LABEL[POST_VISIBILITY.PUBLIC], icon: Globe },
-    { value: POST_VISIBILITY.FOLLOWERS, label: POST_VISIBILITY_LABEL[POST_VISIBILITY.FOLLOWERS], icon: Users },
-    { value: POST_VISIBILITY.PRIVATE, label: POST_VISIBILITY_LABEL[POST_VISIBILITY.PRIVATE], icon: Lock },
+    {
+        value: POST_VISIBILITY.PUBLIC,
+        label: POST_VISIBILITY_LABEL[POST_VISIBILITY.PUBLIC],
+        description: POST_VISIBILITY_DESCRIPTION[POST_VISIBILITY.PUBLIC],
+        icon: Globe,
+    },
+    {
+        value: POST_VISIBILITY.FOLLOWERS,
+        label: POST_VISIBILITY_LABEL[POST_VISIBILITY.FOLLOWERS],
+        description: POST_VISIBILITY_DESCRIPTION[POST_VISIBILITY.FOLLOWERS],
+        icon: Users,
+    },
+    {
+        value: POST_VISIBILITY.PRIVATE,
+        label: POST_VISIBILITY_LABEL[POST_VISIBILITY.PRIVATE],
+        description: POST_VISIBILITY_DESCRIPTION[POST_VISIBILITY.PRIVATE],
+        icon: Lock,
+    },
 ] as const
 
 const ComposerCard = () => {
@@ -160,8 +176,8 @@ const ComposerCard = () => {
                         </button>
 
                         {visibilityOpen && (
-                            <div className="absolute top-full left-0 z-10 mt-1.5 w-36 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-md">
-                                {VISIBILITY_OPTIONS.map(({ value, label, icon: Icon }) => (
+                            <div className="absolute top-full left-0 z-10 mt-1.5 w-64 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-md">
+                                {VISIBILITY_OPTIONS.map(({ value, label, description, icon: Icon }) => (
                                     <button
                                         key={value}
                                         type="button"
@@ -169,14 +185,19 @@ const ComposerCard = () => {
                                             setValue('visibility', value, { shouldValidate: true })
                                             setVisibilityOpen(false)
                                         }}
-                                        className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-xs transition-colors hover:bg-slate-50 ${
+                                        className={`flex w-full items-start gap-2.5 px-3 py-2.5 text-left text-xs transition-colors hover:bg-slate-50 ${
                                             selectedVisibility === value
                                                 ? 'font-semibold text-slate-800'
                                                 : 'text-slate-500'
                                         }`}
                                     >
-                                        <Icon className="size-3.5 text-slate-400" />
-                                        {label}
+                                        <Icon className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
+                                        <span>
+                                            <span className="block">{label}</span>
+                                            <span className="mt-0.5 block text-[11px] leading-4 font-normal text-slate-400">
+                                                {description}
+                                            </span>
+                                        </span>
                                     </button>
                                 ))}
                             </div>

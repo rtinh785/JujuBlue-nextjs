@@ -12,6 +12,12 @@ export const POST_VISIBILITY_LABEL = {
     [POST_VISIBILITY.PRIVATE]: 'Private',
 } as const
 
+export const POST_VISIBILITY_DESCRIPTION = {
+    [POST_VISIBILITY.PUBLIC]: 'Everyone can see this post.',
+    [POST_VISIBILITY.FOLLOWERS]: 'Only your followers can see this post.',
+    [POST_VISIBILITY.PRIVATE]: 'Only you can see this post.',
+} as const
+
 export const POST_VISIBILITY_VALUES = [
     POST_VISIBILITY.PUBLIC,
     POST_VISIBILITY.FOLLOWERS,

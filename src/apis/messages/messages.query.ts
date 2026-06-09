@@ -1,6 +1,7 @@
 import { MESSAGE_QUERY } from '@/core/constants/message.constant'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import messagesApi from './messages.api'
+import { appendMessageInCache, markConversationReadInCache, upsertConversationInCache } from './messages.cache'
 import { messagesKeys } from './messages.key'
 
 export const useInfiniteConversations = (enabled = true) => {
@@ -58,8 +59,14 @@ export const useCreateOrGetConversation = () => {
 
     return useMutation({
         mutationFn: messagesApi.createOrGetConversation,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: messagesKeys.conversations() })
+        onSuccess: (res) => {
+            const conversation = res.data.conversation
+
+            queryClient.setQueryData(messagesKeys.conversations(), (oldData) =>
+                upsertConversationInCache(oldData, conversation),
+            )
+
+            void queryClient.invalidateQueries({ queryKey: messagesKeys.conversations() })
         },
     })
 }
@@ -69,16 +76,19 @@ export const useSendMessage = (conversationId?: string) => {
 
     return useMutation({
         mutationFn: (content: string) => messagesApi.sendMessage(conversationId ?? '', content),
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: messagesKeys.conversations() })
-
+        onSuccess: (res) => {
             if (conversationId) {
-                await queryClient.invalidateQueries({
+                queryClient.setQueryData(messagesKeys.conversationMessages(conversationId), (oldData) =>
+                    appendMessageInCache(oldData, res.data.message),
+                )
+
+                void queryClient.invalidateQueries({
                     queryKey: messagesKeys.conversationMessages(conversationId),
                 })
             }
 
-            await queryClient.invalidateQueries({ queryKey: messagesKeys.unreadCount() })
+            void queryClient.invalidateQueries({ queryKey: messagesKeys.conversations() })
+            void queryClient.invalidateQueries({ queryKey: messagesKeys.unreadCount() })
         },
     })
 }
@@ -88,9 +98,14 @@ export const useMarkConversationRead = () => {
 
     return useMutation({
         mutationFn: messagesApi.markConversationRead,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: messagesKeys.conversations() })
-            await queryClient.invalidateQueries({ queryKey: messagesKeys.unreadCount() })
+        onMutate: (conversationId) => {
+            queryClient.setQueryData(messagesKeys.conversations(), (oldData) =>
+                markConversationReadInCache(oldData, conversationId),
+            )
+        },
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: messagesKeys.conversations() })
+            void queryClient.invalidateQueries({ queryKey: messagesKeys.unreadCount() })
         },
     })
 }

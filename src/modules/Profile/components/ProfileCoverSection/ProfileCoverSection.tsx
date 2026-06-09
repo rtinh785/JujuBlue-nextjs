@@ -9,6 +9,7 @@ type ProfileCoverSectionProps = {
     currentCoverPhotoOffsetY: number
     coverPhotoOffsetX: number
     coverPhotoOffsetY: number
+    isSavingCoverPhoto?: boolean
     onCancelCoverPhoto: () => void
     onSaveCoverPhoto: () => void
     onOpenCoverPhotoPicker: () => void
@@ -22,6 +23,7 @@ const ProfileCoverSection = ({
     currentCoverPhotoOffsetY,
     coverPhotoOffsetX,
     coverPhotoOffsetY,
+    isSavingCoverPhoto = false,
     onCancelCoverPhoto,
     onSaveCoverPhoto,
     onOpenCoverPhotoPicker,
@@ -33,17 +35,19 @@ const ProfileCoverSection = ({
                 <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-end gap-2 bg-black/25 px-4 py-3">
                     <button
                         type="button"
+                        disabled={isSavingCoverPhoto}
                         onClick={onCancelCoverPhoto}
-                        className="rounded-lg bg-white/20 px-4 py-2 text-sm font-medium text-white"
+                        className="rounded-lg bg-white/20 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {PROFILE_ACTION_LABEL.CANCEL}
                     </button>
                     <button
                         type="button"
+                        disabled={isSavingCoverPhoto}
                         onClick={onSaveCoverPhoto}
-                        className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white"
+                        className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        {PROFILE_ACTION_LABEL.SAVE_CHANGES}
+                        {isSavingCoverPhoto ? PROFILE_ACTION_LABEL.SAVING : PROFILE_ACTION_LABEL.SAVE_CHANGES}
                     </button>
                 </div>
             )}

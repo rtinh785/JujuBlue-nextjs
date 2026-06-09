@@ -1,21 +1,42 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Globe, Lock, Users } from 'lucide-react'
+import { ChevronDown, Globe, Lock, Users } from 'lucide-react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/base/dialog'
 import { Button } from '@/components/base/button'
 import AutoResizeTextarea from '@/components/common/AutoResizeTextarea'
 import SharedPostPreview from '@/components/post/components/SharedPostPreview'
 import type { PostWithStatus, SharePostReq } from '@/core/types/post.type'
 import { sharePostSchema, type SharePostFormValues } from '@/schema/sharePost.schema'
-import { POST_ACTION_LABEL, POST_TEXT, POST_VISIBILITY, POST_VISIBILITY_LABEL } from '@/core/constants/post.constant'
+import {
+    POST_ACTION_LABEL,
+    POST_TEXT,
+    POST_VISIBILITY,
+    POST_VISIBILITY_DESCRIPTION,
+    POST_VISIBILITY_LABEL,
+} from '@/core/constants/post.constant'
 
 const VISIBILITY_OPTIONS = [
-    { value: POST_VISIBILITY.PUBLIC, label: POST_VISIBILITY_LABEL.public, icon: Globe },
-    { value: POST_VISIBILITY.FOLLOWERS, label: POST_VISIBILITY_LABEL.followers, icon: Users },
-    { value: POST_VISIBILITY.PRIVATE, label: POST_VISIBILITY_LABEL.private, icon: Lock },
+    {
+        value: POST_VISIBILITY.PUBLIC,
+        label: POST_VISIBILITY_LABEL.public,
+        description: POST_VISIBILITY_DESCRIPTION.public,
+        icon: Globe,
+    },
+    {
+        value: POST_VISIBILITY.FOLLOWERS,
+        label: POST_VISIBILITY_LABEL.followers,
+        description: POST_VISIBILITY_DESCRIPTION.followers,
+        icon: Users,
+    },
+    {
+        value: POST_VISIBILITY.PRIVATE,
+        label: POST_VISIBILITY_LABEL.private,
+        description: POST_VISIBILITY_DESCRIPTION.private,
+        icon: Lock,
+    },
 ] as const
 
 type Props = {
@@ -28,6 +49,8 @@ type Props = {
 }
 
 const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit, onOpenOriginalPost }: Props) => {
+    const visibilityRef = useRef<HTMLDivElement | null>(null)
+    const [visibilityOpen, setVisibilityOpen] = useState(false)
     const {
         control,
         handleSubmit,
@@ -44,6 +67,9 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
     })
 
     const selectedVisibility = watch('visibility')
+    const currentOption =
+        VISIBILITY_OPTIONS.find((option) => option.value === selectedVisibility) ?? VISIBILITY_OPTIONS[0]
+    const CurrentIcon = currentOption.icon
     const originalPost = post?.shared_post ?? post
 
     useEffect(() => {
@@ -53,7 +79,20 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
             content: '',
             visibility: POST_VISIBILITY.PUBLIC,
         })
+        setVisibilityOpen(false)
     }, [open, reset])
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (visibilityRef.current && !visibilityRef.current.contains(event.target as Node)) {
+                setVisibilityOpen(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
 
     if (!post || !originalPost) return null
 
@@ -86,27 +125,49 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
 
                     {errors.content?.message ? <p className="text-xs text-red-500">{errors.content.message}</p> : null}
 
-                    <div className="flex flex-wrap gap-2">
-                        {VISIBILITY_OPTIONS.map(({ value, label, icon: Icon }) => (
-                            <button
-                                key={value}
-                                type="button"
-                                onClick={() => {
-                                    setValue('visibility', value, {
-                                        shouldDirty: true,
-                                        shouldValidate: true,
-                                    })
-                                }}
-                                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                                    selectedVisibility === value
-                                        ? 'border-slate-900 bg-slate-900 text-white'
-                                        : 'border-slate-200 text-slate-500 hover:bg-slate-50'
-                                }`}
-                            >
-                                <Icon className="size-3.5" />
-                                {label}
-                            </button>
-                        ))}
+                    <div ref={visibilityRef} className="relative inline-block">
+                        <button
+                            type="button"
+                            onClick={() => setVisibilityOpen((prev) => !prev)}
+                            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                        >
+                            <CurrentIcon className="size-3.5 text-slate-400" />
+                            {currentOption.label}
+                            <ChevronDown
+                                className={`size-3 text-slate-400 transition-transform ${visibilityOpen ? 'rotate-180' : ''}`}
+                            />
+                        </button>
+
+                        {visibilityOpen && (
+                            <div className="absolute top-full left-0 z-10 mt-1.5 w-64 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-md">
+                                {VISIBILITY_OPTIONS.map(({ value, label, description, icon: Icon }) => (
+                                    <button
+                                        key={value}
+                                        type="button"
+                                        onClick={() => {
+                                            setValue('visibility', value, {
+                                                shouldDirty: true,
+                                                shouldValidate: true,
+                                            })
+                                            setVisibilityOpen(false)
+                                        }}
+                                        className={`flex w-full items-start gap-2.5 px-3 py-2.5 text-left text-xs transition-colors hover:bg-slate-50 ${
+                                            selectedVisibility === value
+                                                ? 'font-semibold text-slate-800'
+                                                : 'text-slate-500'
+                                        }`}
+                                    >
+                                        <Icon className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
+                                        <span>
+                                            <span className="block">{label}</span>
+                                            <span className="mt-0.5 block text-[11px] leading-4 font-normal text-slate-400">
+                                                {description}
+                                            </span>
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <SharedPostPreview

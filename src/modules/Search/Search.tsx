@@ -7,6 +7,7 @@ import PostCard from '@/components/post/PostCard'
 import { ROUTE, ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { PostWithStatus } from '@/core/types/post.type'
 import { SearchSort, SearchType, SearchUserItem } from '@/core/types/search.type'
+import { getAccesTokenFromLS } from '@/utils/auth'
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -36,6 +37,7 @@ const getSearchSort = (value: string | null): SearchSort => {
 const Search = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const hasAccessToken = !!getAccesTokenFromLS()
     const { data: user, isLoading: isUserLoading } = useCurrentUser()
     const [selectedPost, setSelectedPost] = useState<PostWithStatus | null>(null)
 
@@ -49,7 +51,7 @@ const Search = () => {
             type,
             sort,
         },
-        !!user,
+        hasAccessToken,
     )
 
     const posts = data?.posts ?? []
@@ -71,7 +73,7 @@ const Search = () => {
         setSelectedPost(post)
     }
 
-    if (isUserLoading) {
+    if (hasAccessToken && isUserLoading && !user) {
         return (
             <div className="mx-auto w-full max-w-3xl px-4 py-6">
                 <p className="text-sm text-slate-500">Checking login status...</p>
@@ -79,7 +81,7 @@ const Search = () => {
         )
     }
 
-    if (!user) {
+    if (!hasAccessToken || (!isUserLoading && !user)) {
         return (
             <div className="mx-auto w-full max-w-3xl px-4 py-6">
                 <h1 className="text-xl font-semibold text-slate-900">Search</h1>
@@ -112,7 +114,7 @@ const Search = () => {
                     <PostCard
                         key={post.id}
                         post={post}
-                        currentUserId={user.id}
+                        currentUserId={user?.id}
                         onOpenDetail={handleOpenPostDetail}
                         onOpenComments={handleOpenPostComments}
                     />
@@ -231,7 +233,7 @@ const Search = () => {
 
             <PostDetailDialog
                 post={selectedPost}
-                currentUserId={user.id}
+                currentUserId={user?.id}
                 open={!!selectedPost}
                 onOpenChange={(open) => {
                     if (!open) setSelectedPost(null)

@@ -40,6 +40,7 @@ export const ASIDE_TEXT = {
     COPYRIGHT: '(c) 2024 Juju Blue',
     WHO_TO_FOLLOW: 'Who to follow',
     TRENDING: 'Trending',
+    TRENDING_DESCRIPTION: 'Popular posts you can open',
     SHOW_MORE: 'Show more',
 } as const
 

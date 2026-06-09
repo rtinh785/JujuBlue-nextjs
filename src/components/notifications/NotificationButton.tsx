@@ -6,15 +6,15 @@ import {
     useMarkNotificationGroupClicked,
     useUnreadNotificationsCount,
 } from '@/apis/notifications/notifications.query'
+import { markNotificationReadInCache } from '@/apis/notifications/notifications.cache'
 import { usePostById } from '@/apis/posts/posts.query'
 import { useMyProfile } from '@/apis/user/user.query'
-import { postsKeys } from '@/apis/posts/posts.key'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/base/popover'
 import { Skeleton } from '@/components/base/skeleton'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import { formatNotificationTime, getNotificationMessage, isGroupedNotificationType } from '@/utils/notification'
 import { Bell } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { NotificationListItem } from '@/core/types/notification.type'
 import { ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { useRouter } from 'next/navigation'
@@ -47,8 +47,8 @@ const NotificationButton = ({ enabled = true }: Props) => {
     const { data: selectedPost } = usePostById(selectedPostId ?? undefined)
     const { data: myProfile } = useMyProfile()
 
-    const { mutateAsync: markClicked } = useMarkNotificationClicked()
-    const { mutateAsync: markGroupClicked } = useMarkNotificationGroupClicked()
+    const { mutate: markClicked } = useMarkNotificationClicked()
+    const { mutate: markGroupClicked } = useMarkNotificationGroupClicked()
 
     const { loadMoreTriggerRef } = useInfiniteScrollTrigger({
         enabled: open && enabled,
@@ -64,32 +64,36 @@ const NotificationButton = ({ enabled = true }: Props) => {
         () => notificationsPages?.pages.flatMap((page) => page.notifications) ?? [],
         [notificationsPages],
     )
+    const followTargetIds = useMemo(() => {
+        return notifications
+            .filter((notification) => notification.type === 'follow_user' && !notification.is_grouped)
+            .map((notification) => notification.target_user_id)
+            .filter((userId): userId is string => !!userId)
+    }, [notifications])
 
-    const openPostDetail = async (postId: string, focusComment = false) => {
-        await Promise.all([
-            queryClient.refetchQueries({
-                queryKey: postsKeys.detail(postId),
-                type: 'all',
-            }),
-            queryClient.refetchQueries({
-                queryKey: postsKeys.comments(postId),
-                type: 'all',
-            }),
-        ])
+    useEffect(() => {
+        if (!open || !enabled) return
 
+        followTargetIds.forEach((userId) => {
+            router.prefetch(ROUTE_BUILDER.profileDetail(userId))
+        })
+    }, [enabled, followTargetIds, open, router])
+
+    const openPostDetail = (postId: string, focusComment = false) => {
         setShouldFocusComment(focusComment)
         setSelectedPostId(postId)
     }
 
-    const handleNotificationClick = async (notification: NotificationListItem) => {
+    const handleNotificationClick = (notification: NotificationListItem) => {
         const shouldMarkGroup = isGroupedNotificationType(notification.type)
 
         setOpen(false)
+        markNotificationReadInCache(queryClient, notification, shouldMarkGroup)
 
         if (shouldMarkGroup) {
-            await markGroupClicked(notification.group_key)
+            markGroupClicked(notification.group_key)
         } else {
-            await markClicked(notification.id)
+            markClicked(notification.id)
         }
 
         if (notification.type === 'follow_user') {
@@ -106,12 +110,12 @@ const NotificationButton = ({ enabled = true }: Props) => {
         }
 
         if (notification.type === 'share_post' && notification.share_post_id) {
-            await openPostDetail(notification.share_post_id)
+            openPostDetail(notification.share_post_id)
             return
         }
 
         if (notification.target_post_id) {
-            await openPostDetail(
+            openPostDetail(
                 notification.target_post_id,
                 notification.type === 'comment_post' || notification.type === 'reply_comment',
             )

@@ -11,7 +11,8 @@ export const useUnreadNotificationsCount = (enabled = true) => {
             return res.data.unreadCount
         },
         enabled,
-        refetchInterval: 5_000,
+        staleTime: 30_000,
+        refetchInterval: enabled ? 60_000 : false,
     })
 }
 
@@ -23,7 +24,7 @@ export const useGroupedNotifications = (enabled = true) => {
             return res.data.notifications
         },
         enabled,
-        refetchInterval: 5_000,
+        staleTime: 30_000,
     })
 }
 
@@ -43,6 +44,7 @@ export const useInfiniteGroupedNotifications = (enabled = true) => {
             return lastPage.hasMore ? lastPage.nextCursor : undefined
         },
         enabled,
+        staleTime: 30_000,
     })
 }
 
@@ -51,10 +53,10 @@ export const useMarkNotificationClicked = () => {
 
     return useMutation({
         mutationFn: notificationsApi.markClicked,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: notificationsKeys.unreadCount() })
-            await queryClient.invalidateQueries({ queryKey: notificationsKeys.grouped() })
-            await queryClient.invalidateQueries({ queryKey: notificationsKeys.groupedInfinite() })
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: notificationsKeys.unreadCount() })
+            void queryClient.invalidateQueries({ queryKey: notificationsKeys.grouped() })
+            void queryClient.invalidateQueries({ queryKey: notificationsKeys.groupedInfinite() })
         },
     })
 }
@@ -64,10 +66,10 @@ export const useMarkNotificationGroupClicked = () => {
 
     return useMutation({
         mutationFn: notificationsApi.markGroupClicked,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: notificationsKeys.unreadCount() })
-            await queryClient.invalidateQueries({ queryKey: notificationsKeys.grouped() })
-            await queryClient.invalidateQueries({ queryKey: notificationsKeys.groupedInfinite() })
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: notificationsKeys.unreadCount() })
+            void queryClient.invalidateQueries({ queryKey: notificationsKeys.grouped() })
+            void queryClient.invalidateQueries({ queryKey: notificationsKeys.groupedInfinite() })
         },
     })
 }

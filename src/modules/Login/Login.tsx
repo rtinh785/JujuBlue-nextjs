@@ -2,6 +2,7 @@
 
 import { LoginFormValues, loginSchema } from '@/schema/login.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
+import type { AxiosError } from 'axios'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -46,7 +47,7 @@ const Login = () => {
                 reset()
                 router.push(ROUTE.ROOT)
             },
-            onError: (error: any) => {
+            onError: (error: AxiosError<{ message?: string }>) => {
                 toast.error(error.response?.data?.message || AUTH_MESSAGE.LOGIN_FAILED, {
                     position: 'top-left',
                 })
@@ -76,11 +77,9 @@ const Login = () => {
                 saveAccesTokenToLS(access_token)
                 saveRefreshTokenToLS(refresh_token)
 
-                window.history.replaceState(null, '', ROUTE.LOGIN)
+                void http.get('profiles/me')
 
-                await http.get('profiles/me')
-
-                router.push(ROUTE.HOME)
+                router.replace(ROUTE.HOME)
             }
         }
 

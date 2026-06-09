@@ -9,11 +9,13 @@ type Props = {
 
 const TrendingCard = ({ onOpenPost }: Props) => {
     const { data: trendingPosts = [], isLoading } = useTrendingPosts()
+
     return (
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
             <h2 className="text-sm font-semibold text-slate-900">{ASIDE_TEXT.TRENDING}</h2>
+            <p className="mt-1 text-xs text-slate-400">{ASIDE_TEXT.TRENDING_DESCRIPTION}</p>
 
-            <div className="mt-4 space-y-4">
+            <div className="mt-3 space-y-1">
                 {isLoading ? (
                     <p className="text-xs text-slate-400">Loading trending posts...</p>
                 ) : trendingPosts.length > 0 ? (
@@ -24,16 +26,16 @@ const TrendingCard = ({ onOpenPost }: Props) => {
                             <button
                                 key={post.id}
                                 type="button"
-                                className="block w-full rounded-xl text-left transition hover:bg-slate-50"
+                                className="block w-full rounded-xl px-2 py-2 text-left transition hover:bg-slate-50"
                                 onClick={() => onOpenPost?.(post)}
                             >
-                                <p className="text-xs text-slate-400">Post · Trending</p>
+                                <p className="text-xs text-slate-400">Post - Trending</p>
                                 <div className="mt-1 flex min-w-0 items-center gap-1.5 text-sm">
                                     <span className="truncate font-semibold text-slate-900">
                                         {getTrendingPostTitle(post)}
                                     </span>
                                     <span className="shrink-0 text-xs text-slate-400">
-                                        · {interactions} {interactions === 1 ? 'interaction' : 'interactions'}
+                                        - {interactions} {interactions === 1 ? 'interaction' : 'interactions'}
                                     </span>
                                 </div>
                             </button>
@@ -43,8 +45,6 @@ const TrendingCard = ({ onOpenPost }: Props) => {
                     <p className="text-xs text-slate-400">No trending posts yet.</p>
                 )}
             </div>
-
-            
         </section>
     )
 }

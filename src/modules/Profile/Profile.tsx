@@ -28,9 +28,27 @@ import { PROFILE_TAB, PROFILE_TAB_LABEL, PROFILE_TEXT } from '@/core/constants/p
 import { useRouter } from 'next/navigation'
 import { useCreateOrGetConversation } from '@/apis/messages/messages.query'
 import { ROUTE } from '@/core/constants/route.constant'
+import type { ProfileUpdateData } from '@/core/types/request.type'
 
 interface ProfileProps {
     profileId?: string
+}
+
+const cleanProfileUpdatePayload = (values: EditProfileFormValues): ProfileUpdateData => {
+    const cleaned: ProfileUpdateData = {
+        ...values,
+        date_of_birth: values.date_of_birth || null,
+    }
+
+    Object.keys(cleaned).forEach((key) => {
+        const profileKey = key as keyof ProfileUpdateData
+
+        if (cleaned[profileKey] === '' || cleaned[profileKey] === undefined) {
+            delete cleaned[profileKey]
+        }
+    })
+
+    return cleaned
 }
 
 const Profile = ({ profileId }: ProfileProps) => {
@@ -94,25 +112,14 @@ const Profile = ({ profileId }: ProfileProps) => {
         selectedCoverPhotoSrc && isEditingCoverPhoto
             ? coverPhotoOffsetY
             : (profileData?.cover_photo_offset_y ?? savedCoverPhotoOffsetY ?? 0)
+    const isSavingAvatar = updateAvatarMutation.isPending
+    const isSavingCoverPhoto = updateCoverPhotoMutation.isPending || updateProfileMutation.isPending
 
     // Handlers
     const handleUpdateProfile = async (values: EditProfileFormValues) => {
         if (!currentUser?.id) return
-        // Do db chỉ nhận null chứ k phải "" nên phải chuyển '' thành null nhen
-        const cleaned = {
-            ...values,
-            date_of_birth: values.date_of_birth || null,
-        }
 
-        // bỏ field rỗng lun
-        Object.keys(cleaned).forEach((key) => {
-            const k = key as keyof typeof cleaned
-            if (cleaned[k] === '' || cleaned[k] === undefined) {
-                delete cleaned[k]
-            }
-        })
-
-        await updateProfileMutation.mutateAsync(cleaned)
+        await updateProfileMutation.mutateAsync(cleanProfileUpdatePayload(values))
         setOpenEditDialog(false)
     }
 
@@ -197,6 +204,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                                 currentCoverPhotoOffsetY={currentCoverPhotoOffsetY}
                                 coverPhotoOffsetX={coverPhotoOffsetX}
                                 coverPhotoOffsetY={coverPhotoOffsetY}
+                                isSavingCoverPhoto={isSavingCoverPhoto}
                                 onCancelCoverPhoto={handleCancelCoverPhoto}
                                 onSaveCoverPhoto={handleSaveCoverPhoto}
                                 onOpenCoverPhotoPicker={handleOpenCoverPhotoPicker}
@@ -302,6 +310,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                 onChange={(event) => {
                     const file = event.target.files?.[0]
                     if (!file) return
+                    if (isSavingCoverPhoto) return
                     handleSelectCoverPhoto(file)
                 }}
             />
@@ -310,7 +319,11 @@ const Profile = ({ profileId }: ProfileProps) => {
             <DialogAvatar
                 open={isAvatarDialogOpen}
                 imageSrc={selectedAvatarSrc}
-                onOpenChange={setIsAvatarDialogOpen}
+                isSaving={isSavingAvatar}
+                onOpenChange={(open) => {
+                    if (isSavingAvatar && !open) return
+                    setIsAvatarDialogOpen(open)
+                }}
                 onCancel={handleCancelAvatarDialog}
                 onSave={handleSaveAvatarDialog}
             />

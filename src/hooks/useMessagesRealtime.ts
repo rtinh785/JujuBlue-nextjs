@@ -1,30 +1,21 @@
 'use client'
 
+import { appendMessageInCache, upsertConversationInCache } from '@/apis/messages/messages.cache'
 import { messagesKeys } from '@/apis/messages/messages.key'
 import { envConfig } from '@/core/configs/env.config'
 import { MESSAGE_SOCKET_EVENT } from '@/core/constants/message.constant'
+import type { ConversationItem, MessageItem } from '@/core/types/message.type'
 import { getAccesTokenFromLS } from '@/utils/auth'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { io } from 'socket.io-client'
 
 type MessageSocketPayload = {
-    message: {
-        id: string
-        conversation_id: string
-        sender_id: string
-        content: string
-        created_at: string
-    }
-    conversation: {
-        id: string
-    }
+    message: MessageItem
 }
 
 type ConversationSocketPayload = {
-    conversation: {
-        id: string
-    }
+    conversation: ConversationItem
 }
 
 type UnreadCountSocketPayload = {
@@ -46,28 +37,18 @@ export const useMessagesRealtime = (enabled = true) => {
             transports: ['websocket'],
         })
 
-        const refreshConversationData = async (conversationId?: string) => {
-            await queryClient.invalidateQueries({
-                queryKey: messagesKeys.conversations(),
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: messagesKeys.unreadCount(),
-            })
-
-            if (conversationId) {
-                await queryClient.invalidateQueries({
-                    queryKey: messagesKeys.conversationMessages(conversationId),
-                })
-            }
-        }
-
         socket.on(MESSAGE_SOCKET_EVENT.NEW_MESSAGE, (payload: MessageSocketPayload) => {
-            void refreshConversationData(payload.conversation.id)
+            const conversationId = payload.message.conversation_id
+
+            queryClient.setQueryData(messagesKeys.conversationMessages(conversationId), (oldData) =>
+                appendMessageInCache(oldData, payload.message),
+            )
         })
 
         socket.on(MESSAGE_SOCKET_EVENT.CONVERSATION_UPDATED, (payload: ConversationSocketPayload) => {
-            void refreshConversationData(payload.conversation.id)
+            queryClient.setQueryData(messagesKeys.conversations(), (oldData) =>
+                upsertConversationInCache(oldData, payload.conversation),
+            )
         })
 
         socket.on(MESSAGE_SOCKET_EVENT.UNREAD_COUNT_UPDATED, (payload: UnreadCountSocketPayload) => {

@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { yupResolver } from '@hookform/resolvers/yup'
+import type { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
@@ -45,7 +46,7 @@ const Register = () => {
                     toast.success(AUTH_MESSAGE.REGISTER_SUCCESS)
                     reset()
                 },
-                onError: (error: any) => {
+                onError: (error: AxiosError<{ message?: string }>) => {
                     setError('email', {
                         message: error.response?.data?.message || AUTH_MESSAGE.REGISTER_FAILED,
                     })
@@ -73,11 +74,10 @@ const Register = () => {
             if (access_token && refresh_token) {
                 saveAccesTokenToLS(access_token)
                 saveRefreshTokenToLS(refresh_token)
-                window.history.replaceState(null, '', ROUTE.LOGIN)
 
-                await http.get('profiles/me')
+                void http.get('profiles/me')
 
-                router.push(ROUTE.HOME)
+                router.replace(ROUTE.HOME)
             }
         }
 

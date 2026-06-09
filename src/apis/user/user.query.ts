@@ -2,7 +2,10 @@ import userApi from '@/apis/user/user.api'
 import { userKeys } from '@/apis/user/user.key'
 import { ProfileUpdateData } from '@/core/types/request.type'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getAccesTokenFromLS } from '@/utils/auth'
+import { getAccesTokenFromLS, getProfileFromLS } from '@/utils/auth'
+import type { Profile } from '@/modules/Profile/profile.type'
+
+const USER_CACHE_TIME = 1000 * 60 * 5
 
 export const useCurrentUser = () => {
     const hasAccessToken = !!getAccesTokenFromLS()
@@ -14,6 +17,8 @@ export const useCurrentUser = () => {
             return res.data.user
         },
         enabled: hasAccessToken,
+        initialData: () => (hasAccessToken ? (getProfileFromLS() ?? undefined) : undefined),
+        staleTime: USER_CACHE_TIME,
         retry: false,
     })
 }
@@ -25,13 +30,12 @@ export const useMyProfile = (enabled = true) => {
         queryKey: userKeys.myProfile(),
         queryFn: async () => {
             const res = await userApi.getMyProfile()
-            return res.data
+            return res.data.profile
         },
         enabled: hasAccessToken && enabled,
         retry: false,
     })
 }
-
 
 export const useUpdateMyProfile = () => {
     const queryClient = useQueryClient()
@@ -40,9 +44,10 @@ export const useUpdateMyProfile = () => {
             const res = await userApi.updateMyProfile(data)
             return res.data.profile
         },
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
-            await queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
+        onSuccess: (profile) => {
+            queryClient.setQueryData(userKeys.myProfile(), profile)
+            void queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
+            void queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
         },
     })
 }
@@ -54,9 +59,17 @@ export const useUpdateAvatar = () => {
             const res = await userApi.uploadAvatar(data)
             return res.data.profile
         },
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
-            await queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
+        onSuccess: (profile) => {
+            queryClient.setQueryData<Profile | undefined>(userKeys.myProfile(), (oldProfile) =>
+                oldProfile
+                    ? {
+                          ...oldProfile,
+                          avatar_url: profile.avatar_url,
+                      }
+                    : oldProfile,
+            )
+            void queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
+            void queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
         },
     })
 }
@@ -68,9 +81,17 @@ export const useUpdateCoverPhoto = () => {
             const res = await userApi.uploadCoverPhoto(data)
             return res.data.profile
         },
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
-            await queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
+        onSuccess: (profile) => {
+            queryClient.setQueryData<Profile | undefined>(userKeys.myProfile(), (oldProfile) =>
+                oldProfile
+                    ? {
+                          ...oldProfile,
+                          cover_photo_url: profile.cover_photo_url,
+                      }
+                    : oldProfile,
+            )
+            void queryClient.invalidateQueries({ queryKey: userKeys.myProfile() })
+            void queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
         },
     })
 }

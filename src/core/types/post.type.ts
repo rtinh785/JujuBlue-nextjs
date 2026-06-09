@@ -1,3 +1,5 @@
+import type { PostVisibility } from '@/core/constants/post.constant'
+
 export type PostMediaItem = {
     url: string
     type: 'image' | 'video'
@@ -14,7 +16,7 @@ export type SharedPostItem = {
     id: string
     content: string | null
     media: PostMediaItem[] | null
-    visibility: string | null
+    visibility: PostVisibility | null
     parent_post_id?: string | null
     root_post_id?: string | null
     depth?: number | null
@@ -34,7 +36,7 @@ export type Post = {
     id: string
     content: string
     media: PostMediaItem[] | null
-    visibility: 'public' | 'followers' | 'private'
+    visibility: PostVisibility
     parent_post_id: string | null
     root_post_id: string | null
     depth: number
@@ -60,6 +62,12 @@ export type GetFeedPostsRes = {
     posts: PostWithStatus[]
     nextCursor: string | null
     hasMore: boolean
+}
+
+export type CreatePostReq = {
+    content?: string
+    media?: PostMediaItem[] | null
+    visibility: PostVisibility
 }
 
 export type GetProfilePostsRes = {
@@ -94,7 +102,7 @@ export type CreateCommentRes = {
 
 export type UpdatePostReq = {
     content?: string
-    visibility?: 'public' | 'followers' | 'private'
+    visibility?: PostVisibility
     media?: PostMediaItem[] | null
 }
 
@@ -114,7 +122,7 @@ export type GetPostByIdRes = {
 
 export type SharePostReq = {
     content?: string
-    visibility?: 'public' | 'followers' | 'private'
+    visibility?: PostVisibility
 }
 
 export type SharePostRes = {

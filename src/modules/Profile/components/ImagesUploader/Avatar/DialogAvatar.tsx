@@ -8,31 +8,45 @@ import { useState } from 'react'
 type DialogAvatarProps = {
     open: boolean
     imageSrc?: string | null
+    isSaving?: boolean
     onOpenChange: (open: boolean) => void
     onCancel: () => void
     onSave: (croppedFile: File) => void | Promise<void>
 }
 
-const DialogAvatar = ({ open, imageSrc, onOpenChange, onCancel, onSave }: DialogAvatarProps) => {
+const DialogAvatar = ({ open, imageSrc, isSaving = false, onOpenChange, onCancel, onSave }: DialogAvatarProps) => {
     const [crop, setCrop] = useState({ x: 0, y: 0 })
     const [zoom, setZoom] = useState(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
+    const [isPreparingAvatar, setIsPreparingAvatar] = useState(false)
+    const isBusy = isSaving || isPreparingAvatar
 
     const handleSaveClick = async () => {
-        if (!imageSrc || !croppedAreaPixels) {
+        if (!imageSrc || !croppedAreaPixels || isBusy) {
             return
         }
 
-        const croppedBlob = await getCroppedAvatarImage(imageSrc, croppedAreaPixels)
-        const croppedFile = new File([croppedBlob], PROFILE_UPLOAD.DEFAULT_AVATAR_FILE_NAME, {
-            type: PROFILE_UPLOAD.AVATAR_MIME_TYPE,
-        })
+        try {
+            setIsPreparingAvatar(true)
+            const croppedBlob = await getCroppedAvatarImage(imageSrc, croppedAreaPixels)
+            const croppedFile = new File([croppedBlob], PROFILE_UPLOAD.DEFAULT_AVATAR_FILE_NAME, {
+                type: PROFILE_UPLOAD.AVATAR_MIME_TYPE,
+            })
 
-        await onSave(croppedFile)
+            await onSave(croppedFile)
+        } finally {
+            setIsPreparingAvatar(false)
+        }
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog
+            open={open}
+            onOpenChange={(nextOpen) => {
+                if (isBusy && !nextOpen) return
+                onOpenChange(nextOpen)
+            }}
+        >
             <DialogContent className="max-w-[520px]">
                 <DialogHeader>
                     <DialogTitle>{PROFILE_TEXT.AVATAR_DIALOG_TITLE}</DialogTitle>
@@ -65,6 +79,7 @@ const DialogAvatar = ({ open, imageSrc, onOpenChange, onCancel, onSave }: Dialog
                             max={3}
                             step={0.1}
                             value={zoom}
+                            disabled={isBusy}
                             onChange={(event) => setZoom(Number(event.target.value))}
                             className="w-full"
                         />
@@ -73,11 +88,11 @@ const DialogAvatar = ({ open, imageSrc, onOpenChange, onCancel, onSave }: Dialog
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" onClick={onCancel}>
+                    <Button type="button" variant="outline" disabled={isBusy} onClick={onCancel}>
                         {PROFILE_ACTION_LABEL.CANCEL}
                     </Button>
-                    <Button type="button" onClick={handleSaveClick}>
-                        {PROFILE_ACTION_LABEL.SAVE_CHANGES}
+                    <Button type="button" disabled={isBusy || !croppedAreaPixels} onClick={handleSaveClick}>
+                        {isBusy ? PROFILE_ACTION_LABEL.SAVING : PROFILE_ACTION_LABEL.SAVE_CHANGES}
                     </Button>
                 </DialogFooter>
             </DialogContent>

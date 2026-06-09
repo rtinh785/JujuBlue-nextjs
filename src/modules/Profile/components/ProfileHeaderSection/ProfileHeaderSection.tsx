@@ -36,7 +36,17 @@ const ProfileHeaderSection = ({
                 )}
             </div>
 
-            {profileId ? (
+            {isOwnProfile ? (
+                <div className="flex items-center gap-2 sm:justify-end">
+                    <button
+                        type="button"
+                        onClick={onOpenEditDialog}
+                        className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                        {PROFILE_ACTION_LABEL.EDIT_PROFILE}
+                    </button>
+                </div>
+            ) : profileId ? (
                 <div className="flex items-center gap-2 sm:justify-end">
                     <button
                         type="button"
@@ -58,17 +68,7 @@ const ProfileHeaderSection = ({
                         {PROFILE_ACTION_LABEL.MESSAGE}
                     </button>
                 </div>
-            ) : (
-                <div className="flex items-center gap-2 sm:justify-end">
-                    <button
-                        type="button"
-                        onClick={onOpenEditDialog}
-                        className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                    >
-                        {PROFILE_ACTION_LABEL.EDIT_PROFILE}
-                    </button>
-                </div>
-            )}
+            ) : null}
         </div>
     )
 }

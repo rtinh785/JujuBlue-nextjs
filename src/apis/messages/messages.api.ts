@@ -55,6 +55,7 @@ const messagesApi = {
             content,
         })
     },
+    
 
     markConversationRead(conversationId: string) {
         return http.patch<MarkConversationReadResponse>(`messages/conversations/${conversationId}/read`)

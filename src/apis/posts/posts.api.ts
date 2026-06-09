@@ -3,6 +3,7 @@ import { UploadMediaRes } from '@/core/types/media.type'
 import {
     CreateCommentReq,
     CreateCommentRes,
+    CreatePostReq,
     DeletePostRes,
     FeedPosts,
     GetFeedPostsRes,
@@ -19,7 +20,7 @@ import {
 } from '@/core/types/post.type'
 
 const postsApi = {
-    createPost(body: { content?: string; media?: unknown[] | null; visibility: 'public' | 'followers' | 'private' }) {
+    createPost(body: CreatePostReq) {
         return http.post('posts', body)
     },
     updatePost(postId: string, body: UpdatePostReq) {

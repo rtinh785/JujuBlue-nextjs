@@ -16,7 +16,7 @@ import SharePostDialog from '@/components/post/components/SharePostDialog'
 import { POST_DIALOG, POST_MESSAGE, POST_TEXT, POST_VISIBILITY_LABEL } from '@/core/constants/post.constant'
 import { Post, PostWithStatus, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
 import { Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { formatPostTime } from '../../utils/helper'
 import { toast } from 'sonner'
 
@@ -29,6 +29,8 @@ type Props = {
     onFocusCommentInput?: () => void
     onOpenComments?: (post: PostWithStatus) => void
 }
+
+const POST_ACTION_DEBOUNCE_MS = 1000
 
 const PostCard = ({
     post,
@@ -46,13 +48,15 @@ const PostCard = ({
     const shareDisabledReason = isOriginalSharedPostMissing ? POST_MESSAGE.SHARE_UNAVAILABLE : undefined
 
     // Like / bookmark
-    const { mutateAsync: likeMutation, isPending: isLiking } = useLikePost()
-    const { mutateAsync: unlikeMutation, isPending: isUnliking } = useUnlikePost()
-    const { mutateAsync: bookmarkMutation, isPending: isBookmarking } = useBookmarkPost()
-    const { mutateAsync: unbookmarkMutation, isPending: isUnbookmarking } = useUnbookmarkPost()
-
-    const isLikePending = isLiking || isUnliking
-    const isBookmarkPending = isBookmarking || isUnbookmarking
+    const { mutateAsync: likeMutation } = useLikePost()
+    const { mutateAsync: unlikeMutation } = useUnlikePost()
+    const { mutateAsync: bookmarkMutation } = useBookmarkPost()
+    const { mutateAsync: unbookmarkMutation } = useUnbookmarkPost()
+    const likeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const bookmarkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const syncedLikeRef = useRef(post.is_liked)
+    const syncedLikesCountRef = useRef(post.likes_count)
+    const syncedBookmarkRef = useRef(post.is_bookmark)
 
     // Delete
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -100,48 +104,87 @@ const PostCard = ({
         onOpenDetail?.(sharedPost as PostWithStatus)
     }
 
-    const handleLike = async () => {
-        if (isLikePending) return
+    const handleLike = () => {
+        let nextIsLiked = false
 
-        const previousPost = displayPost
-        const nextIsLiked = !displayPost.is_liked
+        setDisplayPost((prev) => {
+            nextIsLiked = !prev.is_liked
 
-        setDisplayPost((prev) => ({
-            ...prev,
-            is_liked: nextIsLiked,
-            likes_count: Math.max((prev.likes_count ?? 0) + (nextIsLiked ? 1 : -1), 0),
-        }))
+            return {
+                ...prev,
+                is_liked: nextIsLiked,
+                likes_count: Math.max((prev.likes_count ?? 0) + (nextIsLiked ? 1 : -1), 0),
+            }
+        })
+
+        if (likeTimerRef.current) {
+            clearTimeout(likeTimerRef.current)
+        }
+
+        likeTimerRef.current = setTimeout(() => {
+            void syncLikeStatus(nextIsLiked)
+        }, POST_ACTION_DEBOUNCE_MS)
+    }
+
+    const handleBookmark = () => {
+        let nextIsBookmarked = false
+
+        setDisplayPost((prev) => {
+            nextIsBookmarked = !prev.is_bookmark
+
+            return {
+                ...prev,
+                is_bookmark: nextIsBookmarked,
+            }
+        })
+
+        if (bookmarkTimerRef.current) {
+            clearTimeout(bookmarkTimerRef.current)
+        }
+
+        bookmarkTimerRef.current = setTimeout(() => {
+            void syncBookmarkStatus(nextIsBookmarked)
+        }, POST_ACTION_DEBOUNCE_MS)
+    }
+
+    const syncLikeStatus = async (nextIsLiked: boolean) => {
+        if (nextIsLiked === syncedLikeRef.current) return
 
         try {
-            if (displayPost.is_liked) {
-                await unlikeMutation(displayPost.id)
-            } else {
+            if (nextIsLiked) {
+                
                 await likeMutation(displayPost.id)
+            } else {
+                await unlikeMutation(displayPost.id)
             }
+
+            syncedLikesCountRef.current = Math.max(syncedLikesCountRef.current + (nextIsLiked ? 1 : -1), 0)
+            syncedLikeRef.current = nextIsLiked
         } catch {
-            setDisplayPost(previousPost)
+            setDisplayPost((prev) => ({
+                ...prev,
+                is_liked: syncedLikeRef.current,
+                likes_count: syncedLikesCountRef.current,
+            }))
         }
     }
 
-    const handleBookmark = async () => {
-        if (isBookmarkPending) return
-
-        const previousPost = displayPost
-        const nextIsBookmarked = !displayPost.is_bookmark
-
-        setDisplayPost((prev) => ({
-            ...prev,
-            is_bookmark: nextIsBookmarked,
-        }))
+    const syncBookmarkStatus = async (nextIsBookmarked: boolean) => {
+        if (nextIsBookmarked === syncedBookmarkRef.current) return
 
         try {
-            if (displayPost.is_bookmark) {
-                await unbookmarkMutation(displayPost.id)
-            } else {
+            if (nextIsBookmarked) {
                 await bookmarkMutation(displayPost.id)
+            } else {
+                await unbookmarkMutation(displayPost.id)
             }
+
+            syncedBookmarkRef.current = nextIsBookmarked
         } catch {
-            setDisplayPost(previousPost)
+            setDisplayPost((prev) => ({
+                ...prev,
+                is_bookmark: syncedBookmarkRef.current,
+            }))
         }
     }
 
@@ -192,7 +235,22 @@ const PostCard = ({
 
     useEffect(() => {
         setDisplayPost(post)
+        syncedLikeRef.current = post.is_liked
+        syncedLikesCountRef.current = post.likes_count
+        syncedBookmarkRef.current = post.is_bookmark
     }, [post])
+
+    useEffect(() => {
+        return () => {
+            if (likeTimerRef.current) {
+                clearTimeout(likeTimerRef.current)
+            }
+
+            if (bookmarkTimerRef.current) {
+                clearTimeout(bookmarkTimerRef.current)
+            }
+        }
+    }, [])
 
     return (
         <>
@@ -250,8 +308,6 @@ const PostCard = ({
                     sharesCount={displayPost.shares_count ?? 0}
                     isLiked={displayPost.is_liked}
                     isBookmarked={displayPost.is_bookmark}
-                    isLikePending={isLikePending}
-                    isBookmarkPending={isBookmarkPending}
                     isSharePending={isSharingPost}
                     canInteract={!!currentUserId}
                     shareDisabledReason={shareDisabledReason}

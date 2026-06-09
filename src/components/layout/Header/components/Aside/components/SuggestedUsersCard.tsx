@@ -14,6 +14,10 @@ const SuggestedUsersCard = ({ user }: SuggestedUsersCardProps) => {
     const { data: suggestedUsersArray } = useSuggestedProfiles()
     const { mutate: followMutation } = useFollow(user?.id)
 
+    if (suggestedUsersArray?.length === 0) {
+        return null
+    }
+
     return (
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
             <h2 className="text-sm font-semibold text-slate-900">{ASIDE_TEXT.WHO_TO_FOLLOW}</h2>

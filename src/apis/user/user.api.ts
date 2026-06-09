@@ -8,7 +8,7 @@ const userApi = {
         return http.get('auth/me')
     },
     getMyProfile() {
-        return http.get<Profile>('profiles/me')
+        return http.get<{ profile: Profile }>('profiles/me')
     },
     updateMyProfile(data: ProfileUpdateData) {
         return http.patch<UpdateProfileResponse>('profiles/me', data)

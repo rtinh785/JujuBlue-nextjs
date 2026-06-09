@@ -29,11 +29,9 @@ const SearchInput = ({ mobileOnly = false, desktopOnly = false }: SearchInputPro
 
     return (
         <form className={`relative mx-3 w-full flex-1 ${visibilityClass}`} onSubmit={handleSubmit}>
-            <img
-                src={LAYOUT_ASSET.SEARCH}
-                alt={LAYOUT_ALT.SEARCH}
-                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-            />
+            <button type="submit" aria-label={LAYOUT_ALT.SEARCH} className="absolute top-1/2 left-3 -translate-y-1/2">
+                <img src={LAYOUT_ASSET.SEARCH} alt={LAYOUT_ALT.SEARCH} className="size-4" />
+            </button>
             <input
                 type="text"
                 value={keyword}

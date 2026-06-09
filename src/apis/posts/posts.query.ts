@@ -1,24 +1,71 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { InfiniteData, QueryClient, QueryKey } from '@tanstack/react-query'
+import { searchKeys } from '@/apis/search/search.key'
+import { FEED_QUERY } from '@/core/constants/post.constant'
+import { CreateCommentReq, GetFeedPostsRes, PostWithStatus, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
 import postsApi from './posts.api'
 import { postsKeys } from './posts.key'
-import { CreateCommentReq, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
-import { FEED_QUERY } from '@/core/constants/post.constant'
+
+type FeedInfiniteData = InfiniteData<GetFeedPostsRes, string | null>
+
+const invalidateQueries = (queryClient: QueryClient, queryKeys: QueryKey[]) => {
+    queryKeys.forEach((queryKey) => {
+        void queryClient.invalidateQueries({ queryKey })
+    })
+}
+
+const invalidateFeedCaches = (queryClient: QueryClient) => {
+    invalidateQueries(queryClient, [postsKeys.feed(), postsKeys.feedInfinite()])
+}
+
+const invalidateCommonPostCaches = (queryClient: QueryClient) => {
+    invalidateQueries(queryClient, [postsKeys.trending(), postsKeys.profileAll(), postsKeys.postCounts()])
+}
+
+const invalidatePostDetail = (queryClient: QueryClient, postId?: string) => {
+    if (!postId) return
+
+    void queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) })
+}
+
+const updatePostLikeStatus = (post: PostWithStatus, postId: string, isLiked: boolean) => {
+    if (post.id !== postId) return post
+    if (post.is_liked === isLiked) return post
+
+    return {
+        ...post,
+        is_liked: isLiked,
+        likes_count: Math.max(post.likes_count + (isLiked ? 1 : -1), 0),
+    }
+}
+
+const updatePostsListLikeStatus = (posts: PostWithStatus[], postId: string, isLiked: boolean) => {
+    return posts.map((post) => updatePostLikeStatus(post, postId, isLiked))
+}
+
+const updateInfiniteFeedLikeStatus = (queryClient: QueryClient, postId: string, isLiked: boolean) => {
+    queryClient.setQueryData<FeedInfiniteData>(postsKeys.feedInfinite(), (oldData) => {
+        if (!oldData) return oldData
+
+        return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+                ...page,
+                posts: updatePostsListLikeStatus(page.posts, postId, isLiked),
+            })),
+        }
+    })
+}
 
 export const useCreatePost = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
         mutationFn: postsApi.createPost,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
-            await queryClient.invalidateQueries({ queryKey: postsKeys.feedInfinite() })
-            await queryClient.invalidateQueries({ queryKey: postsKeys.trending() })
-
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'profile'],
-            })
-
-            await queryClient.invalidateQueries({ queryKey: postsKeys.postCounts() })
+        onSuccess: () => {
+            invalidateFeedCaches(queryClient)
+            invalidateCommonPostCaches(queryClient)
+            void queryClient.invalidateQueries({ queryKey: searchKeys.all() })
         },
     })
 }
@@ -29,31 +76,17 @@ export const useUpdatePost = () => {
     return useMutation({
         mutationFn: ({ postId, body }: { postId: string; body: UpdatePostReq; rootPostId?: string }) =>
             postsApi.updatePost(postId, body),
-        onSuccess: async (_res, variables) => {
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.feed(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.feedInfinite(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.trending(),
-            })
+        onSuccess: (_res, variables) => {
+            invalidateFeedCaches(queryClient)
+            invalidateQueries(queryClient, [
+                postsKeys.trending(),
+                postsKeys.bookmarks(),
+                postsKeys.profileAll(),
+                postsKeys.detail(variables.postId),
+            ])
 
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.bookmarks(),
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'profile'],
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.detail(variables.postId),
-            })
             if (variables.rootPostId) {
-                await queryClient.invalidateQueries({
-                    queryKey: postsKeys.comments(variables.rootPostId),
-                })
+                void queryClient.invalidateQueries({ queryKey: postsKeys.comments(variables.rootPostId) })
             }
         },
     })
@@ -64,34 +97,16 @@ export const useDeletePost = () => {
 
     return useMutation({
         mutationFn: ({ postId }: { postId: string; rootPostId?: string }) => postsApi.deletePost(postId),
-        onSuccess: async (_res, variables) => {
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.feed(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.feedInfinite(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.trending(),
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.bookmarks(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'profile'],
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.postCounts(),
-            })
+        onSuccess: (_res, variables) => {
+            invalidateFeedCaches(queryClient)
+            invalidateQueries(queryClient, [postsKeys.trending(), postsKeys.bookmarks(), postsKeys.profileAll()])
+            void queryClient.invalidateQueries({ queryKey: postsKeys.postCounts() })
 
             if (variables.rootPostId) {
-                await queryClient.invalidateQueries({
-                    queryKey: postsKeys.comments(variables.rootPostId),
-                })
-                await queryClient.invalidateQueries({
-                    queryKey: postsKeys.detail(variables.rootPostId),
-                })
+                invalidateQueries(queryClient, [
+                    postsKeys.comments(variables.rootPostId),
+                    postsKeys.detail(variables.rootPostId),
+                ])
             }
         },
     })
@@ -169,26 +184,25 @@ export const useLikePost = (commentPostId?: string) => {
 
     return useMutation({
         mutationFn: postsApi.likePost,
-        onSuccess: async () => {
-            await queryClient.refetchQueries({
-                queryKey: postsKeys.feed(),
-            })
-            await queryClient.refetchQueries({
-                queryKey: postsKeys.feedInfinite(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.trending(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'profile'],
-            })
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'detail'],
-            })
+        onMutate: async (postId) => {
+            await queryClient.cancelQueries({ queryKey: postsKeys.all() })
+
+            const previousFeedInfinite = queryClient.getQueryData<FeedInfiniteData>(postsKeys.feedInfinite())
+            updateInfiniteFeedLikeStatus(queryClient, postId, true)
+
+            return {
+                previousFeedInfinite,
+            }
+        },
+        onError: (_error, _postId, context) => {
+            queryClient.setQueryData(postsKeys.feedInfinite(), context?.previousFeedInfinite)
+        },
+        onSettled: (_data, _error, postId) => {
+            void queryClient.invalidateQueries({ queryKey: postsKeys.trending() })
+            invalidatePostDetail(queryClient, postId)
+
             if (commentPostId) {
-                await queryClient.refetchQueries({
-                    queryKey: postsKeys.comments(commentPostId),
-                })
+                void queryClient.invalidateQueries({ queryKey: postsKeys.comments(commentPostId) })
             }
         },
     })
@@ -199,26 +213,25 @@ export const useUnlikePost = (commentPostId?: string) => {
 
     return useMutation({
         mutationFn: postsApi.unlikePost,
-        onSuccess: async () => {
-            await queryClient.refetchQueries({
-                queryKey: postsKeys.feed(),
-            })
-            await queryClient.refetchQueries({
-                queryKey: postsKeys.feedInfinite(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.trending(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'profile'],
-            })
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'detail'],
-            })
+        onMutate: async (postId) => {
+            await queryClient.cancelQueries({ queryKey: postsKeys.all() })
+
+            const previousFeedInfinite = queryClient.getQueryData<FeedInfiniteData>(postsKeys.feedInfinite())
+            updateInfiniteFeedLikeStatus(queryClient, postId, false)
+
+            return {
+                previousFeedInfinite,
+            }
+        },
+        onError: (_error, _postId, context) => {
+            queryClient.setQueryData(postsKeys.feedInfinite(), context?.previousFeedInfinite)
+        },
+        onSettled: (_data, _error, postId) => {
+            void queryClient.invalidateQueries({ queryKey: postsKeys.trending() })
+            invalidatePostDetail(queryClient, postId)
+
             if (commentPostId) {
-                await queryClient.refetchQueries({
-                    queryKey: postsKeys.comments(commentPostId),
-                })
+                void queryClient.invalidateQueries({ queryKey: postsKeys.comments(commentPostId) })
             }
         },
     })
@@ -229,16 +242,9 @@ export const useBookmarkPost = () => {
 
     return useMutation({
         mutationFn: postsApi.bookmarkPost,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
-            await queryClient.invalidateQueries({ queryKey: postsKeys.feedInfinite() })
-            await queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks() })
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'profile'],
-            })
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'detail'],
-            })
+        onSuccess: (_res, postId) => {
+            invalidateFeedCaches(queryClient)
+            invalidateQueries(queryClient, [postsKeys.bookmarks(), postsKeys.profileAll(), postsKeys.detail(postId)])
         },
     })
 }
@@ -248,14 +254,9 @@ export const useUnbookmarkPost = () => {
 
     return useMutation({
         mutationFn: postsApi.unBookmarkPost,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
-            await queryClient.invalidateQueries({ queryKey: postsKeys.feedInfinite() })
-            await queryClient.invalidateQueries({ queryKey: postsKeys.bookmarks() })
-            await queryClient.invalidateQueries({ queryKey: ['posts', 'profile'] })
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'detail'],
-            })
+        onSuccess: (_res, postId) => {
+            invalidateFeedCaches(queryClient)
+            invalidateQueries(queryClient, [postsKeys.bookmarks(), postsKeys.profileAll(), postsKeys.detail(postId)])
         },
     })
 }
@@ -299,31 +300,15 @@ export const useCreateComment = (postId?: string) => {
 
     return useMutation({
         mutationFn: (body: CreateCommentReq) => postsApi.createComment(postId ?? '', body),
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.comments(postId ?? ''),
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.feed(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.feedInfinite(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.trending(),
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.bookmarks(),
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'profile'],
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.detail(postId ?? ''),
-            })
+        onSuccess: () => {
+            invalidateQueries(queryClient, [
+                postsKeys.comments(postId ?? ''),
+                postsKeys.trending(),
+                postsKeys.bookmarks(),
+                postsKeys.profileAll(),
+                postsKeys.detail(postId ?? ''),
+            ])
+            invalidateFeedCaches(queryClient)
         },
     })
 }
@@ -333,32 +318,12 @@ export const useSharePost = () => {
 
     return useMutation({
         mutationFn: ({ postId, body }: { postId: string; body: SharePostReq }) => postsApi.sharePost(postId, body),
-        onSuccess: async (_res, variables) => {
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.feed(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.feedInfinite(),
-            })
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.trending(),
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: ['posts', 'profile'],
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.postCounts(),
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.bookmarks(),
-            })
-
-            await queryClient.invalidateQueries({
-                queryKey: postsKeys.detail(variables.postId),
-            })
+        onSuccess: (_res, variables) => {
+            invalidateQueries(queryClient, [
+                postsKeys.profileAll(),
+                postsKeys.postCounts(),
+                postsKeys.detail(variables.postId),
+            ])
         },
     })
 }

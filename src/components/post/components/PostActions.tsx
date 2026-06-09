@@ -7,8 +7,6 @@ type Props = {
     sharesCount?: number | null
     isLiked?: boolean
     isBookmarked?: boolean
-    isLikePending?: boolean
-    isBookmarkPending?: boolean
     isSharePending?: boolean
     canInteract?: boolean
     shareDisabledReason?: string
@@ -24,8 +22,6 @@ const PostActions = ({
     sharesCount,
     isLiked = false,
     isBookmarked = false,
-    isLikePending = false,
-    isBookmarkPending = false,
     isSharePending = false,
     canInteract = false,
     shareDisabledReason,
@@ -40,7 +36,6 @@ const PostActions = ({
                 icon={<Heart className="size-4 fill-current" />}
                 value={likesCount ?? 0}
                 active={isLiked}
-                disabled={isLikePending}
                 handleOnClick={canInteract ? onLike : undefined}
             />
 
@@ -62,7 +57,6 @@ const PostActions = ({
             <FeedAction
                 icon={<Bookmark className="size-4" />}
                 active={isBookmarked}
-                disabled={isBookmarkPending}
                 handleOnClick={canInteract ? onBookmark : undefined}
             />
         </div>
