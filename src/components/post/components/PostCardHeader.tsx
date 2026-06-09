@@ -4,7 +4,7 @@ import { POST_TEXT, POST_VISIBILITY_LABEL } from '@/core/constants/post.constant
 import { ROUTE_BUILDER } from '@/core/constants/route.constant'
 import type { PostWithStatus } from '@/core/types/post.type'
 import { usePrefetchProfile } from '@/hooks/usePrefetchProfile'
-import { formatPostTime } from '../../utils/helper'
+import { formatPostTime } from '@/utils/helper'
 
 type Props = {
     author?: PostWithStatus['author']

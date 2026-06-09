@@ -7,15 +7,12 @@ import {
     useUnlikePost,
     useUpdatePost,
 } from '@/apis/posts/posts.query'
-import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
-import EditPostDialog from '@/components/post/components/EditPostDialog'
+import PostCardDialogs from '@/components/post/components/PostCardDialogs'
 import PostCardHeader from '@/components/post/components/PostCardHeader'
 import PostActions from '@/components/post/components/PostActions'
 import PostBody from '@/components/post/components/PostBody'
-import SharePostDialog from '@/components/post/components/SharePostDialog'
-import { POST_DIALOG, POST_MESSAGE } from '@/core/constants/post.constant'
+import { POST_MESSAGE } from '@/core/constants/post.constant'
 import { Post, PostWithStatus, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
-import { Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -286,32 +283,20 @@ const PostCard = ({
                 />
             </article>
 
-            <ConfirmActionDialog
-                open={deleteDialogOpen}
-                title={POST_DIALOG.DELETE_TITLE}
-                description={POST_DIALOG.DELETE_DESCRIPTION}
-                confirmText={POST_DIALOG.DELETE_CONFIRM}
-                loadingText={POST_DIALOG.DELETE_LOADING}
-                isLoading={isDeletingPost}
-                icon={<Trash2 className="h-4 w-4 text-red-500" />}
-                onOpenChange={setDeleteDialogOpen}
-                onConfirm={handleDeletePost}
-            />
-
-            <EditPostDialog
+            <PostCardDialogs
                 post={displayPost}
-                open={editDialogOpen}
-                isLoading={isUpdatingPost}
-                onOpenChange={setEditDialogOpen}
-                onSubmit={handleUpdatePost}
-            />
-
-            <SharePostDialog
-                post={displayPost}
-                open={shareDialogOpen}
-                isLoading={isSharingPost}
-                onOpenChange={setShareDialogOpen}
-                onSubmit={handleSharePost}
+                deleteDialogOpen={deleteDialogOpen}
+                editDialogOpen={editDialogOpen}
+                shareDialogOpen={shareDialogOpen}
+                isDeletingPost={isDeletingPost}
+                isUpdatingPost={isUpdatingPost}
+                isSharingPost={isSharingPost}
+                onDeleteDialogOpenChange={setDeleteDialogOpen}
+                onEditDialogOpenChange={setEditDialogOpen}
+                onShareDialogOpenChange={setShareDialogOpen}
+                onConfirmDelete={handleDeletePost}
+                onSubmitUpdate={handleUpdatePost}
+                onSubmitShare={handleSharePost}
                 onOpenOriginalPost={handleOpenSharedPost}
             />
         </>
