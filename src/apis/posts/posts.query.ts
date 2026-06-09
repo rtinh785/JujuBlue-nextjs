@@ -159,6 +159,7 @@ export const useProfilePosts = (userId?: string) => {
             return res.data.posts
         },
         enabled: !!userId,
+        staleTime: 1000 * 60 * 5,
     })
 }
 

@@ -4,7 +4,11 @@ import { useState } from 'react'
 import { useFollowingList, useUnfollow } from '@/apis/follows/follows.query'
 import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
 import { PROFILE_ACTION_LABEL, PROFILE_DIALOG, PROFILE_TEXT } from '@/core/constants/profile.constant'
+import { ROUTE_BUILDER } from '@/core/constants/route.constant'
+import { usePrefetchProfile } from '@/hooks/usePrefetchProfile'
 import { UserMinus } from 'lucide-react'
+import Link from 'next/link'
+
 interface FollowingTabProps {
     currentUserId?: string
     isOwnProfile?: boolean
@@ -12,6 +16,7 @@ interface FollowingTabProps {
 
 const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps) => {
     const [confirmId, setConfirmId] = useState<string | null>(null)
+    const prefetchProfile = usePrefetchProfile()
 
     const { data: following } = useFollowingList()
     const userToUnfollow = following?.find((u) => u.id === confirmId)
@@ -55,17 +60,23 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
                     <ul className="divide-y divide-slate-100">
                         {following?.map((user) => (
                             <li key={user.id} className="flex items-center justify-between gap-4 px-5 py-4">
-                                <div className="flex items-center gap-3">
+                                <Link
+                                    href={ROUTE_BUILDER.profileDetail(user.id)}
+                                    onMouseEnter={() => prefetchProfile(user.id)}
+                                    onFocus={() => prefetchProfile(user.id)}
+                                    onTouchStart={() => prefetchProfile(user.id)}
+                                    className="flex min-w-0 items-center gap-3 rounded-xl transition hover:text-blue-600"
+                                >
                                     <img
                                         src={user.avatar_url ?? ''}
                                         alt={user.display_name}
                                         className="size-10 rounded-full object-cover"
                                     />
-                                    <div>
+                                    <div className="min-w-0">
                                         <p className="text-sm font-semibold text-slate-900">{user.display_name}</p>
                                         <p className="text-xs text-slate-400">@{user.username}</p>
                                     </div>
-                                </div>
+                                </Link>
                                 {isOwnProfile && (
                                     <button
                                         type="button"
