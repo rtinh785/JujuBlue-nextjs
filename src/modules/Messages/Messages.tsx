@@ -1,6 +1,6 @@
 'use client'
 
-import { markConversationReadInCache } from '@/apis/messages/messages.cache'
+import { markConversationReadInCache, type ConversationsInfiniteData } from '@/apis/messages/messages.cache'
 import { messagesKeys } from '@/apis/messages/messages.key'
 import {
     useInfiniteConversations,
@@ -85,7 +85,7 @@ const Messages = () => {
     }
 
     const markConversationAsReadInCache = (targetConversationId: string) => {
-        queryClient.setQueryData(messagesKeys.conversations(), (oldData) =>
+        queryClient.setQueryData<ConversationsInfiniteData>(messagesKeys.conversations(), (oldData) =>
             markConversationReadInCache(oldData, targetConversationId),
         )
     }

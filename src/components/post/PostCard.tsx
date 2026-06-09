@@ -9,19 +9,15 @@ import {
 } from '@/apis/posts/posts.query'
 import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
 import EditPostDialog from '@/components/post/components/EditPostDialog'
-import OwnerActionMenu from '@/components/post/components/OwnerActionMenu'
+import PostCardHeader from '@/components/post/components/PostCardHeader'
 import PostActions from '@/components/post/components/PostActions'
 import PostBody from '@/components/post/components/PostBody'
 import SharePostDialog from '@/components/post/components/SharePostDialog'
-import { POST_DIALOG, POST_MESSAGE, POST_TEXT, POST_VISIBILITY_LABEL } from '@/core/constants/post.constant'
-import { ROUTE_BUILDER } from '@/core/constants/route.constant'
+import { POST_DIALOG, POST_MESSAGE } from '@/core/constants/post.constant'
 import { Post, PostWithStatus, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
 import { Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { formatPostTime } from '../../utils/helper'
 import { toast } from 'sonner'
-import Link from 'next/link'
-import { usePrefetchProfile } from '@/hooks/usePrefetchProfile'
 
 type Props = {
     currentUserId?: string
@@ -45,10 +41,8 @@ const PostCard = ({
     onOpenComments,
 }: Props) => {
     const [displayPost, setDisplayPost] = useState(post)
-    const prefetchProfile = usePrefetchProfile()
 
     const isOwner = currentUserId === displayPost.author?.id
-    const authorProfileHref = displayPost.author?.id ? ROUTE_BUILDER.profileDetail(displayPost.author.id) : null
     const isOriginalSharedPostMissing = displayPost.was_shared_post && !displayPost.shared_post
     const shareDisabledReason = isOriginalSharedPostMissing ? POST_MESSAGE.SHARE_UNAVAILABLE : undefined
 
@@ -259,65 +253,15 @@ const PostCard = ({
     return (
         <>
             <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-                <div className="flex items-start gap-3">
-                    {authorProfileHref && displayPost.author?.avatar_url ? (
-                        <Link
-                            href={authorProfileHref}
-                            onMouseEnter={() => prefetchProfile(displayPost.author?.id)}
-                            onFocus={() => prefetchProfile(displayPost.author?.id)}
-                            onTouchStart={() => prefetchProfile(displayPost.author?.id)}
-                            className="shrink-0 rounded-full"
-                        >
-                            <img
-                                src={displayPost.author.avatar_url}
-                                alt={displayPost.author.display_name}
-                                className="size-11 rounded-full object-cover"
-                            />
-                        </Link>
-                    ) : (
-                        <div className="size-11 rounded-full bg-slate-200" />
-                    )}
-
-                    <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-y-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                                {authorProfileHref ? (
-                                    <Link
-                                        href={authorProfileHref}
-                                        onMouseEnter={() => prefetchProfile(displayPost.author?.id)}
-                                        onFocus={() => prefetchProfile(displayPost.author?.id)}
-                                        onTouchStart={() => prefetchProfile(displayPost.author?.id)}
-                                        className="text-sm font-semibold text-slate-900 transition hover:text-blue-600"
-                                    >
-                                        {displayPost.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
-                                    </Link>
-                                ) : (
-                                    <h3 className="text-sm font-semibold text-slate-900">
-                                        {displayPost.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
-                                    </h3>
-                                )}
-
-                                {displayPost.author?.username ? (
-                                    <span className="text-xs text-slate-400">@{displayPost.author.username}</span>
-                                ) : null}
-
-                                <span className="text-xs text-slate-300">{formatPostTime(displayPost.created_at)}</span>
-                            </div>
-
-                            {isOwner && (
-                                <OwnerActionMenu
-                                    isDeleting={isDeletingPost}
-                                    onEdit={handleOpenEditDialog}
-                                    onDelete={handleOpenDeleteDialog}
-                                />
-                            )}
-                        </div>
-
-                        <p className="mt-[-4px] w-fit rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400">
-                            {POST_VISIBILITY_LABEL[displayPost.visibility]}
-                        </p>
-                    </div>
-                </div>
+                <PostCardHeader
+                    author={displayPost.author}
+                    createdAt={displayPost.created_at}
+                    visibility={displayPost.visibility}
+                    isOwner={isOwner}
+                    isDeleting={isDeletingPost}
+                    onEdit={handleOpenEditDialog}
+                    onDelete={handleOpenDeleteDialog}
+                />
 
                 <PostBody
                     post={displayPost}

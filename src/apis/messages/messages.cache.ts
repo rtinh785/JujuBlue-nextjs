@@ -6,8 +6,8 @@ import type {
     MessageItem,
 } from '@/core/types/message.type'
 
-type ConversationsInfiniteData = InfiniteData<GetConversationsResponse, string | null>
-type MessagesInfiniteData = InfiniteData<GetMessagesResponse, string | null>
+export type ConversationsInfiniteData = InfiniteData<GetConversationsResponse, string | null>
+export type MessagesInfiniteData = InfiniteData<GetMessagesResponse, string | null>
 
 export const upsertConversationInCache = (
     oldData: ConversationsInfiniteData | undefined,
