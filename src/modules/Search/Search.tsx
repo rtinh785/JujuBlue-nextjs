@@ -2,6 +2,7 @@
 
 import { useSearch } from '@/apis/search/search.query'
 import { useCurrentUser } from '@/apis/user/user.query'
+import { Skeleton } from '@/components/base/skeleton'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import PostCard from '@/components/post/PostCard'
 import { ROUTE, ROUTE_BUILDER } from '@/core/constants/route.constant'
@@ -23,6 +24,23 @@ const SEARCH_SORTS: { label: string; value: SearchSort }[] = [
     { label: 'Mới nhất', value: 'latest' },
     { label: 'Cũ nhất', value: 'oldest' },
 ]
+
+const SearchResultsSkeleton = () => (
+    <div className="mt-6 space-y-4">
+        {Array.from({ length: 2 }).map((_, index) => (
+            <div key={index} className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="flex gap-3">
+                    <Skeleton className="size-11 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-32 rounded-full" />
+                        <Skeleton className="h-3 w-48 rounded-full" />
+                    </div>
+                </div>
+                <Skeleton className="mt-4 h-20 w-full rounded-xl" />
+            </div>
+        ))}
+    </div>
+)
 
 const getSearchType = (value: string | null): SearchType => {
     if (value === 'posts' || value === 'users' || value === 'all') return value
@@ -207,9 +225,7 @@ const Search = () => {
             ) : null}
 
             {isLoading ? (
-                <div className="mt-6 flex justify-center">
-                    <div className="size-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
-                </div>
+                <SearchResultsSkeleton />
             ) : (
                 <div className="mt-6 space-y-6">
                     {type === 'all' ? (

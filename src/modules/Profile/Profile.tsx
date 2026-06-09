@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CalendarDays, MapPin } from 'lucide-react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/base/tabs'
+import { Tabs, TabsContent } from '@/components/base/tabs'
 import Aside from '@/components/layout/Header/components/Aside/Aside'
 import {
     useCurrentUser,
@@ -16,39 +15,24 @@ import type { EditProfileFormValues } from '@/schema/editProfile.schema'
 import DialogAvatar from '@/modules/Profile/components/ImagesUploader/Avatar/DialogAvatar'
 import ProfileCoverSection from '@/modules/Profile/components/ProfileCoverSection/ProfileCoverSection'
 import ProfileHeaderSection from '@/modules/Profile/components/ProfileHeaderSection/ProfileHeaderSection'
+import ProfileInfoSection from '@/modules/Profile/components/ProfileInfoSection/ProfileInfoSection'
 import ProfileLoadingState from '@/modules/Profile/components/ProfileLoadingState'
+import ProfileTabsNav from '@/modules/Profile/components/ProfileTabsNav/ProfileTabsNav'
 import FollowingTab from '@/modules/Profile/components/Tabs/FollowingTab'
-import { clampCoverOffsetY, formatDateOfBirth } from '@/utils/helper'
+import { clampCoverOffsetY } from '@/utils/helper'
 import { useCheckFollowing, useFollow, useUnfollow } from '@/apis/follows/follows.query'
 import { requireAuthAction } from '@/utils/requireAuthAction'
 import PostsTab from '@/modules/Profile/components/Tabs/PostsTab'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import type { PostWithStatus } from '@/core/types/post.type'
-import { PROFILE_TAB, PROFILE_TAB_LABEL, PROFILE_TEXT } from '@/core/constants/profile.constant'
+import { PROFILE_TAB, PROFILE_TEXT } from '@/core/constants/profile.constant'
 import { useRouter } from 'next/navigation'
 import { useCreateOrGetConversation } from '@/apis/messages/messages.query'
 import { ROUTE } from '@/core/constants/route.constant'
-import type { ProfileUpdateData } from '@/core/types/request.type'
+import { cleanProfileUpdatePayload } from '@/modules/Profile/utils/profile.utils'
 
 interface ProfileProps {
     profileId?: string
-}
-
-const cleanProfileUpdatePayload = (values: EditProfileFormValues): ProfileUpdateData => {
-    const cleaned: ProfileUpdateData = {
-        ...values,
-        date_of_birth: values.date_of_birth || null,
-    }
-
-    Object.keys(cleaned).forEach((key) => {
-        const profileKey = key as keyof ProfileUpdateData
-
-        if (cleaned[profileKey] === '' || cleaned[profileKey] === undefined) {
-            delete cleaned[profileKey]
-        }
-    })
-
-    return cleaned
 }
 
 const Profile = ({ profileId }: ProfileProps) => {
@@ -226,49 +210,8 @@ const Profile = ({ profileId }: ProfileProps) => {
                                     onOpenEditDialog={() => setOpenEditDialog(true)}
                                 />
 
-                                {/* Profile info */}
-                                <div className="mt-3">
-                                    <h1 className="text-[28px] font-semibold tracking-tight text-slate-900">
-                                        {profileData?.display_name}
-                                    </h1>
-                                    <p className="text-sm text-slate-400">{profileData?.username}</p>
-                                </div>
-
-                                <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">{profileData?.bio}</p>
-
-                                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-400">
-                                    {profileData?.location && (
-                                        <div className="flex items-center gap-1.5">
-                                            <MapPin className="size-4" />
-                                            <span>{profileData?.location}</span>
-                                        </div>
-                                    )}
-                                    {profileData?.date_of_birth && (
-                                        <div className="flex items-center gap-1.5">
-                                            <CalendarDays className="size-4" />
-                                            <span>{formatDateOfBirth(profileData?.date_of_birth)}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Tab bar dính đáy card */}
-                                <TabsList
-                                    variant="line"
-                                    className="mt-4 w-full justify-start rounded-none border-b border-slate-200 bg-transparent px-0"
-                                >
-                                    <TabsTrigger
-                                        value={PROFILE_TAB.POSTS}
-                                        className="mr-6 rounded-none border-0 bg-transparent px-0 py-3 text-sm font-medium text-slate-400 shadow-none data-[state=active]:border-b-2 data-[state=active]:border-slate-800 data-[state=active]:bg-transparent data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
-                                    >
-                                        {PROFILE_TAB_LABEL.POSTS}
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value={PROFILE_TAB.FOLLOWING}
-                                        className="rounded-none border-0 bg-transparent px-0 py-3 text-sm font-medium text-slate-400 shadow-none data-[state=active]:border-b-2 data-[state=active]:border-slate-800 data-[state=active]:bg-transparent data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
-                                    >
-                                        {PROFILE_TAB_LABEL.FOLLOWING}
-                                    </TabsTrigger>
-                                </TabsList>
+                                <ProfileInfoSection profile={profileData} />
+                                <ProfileTabsNav />
                             </div>
                         </section>
 
