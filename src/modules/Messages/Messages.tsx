@@ -21,6 +21,7 @@ import MessageThread from './components/MessageThread'
 
 const Messages = () => {
     const [hasMounted, setHasMounted] = useState(false)
+    const [isMobile, setIsMobile] = useState(false)
     const [draft, setDraft] = useState('')
     const messagesListRef = useRef<HTMLDivElement | null>(null)
     const conversationsListRef = useRef<HTMLDivElement | null>(null)
@@ -71,6 +72,21 @@ const Messages = () => {
 
     useEffect(() => {
         setHasMounted(true)
+    }, [])
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 1023px)')
+
+        const updateIsMobile = () => {
+            setIsMobile(mediaQuery.matches)
+        }
+
+        updateIsMobile()
+        mediaQuery.addEventListener('change', updateIsMobile)
+
+        return () => {
+            mediaQuery.removeEventListener('change', updateIsMobile)
+        }
     }, [])
 
     const scrollMessagesToBottom = (behavior?: ScrollBehavior) => {
@@ -154,10 +170,10 @@ const Messages = () => {
     }
 
     useEffect(() => {
-        if (conversationId || conversations.length === 0) return
+        if (conversationId || conversations.length === 0 || isMobile) return
 
         router.replace(`/messages?conversationId=${conversations[0].id}`)
-    }, [conversationId, conversations, router])
+    }, [conversationId, conversations, isMobile, router])
 
     useEffect(() => {
         if (!activeConversation || isMessagesLoading) return
@@ -210,45 +226,49 @@ const Messages = () => {
     }
 
     return (
-        <main className="h-screen overflow-hidden bg-slate-100">
-            <section className="grid h-full grid-cols-[360px_1fr]">
-                <ConversationsSidebar
-                    conversations={conversations}
-                    conversationId={conversationId}
-                    conversationsListRef={conversationsListRef}
-                    isLoading={isConversationsLoading}
-                    hasNextPage={!!hasNextConversationsPage}
-                    isFetchingNextPage={isFetchingNextConversationsPage}
-                    onScroll={() => {
-                        void handleConversationsScroll()
-                    }}
-                    onSelectConversation={(conversation) => {
-                        void handleSelectConversation(conversation)
-                    }}
-                />
+        <main className="min-h-[calc(100dvh-4rem)] bg-slate-100 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
+            <section className="flex min-h-[calc(100dvh-4rem)] flex-col lg:grid lg:h-full lg:grid-cols-[360px_1fr]">
+                <div className={`${conversationId && isMobile ? 'hidden lg:flex' : 'flex'} w-full`}>
+                    <ConversationsSidebar
+                        conversations={conversations}
+                        conversationId={conversationId}
+                        conversationsListRef={conversationsListRef}
+                        isLoading={isConversationsLoading}
+                        hasNextPage={!!hasNextConversationsPage}
+                        isFetchingNextPage={isFetchingNextConversationsPage}
+                        onScroll={() => {
+                            void handleConversationsScroll()
+                        }}
+                        onSelectConversation={(conversation) => {
+                            void handleSelectConversation(conversation)
+                        }}
+                    />
+                </div>
 
-                <MessageThread
-                    activeConversation={activeConversation}
-                    currentUserId={user.id}
-                    draft={draft}
-                    hasNextPage={!!hasNextMessagesPage}
-                    isFetchingNextPage={isFetchingNextMessagesPage}
-                    isLoading={isMessagesLoading}
-                    isSending={sendMessageMutation.isPending}
-                    messages={messages}
-                    messagesListRef={messagesListRef}
-                    setDraft={setDraft}
-                    onComposerFocus={() => {
-                        void markConversationReadIfNeeded(activeConversation)
-                    }}
-                    onMessagesClick={() => {
-                        void markConversationReadIfNeeded(activeConversation)
-                    }}
-                    onMessagesScroll={() => {
-                        void handleMessagesScroll()
-                    }}
-                    onSubmit={handleSendMessage}
-                />
+                <div className={`${!conversationId && isMobile ? 'hidden lg:flex' : 'flex'} w-full`}>
+                    <MessageThread
+                        activeConversation={activeConversation}
+                        currentUserId={user.id}
+                        draft={draft}
+                        hasNextPage={!!hasNextMessagesPage}
+                        isFetchingNextPage={isFetchingNextMessagesPage}
+                        isLoading={isMessagesLoading}
+                        isSending={sendMessageMutation.isPending}
+                        messages={messages}
+                        messagesListRef={messagesListRef}
+                        setDraft={setDraft}
+                        onComposerFocus={() => {
+                            void markConversationReadIfNeeded(activeConversation)
+                        }}
+                        onMessagesClick={() => {
+                            void markConversationReadIfNeeded(activeConversation)
+                        }}
+                        onMessagesScroll={() => {
+                            void handleMessagesScroll()
+                        }}
+                        onSubmit={handleSendMessage}
+                    />
+                </div>
             </section>
         </main>
     )

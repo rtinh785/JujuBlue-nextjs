@@ -30,7 +30,7 @@ const ConversationsSidebar = ({
     onSelectConversation,
 }: ConversationsSidebarProps) => {
     return (
-        <aside className="flex min-h-0 flex-col border-r border-slate-200 bg-white">
+        <aside className="flex min-h-0 w-full flex-col border-r border-slate-200 bg-white lg:h-full">
             <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-4">
                 <Link
                     href={ROUTE.HOME}

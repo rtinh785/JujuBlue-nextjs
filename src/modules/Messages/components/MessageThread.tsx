@@ -1,5 +1,8 @@
 'use client'
 
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+import { ROUTE } from '@/core/constants/route.constant'
 import type { ConversationItem, MessageItem } from '@/core/types/message.type'
 import { cn } from '@/utils/helper'
 import type { Dispatch, FormEvent, RefObject, SetStateAction } from 'react'
@@ -39,8 +42,16 @@ const MessageThread = ({
     onSubmit,
 }: MessageThreadProps) => {
     return (
-        <section className="flex min-h-0 flex-col bg-slate-50">
-            <div className="flex h-16 items-center gap-3 border-b border-slate-200 bg-white px-5">
+        <section className="flex min-h-0 w-full flex-col bg-slate-50 lg:h-full">
+            <div className="flex h-16 items-center gap-3 border-b border-slate-200 bg-white px-4 sm:px-5">
+                <Link
+                    href={ROUTE.MESSAGES}
+                    className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 lg:hidden"
+                    aria-label="Back to conversations"
+                >
+                    <ArrowLeft className="size-4" />
+                </Link>
+
                 {activeConversation ? (
                     <>
                         {activeConversation.other_user?.avatar_url ? (
