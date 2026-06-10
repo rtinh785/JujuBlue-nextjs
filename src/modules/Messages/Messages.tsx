@@ -226,9 +226,11 @@ const Messages = () => {
     }
 
     return (
-        <main className="min-h-[calc(100dvh-4rem)] bg-slate-100 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden">
-            <section className="flex min-h-[calc(100dvh-4rem)] flex-col lg:grid lg:h-full lg:grid-cols-[360px_1fr]">
-                <div className={`${conversationId && isMobile ? 'hidden lg:flex' : 'flex'} w-full`}>
+        <main className="h-[calc(100dvh-4rem)] overflow-hidden bg-slate-100">
+            <section className="flex h-full min-h-0 flex-col lg:grid lg:grid-cols-[360px_1fr]">
+                <div
+                    className={`${conversationId && isMobile ? 'hidden lg:flex' : 'flex'} min-h-0 w-full flex-1 lg:flex-none`}
+                >
                     <ConversationsSidebar
                         conversations={conversations}
                         conversationId={conversationId}
@@ -245,7 +247,9 @@ const Messages = () => {
                     />
                 </div>
 
-                <div className={`${!conversationId && isMobile ? 'hidden lg:flex' : 'flex'} w-full`}>
+                <div
+                    className={`${!conversationId && isMobile ? 'hidden lg:flex' : 'flex'} min-h-0 w-full flex-1 lg:flex-none`}
+                >
                     <MessageThread
                         activeConversation={activeConversation}
                         currentUserId={user.id}
