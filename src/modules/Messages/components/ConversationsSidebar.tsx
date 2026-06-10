@@ -1,6 +1,7 @@
 'use client'
 
 import { ROUTE } from '@/core/constants/route.constant'
+import { LAYOUT_ALT, LAYOUT_ASSET } from '@/core/constants/layout.constant'
 import type { ConversationItem } from '@/core/types/message.type'
 import { cn } from '@/utils/helper'
 import Link from 'next/link'
@@ -33,9 +34,9 @@ const ConversationsSidebar = ({
             <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-4">
                 <Link
                     href={ROUTE.HOME}
-                    className="flex size-10 items-center justify-center rounded-xl bg-blue-500 text-sm font-bold text-white"
+                    className="bg-primary flex size-10 items-center justify-center rounded-[12px] px-2 py-1"
                 >
-                    J
+                    <img src={LAYOUT_ASSET.LOGO} alt={LAYOUT_ALT.LOGO} className="h-1/2 w-[13px] object-cover" />
                 </Link>
 
                 <div>
