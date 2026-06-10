@@ -8,6 +8,7 @@ import OwnerActionMenu from '@/components/post/components/OwnerActionMenu'
 import InlinePostEditor from '@/components/post/components/InlinePostEditor'
 import ReplyComposer from '@/components/post/components/ReplyComposer'
 import PostMediaViewer from '@/components/post/components/PostMediaViewer'
+import ReplyItem from '@/components/post/components/ReplyItem'
 import { COMMENT_TEXT, POST_ACTION_LABEL, POST_TEXT } from '@/core/constants/post.constant'
 import { LAYOUT_ALT } from '@/core/constants/layout.constant'
 
@@ -221,100 +222,32 @@ const CommentItem = ({
 
                     {comment.replies.length > 0 && (
                         <div className="mt-3 ml-4 space-y-3">
-                            {comment.replies.map((reply) => {
-                                const isEditingReply = editingPostId === reply.id
-                                return (
-                                    <div key={reply.id} className="flex gap-3">
-                                        {reply.author?.avatar_url ? (
-                                            <img
-                                                src={reply.author.avatar_url}
-                                                alt={reply.author.display_name || LAYOUT_ALT.AVATAR}
-                                                className="size-8 rounded-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="size-8 rounded-full bg-slate-200" />
-                                        )}
-
-                                        <div className="min-w-0 flex-1">
-                                            <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <p className="text-sm font-semibold text-slate-900">
-                                                        {reply.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
-                                                    </p>
-
-                                                    {currentUserId === reply.author?.id && (
-                                                        <OwnerActionMenu
-                                                            isDeleting={deletingPostId === reply.id}
-                                                            onEdit={() => handleStartEdit(reply)}
-                                                            onDelete={() => onDeletePost(reply)}
-                                                        />
-                                                    )}
-                                                </div>
-
-                                                {isEditingReply ? (
-                                                    <InlinePostEditor
-                                                        content={editContent}
-                                                        media={editMedia}
-                                                        placeholder={`${COMMENT_TEXT.REPLY_PLACEHOLDER_PREFIX} ${reply.author?.display_name ?? COMMENT_TEXT.REPLY_FALLBACK_TARGET}...`}
-                                                        maxMediaHeightClass="max-h-56"
-                                                        isSaving={isUpdatingPost}
-                                                        isUploading={isUploadingEditMedia}
-                                                        onContentChange={setEditContent}
-                                                        onMediaChange={handleUploadEditMedia}
-                                                        onMediaRemove={(index) => {
-                                                            setEditMedia((prev) =>
-                                                                prev.filter((_, mediaIndex) => mediaIndex !== index),
-                                                            )
-                                                        }}
-                                                        onCancel={handleCancelEdit}
-                                                        onSubmit={() => handleSubmitEdit(reply.id)}
-                                                    />
-                                                ) : (
-                                                    <>
-                                                        {reply.content ? (
-                                                            <p className="mt-1 text-sm text-slate-600">
-                                                                {reply.content}
-                                                            </p>
-                                                        ) : null}
-
-                                                        <PostMediaViewer
-                                                            media={reply.media}
-                                                            alt={COMMENT_TEXT.REPLY_MEDIA_ALT}
-                                                            maxHeightClass="max-h-56"
-                                                            widthClass="w-1/2"
-                                                        />
-                                                    </>
-                                                )}
-                                            </div>
-
-                                            <div className="mt-2 flex items-center gap-3">
-                                                <FeedAction
-                                                    icon={<Heart className="size-4 fill-current" />}
-                                                    value={reply.likes_count}
-                                                    active={reply.is_liked}
-                                                    disabled={pendingLikeIds.includes(reply.id)}
-                                                    handleOnClick={() => handleLikeTarget(reply.id, reply.is_liked)}
-                                                />
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        onReplyClick(
-                                                            comment.id,
-                                                            reply.author?.username,
-                                                            'reply',
-                                                            reply.id,
-                                                        )
-                                                    }
-                                                    className="text-xs font-medium text-slate-500 transition hover:text-slate-700"
-                                                >
-                                                    {POST_ACTION_LABEL.REPLY}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            })}
+                            {comment.replies.map((reply) => (
+                                <ReplyItem
+                                    key={reply.id}
+                                    commentId={comment.id}
+                                    currentUserId={currentUserId}
+                                    deletingPostId={deletingPostId}
+                                    editContent={editContent}
+                                    editMedia={editMedia}
+                                    editingPostId={editingPostId}
+                                    isUpdatingPost={isUpdatingPost}
+                                    isUploadingEditMedia={isUploadingEditMedia}
+                                    pendingLikeIds={pendingLikeIds}
+                                    reply={reply}
+                                    onContentChange={setEditContent}
+                                    onDeletePost={onDeletePost}
+                                    onEditCancel={handleCancelEdit}
+                                    onEditMediaChange={handleUploadEditMedia}
+                                    onEditMediaRemove={(index) => {
+                                        setEditMedia((prev) => prev.filter((_, mediaIndex) => mediaIndex !== index))
+                                    }}
+                                    onEditStart={handleStartEdit}
+                                    onEditSubmit={handleSubmitEdit}
+                                    onLike={handleLikeTarget}
+                                    onReplyClick={onReplyClick}
+                                />
+                            ))}
                         </div>
                     )}
 
