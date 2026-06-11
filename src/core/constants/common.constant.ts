@@ -1,6 +1,6 @@
 export const LOCALE_KEY = 'NEXT_LINGUI_LOCALE'
 
-export const SUPPORTED_LOCALES = ['en', 'vi', 'nl', 'zh'] as const
+export const SUPPORTED_LOCALES = ['en', 'vi'] as const
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
 

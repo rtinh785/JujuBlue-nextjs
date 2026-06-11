@@ -14,7 +14,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/base/dropdown-menu'
 import MyButton from '@/components/MyButton'
-import { Home, MessageSquareText, Bookmark, Earth } from 'lucide-react'
+import { Home, MessageSquareText, Bookmark } from 'lucide-react'
 
 import { useQueryClient } from '@tanstack/react-query'
 import HeaderLoadingState from '@/components/layout/Header/components/HeaderLoadingState'
@@ -27,6 +27,7 @@ import { LAYOUT_ALT, LAYOUT_ASSET, NAV_LABEL } from '@/core/constants/layout.con
 import { ROUTE, ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { useUnreadMessagesCount } from '@/apis/messages/messages.query'
 import { useMessagesRealtime } from '@/hooks/useMessagesRealtime'
+import { useCurrentLocale } from '@/hooks/useCurrentLocale'
 
 const Header = () => {
     const [mounted, setMounted] = useState(false)
@@ -37,6 +38,7 @@ const Header = () => {
     const { data: profileData, isLoading: isProfileLoading } = useMyProfile(!!user)
     const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount(!!user)
     useMessagesRealtime(!!user)
+    const { languageLabel, toggleLocale } = useCurrentLocale()
 
     useEffect(() => {
         setMounted(true)
@@ -176,7 +178,10 @@ const Header = () => {
                                     </DropdownMenuItem>
 
                                     <DropdownMenuItem
-                                        onClick={() => {}}
+                                        onSelect={(event) => {
+                                            event.preventDefault()
+                                            toggleLocale()
+                                        }}
                                         className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 focus:bg-gray-50"
                                     >
                                         <svg
@@ -197,7 +202,7 @@ const Header = () => {
                                                 d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802"
                                             />
                                         </svg>
-                                        {NAV_LABEL.LANGUAGE}
+                                        {languageLabel}
                                     </DropdownMenuItem>
 
                                     <div className="my-1 h-px bg-gray-100" />

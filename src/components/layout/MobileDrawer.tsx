@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { EarthLockIcon } from 'lucide-react'
 import { LAYOUT_ALT, LAYOUT_ASSET, NAV_LABEL } from '@/core/constants/layout.constant'
 import { ROUTE } from '@/core/constants/route.constant'
+import { useCurrentLocale } from '@/hooks/useCurrentLocale'
 interface MobileDrawerProps {
     user: User | undefined
     profile: Profile | null
@@ -14,6 +15,8 @@ interface MobileDrawerProps {
 }
 
 const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
+    const { languageLabel, toggleLocale } = useCurrentLocale()
+
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -91,7 +94,7 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                 <div className="mx-3 my-3 border-t border-gray-100" />
                 {/* Settings section */}
                 <NavSection title={NAV_LABEL.SETTINGS_SECTION}>
-                    <NavItem icon={EarthLockIcon} label={NAV_LABEL.LANGUAGE} onClick={() => {}} />
+                    <NavItem icon={EarthLockIcon} label={languageLabel} onClick={toggleLocale} />
                 </NavSection>
                 {/* Spacer */}
                 <div className="flex-1" />

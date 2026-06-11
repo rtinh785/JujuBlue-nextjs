@@ -19,16 +19,7 @@ export const languages: Language[] = [
         name: msg`Tiếng Việt`,
         rtl: false,
     },
-    {
-        locale: 'nl',
-        name: msg`Dutch`,
-        rtl: false,
-    },
-    {
-        locale: 'zh',
-        name: msg`Chinese`,
-        rtl: false,
-    },
+
 ]
 
 if (process.env.NODE_ENV !== 'production') {

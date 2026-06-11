@@ -7,12 +7,6 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: vi\n"
 
-msgid "Chinese"
-msgstr "Chinese"
-
-msgid "Dutch"
-msgstr "Dutch"
-
 msgid "English"
 msgstr "English"
 

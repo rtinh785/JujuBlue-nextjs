@@ -13,12 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-msgid "Chinese"
-msgstr "Chinese"
-
-msgid "Dutch"
-msgstr "Dutch"
-
 msgid "English"
 msgstr "English"
 
