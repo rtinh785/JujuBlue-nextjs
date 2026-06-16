@@ -13,11 +13,503 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+msgid "(c) 2024 Juju Blue"
+msgstr "(c) 2024 Juju Blue"
+
+msgid "Ảnh đại diện"
+msgstr "Profile picture"
+
+msgid "Bài viết"
+msgstr "Post"
+
+msgid "Bài viết của"
+msgstr "Posts by"
+
+msgid "Bài viết gốc không còn khả dụng"
+msgstr "The original post is no longer available"
+
+msgid "Bài viết này không có nội dung"
+msgstr "This post has no content"
+
+msgid "Bài viết này sẽ bị xoá khỏi danh sách đã lưu."
+msgstr "This post will be removed from your saved list."
+
+msgid "Bài viết này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác."
+msgstr "This post will be permanently deleted. This action cannot be undone."
+
+msgid "Bài viết phải có nội dung hoặc phương tiện."
+msgstr "A post must contain content or media."
+
+msgid "Bạn đang nghĩ gì?"
+msgstr "What's on your mind?"
+
+msgid "Bạn muốn nói gì về bài viết này?"
+msgstr "What would you like to say about this post?"
+
+msgid "Bạn sẽ không còn thấy người dùng này trong danh sách đang theo dõi."
+msgstr "You will no longer see this user in your following list."
+
+msgid "bình luận"
+msgstr "comment"
+
+msgid "Bình luận"
+msgstr "Comment"
+
+msgid "Bình luận này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác."
+msgstr "This comment will be permanently deleted. This action cannot be undone."
+
+msgid "Bỏ theo dõi"
+msgstr "Unfollow"
+
+msgid "Các bài viết bạn đã đánh dấu lưu."
+msgstr "Posts you have bookmarked."
+
+msgid "Các bài viết của người dùng này sẽ xuất hiện ở đây."
+msgstr "This user's posts will appear here."
+
+msgid "Các bài viết phổ biến bạn có thể mở"
+msgstr "Popular posts you can open"
+
+msgid "Cài đặt"
+msgstr "Settings"
+
+msgid "Cập nhật thông tin cơ bản hiển thị trên hồ sơ của bạn."
+msgstr "Update the basic information displayed on your profile."
+
+msgid "Chào mừng quay trở lại"
+msgstr "Welcome back"
+
+msgid "Chỉ bạn mới có thể xem bài viết này."
+msgstr "Only you can view this post."
+
+msgid "Chỉ cho phép tệp hình ảnh hoặc video."
+msgstr "Only image or video files are allowed."
+
+msgid "Chỉ mình tôi"
+msgstr "Only me"
+
+msgid "Chỉ những người theo dõi bạn mới có thể xem bài viết này."
+msgstr "Only your followers can view this post."
+
+msgid "Chia sẻ"
+msgstr "Share"
+
+msgid "Chia sẻ bài viết"
+msgstr "Share post"
+
+msgid "Chỉnh sửa"
+msgstr "Edit"
+
+msgid "Chỉnh sửa bài viết của"
+msgstr "Edit post by"
+
+msgid "Chỉnh sửa hồ sơ"
+msgstr "Edit profile"
+
+msgid "Chỉnh sửa phương tiện"
+msgstr "Edit media"
+
+msgid "Chọn ảnh đại diện"
+msgstr "Choose profile picture"
+
+msgid "Chọn một cuộc trò chuyện"
+msgstr "Select a conversation"
+
+msgid "Chọn một cuộc trò chuyện trước"
+msgstr "Select a conversation first"
+
+msgid "Chưa có bài viết nào"
+msgstr "No posts yet"
+
+msgid "Chưa có bình luận nào"
+msgstr "No comments yet"
+
+msgid "Chưa có cuộc trò chuyện nào"
+msgstr "No conversations yet"
+
+msgid "Chưa có tài khoản?"
+msgstr "Don't have an account?"
+
+msgid "Chưa có tin nhắn nào"
+msgstr "No messages yet"
+
+msgid "Chưa theo dõi ai"
+msgstr "Not following anyone"
+
+msgid "Công khai"
+msgstr "Public"
+
+msgid "Đã có tài khoản?"
+msgstr "Already have an account?"
+
+msgid "Đã lưu"
+msgstr "Saved"
+
+msgid "Đã xảy ra lỗi. Vui lòng thử lại."
+msgstr "An error occurred. Please try again."
+
+msgid "Đăng"
+msgstr "Post"
+
+msgid "Đang bỏ theo dõi..."
+msgstr "Unfollowing..."
+
+msgid "Đang chia sẻ..."
+msgstr "Sharing..."
+
+msgid "Đang đăng nhập..."
+msgstr "Signing in..."
+
+msgid "Đang đăng..."
+msgstr "Posting..."
+
+msgid "Đang gửi..."
+msgstr "Sending..."
+
+msgid "Đang kết nối..."
+msgstr "Connecting..."
+
+msgid "Đăng ký"
+msgstr "Sign up"
+
+msgid "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản."
+msgstr "Registration successful. Please check your email to verify your account."
+
+msgid "Đăng ký thất bại. Vui lòng thử lại."
+msgstr "Registration failed. Please try again."
+
+msgid "Đang lưu..."
+msgstr "Saving..."
+
+msgid "Đăng nhập"
+msgstr "Sign in"
+
+msgid "Đăng nhập thành công"
+msgstr "Login successful"
+
+msgid "Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu."
+msgstr "Login failed. Please check your email and password."
+
+msgid "Đang tải bình luận..."
+msgstr "Loading comments..."
+
+msgid "Đang tải cuộc trò chuyện..."
+msgstr "Loading conversations..."
+
+msgid "Đang tải thêm cuộc trò chuyện..."
+msgstr "Loading more conversations..."
+
+msgid "Đang tải tin nhắn cũ hơn..."
+msgstr "Loading older messages..."
+
+msgid "Đang tải tin nhắn..."
+msgstr "Loading messages..."
+
+msgid "Đang tạo tài khoản..."
+msgstr "Creating account..."
+
+msgid "Đang theo dõi"
+msgstr "Following"
+
+msgid "Đang xoá..."
+msgstr "Removing..."
+
+msgid "Đăng xuất"
+msgstr "Sign out"
+
+msgid "Đặt lại mật khẩu"
+msgstr "Reset password"
+
+msgid "Đặt lại mật khẩu thành công."
+msgstr "Password reset successfully."
+
+msgid "Đặt lại mật khẩu thất bại."
+msgstr "Password reset failed."
+
+msgid "Địa chỉ email"
+msgstr "Email address"
+
+msgid "Địa điểm"
+msgstr "Location"
+
+msgid "Địa điểm không được vượt quá 80 ký tự"
+msgstr "Location must not exceed 80 characters"
+
+msgid "Điều hướng"
+msgstr "Navigation"
+
+msgid "Điều khoản - Quyền riêng tư - Cookies"
+msgstr "Terms - Privacy - Cookies"
+
+msgid "Được lưu từ bài viết của"
+msgstr "Saved from post by"
+
+msgid "Email không hợp lệ"
+msgstr "Invalid email"
+
+msgid "Email là bắt buộc"
+msgstr "Email is required"
+
 msgid "English"
 msgstr "English"
+
+msgid "Gợi ý theo dõi"
+msgstr "Who to follow"
+
+msgid "Gửi"
+msgstr "Send"
+
+msgid "Gửi email đặt lại mật khẩu thất bại."
+msgstr "Failed to send password reset email."
+
+msgid "Hãy gửi tin nhắn đầu tiên bên dưới."
+msgstr "Send the first message below."
+
+msgid "Hãy là người đầu tiên bình luận."
+msgstr "Be the first to comment."
+
+msgid "Hình ảnh phải nhỏ hơn 2MB."
+msgstr "Image must be smaller than 2MB."
+
+msgid "Hồ sơ"
+msgstr "Profile"
+
+msgid "hoặc"
+msgstr "or"
+
+msgid "Huỷ"
+msgstr "Cancel"
+
+msgid "Không thể chia sẻ vì bài viết gốc đã bị xoá."
+msgstr "Cannot share because the original post has been deleted."
+
+msgid "Không thể tạo canvas."
+msgstr "Unable to create canvas."
+
+msgid "Không thể tạo dữ liệu hình ảnh."
+msgstr "Unable to create image data."
+
+msgid "Không xác định"
+msgstr "Unknown"
+
+msgid "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn."
+msgstr "Password reset link is invalid or has expired."
+
+msgid "Lưu thay đổi"
+msgstr "Save changes"
+
+msgid "Mật khẩu"
+msgstr "Password"
+
+msgid "Mật khẩu không khớp"
+msgstr "Passwords do not match"
+
+msgid "Mật khẩu là bắt buộc"
+msgstr "Password is required"
+
+msgid "Mật khẩu mới"
+msgstr "New password"
+
+msgid "Mật khẩu mới là bắt buộc"
+msgstr "New password is required"
+
+msgid "Mật khẩu phải có ít nhất 6 ký tự"
+msgstr "Password must be at least 6 characters"
+
+msgid "Mật khẩu phải có ít nhất 8 ký tự"
+msgstr "Password must be at least 8 characters"
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "Mở trang cá nhân của ai đó và bắt đầu nhắn tin."
+msgstr "Open someone's profile and start a message."
+
+msgid "Ngày sinh"
+msgstr "Date of birth"
+
+msgid "Ngôn ngữ"
+msgstr "Language"
+
+msgid "người dùng này"
+msgstr "this user"
+
+msgid "Người theo dõi"
+msgstr "Followers"
+
+msgid "Nhắn tin"
+msgstr "Message"
+
+msgid "Nhập địa chỉ email và chúng tôi sẽ gửi liên kết đặt lại mật khẩu cho bạn."
+msgstr "Enter your email address and we will send you a password reset link."
+
+msgid "Nhập lại mật khẩu mới"
+msgstr "Confirm new password"
+
+msgid "Nhập mật khẩu mới của bạn"
+msgstr "Enter your new password"
+
+msgid "Nhập tên hiển thị"
+msgstr "Enter display name"
+
+msgid "Nhập thông tin để đăng nhập vào tài khoản của bạn."
+msgstr "Enter your credentials to sign in to your account."
+
+msgid "Những người bạn đã trò chuyện"
+msgstr "People you have chatted with"
+
+msgid "Những người bạn theo dõi sẽ xuất hiện ở đây."
+msgstr "People you follow will appear here."
+
+msgid "Nội dung được chia sẻ đã bị xoá hoặc không còn khả dụng."
+msgstr "The shared content has been deleted or is no longer available."
+
+msgid "Nội dung không được vượt quá 280 ký tự."
+msgstr "Content must not exceed 280 characters."
+
+msgid "Phương tiện của bài viết"
+msgstr "Post media"
+
+msgid "Phương tiện của bình luận"
+msgstr "Comment media"
+
+msgid "Phương tiện của phản hồi"
+msgstr "Reply media"
 
 msgid "Pseudo"
 msgstr "Pseudo"
 
+msgid "Quay lại đăng ký"
+msgstr "Back to sign up"
+
+msgid "Quay lại danh sách hội thoại"
+msgstr "Back to conversation list"
+
+msgid "Quên mật khẩu?"
+msgstr "Forgot password?"
+
+msgid "Rất vui được gặp bạn!"
+msgstr "Nice to meet you!"
+
+msgid "Tài khoản của tôi"
+msgstr "My Account"
+
+msgid "Tạo tài khoản"
+msgstr "Create account"
+
+msgid "Tạo tài khoản mới."
+msgstr "Create a new account."
+
+msgid "Tất cả mọi người đều có thể xem bài viết này."
+msgstr "Everyone can view this post."
+
+msgid "Tên hiển thị"
+msgstr "Display name"
+
+msgid "Tên hiển thị không được vượt quá 50 ký tự"
+msgstr "Display name must not exceed 50 characters"
+
+msgid "Tên hiển thị là bắt buộc"
+msgstr "Display name is required"
+
+msgid "Thành phố Hồ Chí Minh"
+msgstr "Ho Chi Minh City"
+
+msgid "Thay đổi ảnh bìa"
+msgstr "Change cover photo"
+
+msgid "Theo dõi"
+msgstr "Follow"
+
 msgid "Tiếng Việt"
-msgstr ""
+msgstr "Tiếng Việt"
+
+msgid "Tiếp tục với Google"
+msgstr "Continue with Google"
+
+msgid "Tiểu sử"
+msgstr "Bio"
+
+msgid "Tiểu sử không được vượt quá 160 ký tự"
+msgstr "Bio must not exceed 160 characters"
+
+msgid "Tìm kiếm"
+msgstr "Search"
+
+msgid "Tin nhắn"
+msgstr "Messages"
+
+msgid "Tin nhắn của bạn sẽ hiển thị ở đây"
+msgstr "Your messages will appear here"
+
+msgid "Trả lời"
+msgstr "Reply"
+
+msgid "Trang chủ"
+msgstr "Home"
+
+msgid "URL phải có dạng https://www.example.com"
+msgstr "URL must be in the format https://www.example.com"
+
+msgid "Viết bình luận..."
+msgstr "Write a comment..."
+
+msgid "Viết một đoạn giới thiệu ngắn về bản thân"
+msgstr "Write a short introduction about yourself"
+
+msgid "Viết tin nhắn..."
+msgstr "Write a message..."
+
+msgid "Vui lòng chọn tệp hình ảnh."
+msgstr "Please select an image file."
+
+msgid "Vui lòng đăng nhập để tiếp tục."
+msgstr "Please sign in to continue."
+
+msgid "Vui lòng kiểm tra email để đặt lại mật khẩu."
+msgstr "Please check your email to reset your password."
+
+msgid "Website"
+msgstr "Website"
+
+msgid "Xác nhận mật khẩu"
+msgstr "Confirm password"
+
+msgid "Xác nhận mật khẩu là bắt buộc"
+msgstr "Confirm password is required"
+
+msgid "Xem hồ sơ"
+msgstr "View profile"
+
+msgid "Xem thêm"
+msgstr "Show more"
+
+msgid "Xem trước ảnh bìa"
+msgstr "Cover photo preview"
+
+msgid "Xem trước phương tiện"
+msgstr "Preview media"
+
+msgid "Xoá"
+msgstr "Delete"
+
+msgid "Xoá bài viết"
+msgstr "Delete post"
+
+msgid "Xoá bài viết?"
+msgstr "Delete post?"
+
+msgid "Xoá bình luận"
+msgstr "Delete comment"
+
+msgid "Xoá bình luận?"
+msgstr "Delete comment?"
+
+msgid "Xoá bookmark"
+msgstr "Remove bookmark"
+
+msgid "Xoá bookmark?"
+msgstr "Remove bookmark?"
+
+msgid "Xu hướng"
+msgstr "Trending"

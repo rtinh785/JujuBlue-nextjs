@@ -1,6 +1,7 @@
 import SharedPostPreview from '@/components/post/components/SharedPostPreview'
 import { POST_MEDIA_TYPE, POST_TEXT } from '@/core/constants/post.constant'
 import type { PostWithStatus } from '@/core/types/post.type'
+import { useLingui } from '@lingui/react/macro'
 
 type Props = {
     post: PostWithStatus
@@ -10,6 +11,7 @@ type Props = {
 }
 
 const PostBody = ({ post, canOpenDetail = false, onOpenDetail, onOpenSharedPost }: Props) => {
+    const { t } = useLingui()
     return (
         <div className="mt-2">
             {post.content ? (
@@ -32,7 +34,7 @@ const PostBody = ({ post, canOpenDetail = false, onOpenDetail, onOpenSharedPost 
                                 <img
                                     key={`${item.url}-${index}`}
                                     src={item.url}
-                                    alt={post.author.display_name || POST_TEXT.MEDIA_ALT}
+                                    alt={post.author.display_name || t(POST_TEXT.MEDIA_ALT)}
                                     onClick={canOpenDetail ? onOpenDetail : undefined}
                                     className={`max-h-[500px] min-h-[200px] w-full rounded-2xl object-cover ${
                                         canOpenDetail ? 'cursor-pointer' : 'cursor-default'
@@ -62,8 +64,8 @@ const PostBody = ({ post, canOpenDetail = false, onOpenDetail, onOpenSharedPost 
                 <SharedPostPreview post={post.shared_post} onOpen={onOpenSharedPost} />
             ) : post.was_shared_post ? (
                 <div className="mt-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center">
-                    <p className="text-sm font-medium text-slate-500">{POST_TEXT.ORIGINAL_POST_UNAVAILABLE_TITLE}</p>
-                    <p className="mt-1 text-xs text-slate-400">{POST_TEXT.ORIGINAL_POST_UNAVAILABLE_DESCRIPTION}</p>
+                    <p className="text-sm font-medium text-slate-500">{t(POST_TEXT.ORIGINAL_POST_UNAVAILABLE_TITLE)}</p>
+                    <p className="mt-1 text-xs text-slate-400">{t(POST_TEXT.ORIGINAL_POST_UNAVAILABLE_DESCRIPTION)}</p>
                 </div>
             ) : null}
         </div>

@@ -3,6 +3,7 @@
 import { usePostById } from '@/apis/posts/posts.query'
 import { useMyProfile } from '@/apis/user/user.query'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
+import { useLocale } from '@/contexts/LocaleContext'
 import { ROUTE } from '@/core/constants/route.constant'
 import { useRouter } from 'next/navigation'
 
@@ -14,7 +15,7 @@ const PostDetailRoute = ({ postId }: Props) => {
     const router = useRouter()
     const { data: post, isLoading, isError } = usePostById(postId)
     const { data: myProfile } = useMyProfile()
-
+    // const { locale } = useLocale()
     const handleOpenChange = (open: boolean) => {
         if (!open) {
             router.push(ROUTE.HOME)

@@ -7,6 +7,8 @@ import type { ConversationItem, MessageItem } from '@/core/types/message.type'
 import { cn } from '@/utils/helper'
 import type { Dispatch, FormEvent, RefObject, SetStateAction } from 'react'
 import { formatMessageTime, getConversationName } from '../utils/messageDisplay'
+import { MESSAGE_COMPOSER_TEXT, MESSAGE_THREAD_TEXT } from '@/core/constants/message.constant'
+import { useLingui } from '@lingui/react/macro'
 
 interface MessageThreadProps {
     activeConversation: ConversationItem | null
@@ -41,13 +43,14 @@ const MessageThread = ({
     onMessagesScroll,
     onSubmit,
 }: MessageThreadProps) => {
+    const { t } = useLingui()
     return (
         <section className="flex min-h-0 w-full flex-col bg-slate-50 lg:h-full">
             <div className="flex h-16 items-center gap-3 border-b border-slate-200 bg-white px-4 sm:px-5">
                 <Link
                     href={ROUTE.MESSAGES}
                     className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 lg:hidden"
-                    aria-label="Back to conversations"
+                    aria-label={t(MESSAGE_THREAD_TEXT.BACK_ARIA_LABEL)}
                 >
                     <ArrowLeft className="size-4" />
                 </Link>
@@ -76,27 +79,25 @@ const MessageThread = ({
                         </div>
                     </>
                 ) : (
-                    <p className="text-sm font-medium text-slate-500">Select a conversation</p>
+                    <p className="text-sm font-medium text-slate-500">{t(MESSAGE_THREAD_TEXT.SELECT_CONVERSATION)}</p>
                 )}
             </div>
 
-            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
             <div
-                // vùng chat cần click để mark read ngay khi user tương tác
                 ref={messagesListRef}
                 onScroll={onMessagesScroll}
                 onClick={onMessagesClick}
                 className="min-h-0 flex-1 overflow-y-auto p-5"
             >
                 {isLoading ? (
-                    <p className="text-sm text-slate-500">Loading messages...</p>
+                    <p className="text-sm text-slate-500">{t(MESSAGE_THREAD_TEXT.LOADING_MESSAGES)}</p>
                 ) : activeConversation ? (
                     messages.length > 0 ? (
                         <div className="flex min-h-full flex-col justify-end gap-3">
                             {hasNextPage ? (
                                 <div className="flex justify-center py-2">
                                     <span className="text-xs text-slate-400">
-                                        {isFetchingNextPage ? 'Loading older messages...' : ''}
+                                        {isFetchingNextPage ? t(MESSAGE_THREAD_TEXT.LOADING_OLDER_MESSAGES) : ''}
                                     </span>
                                 </div>
                             ) : null}
@@ -134,16 +135,22 @@ const MessageThread = ({
                     ) : (
                         <div className="flex h-full items-center justify-center text-center">
                             <div>
-                                <p className="text-sm font-medium text-slate-700">No messages yet</p>
-                                <p className="mt-1 text-sm text-slate-400">Send the first message below.</p>
+                                <p className="text-sm font-medium text-slate-700">
+                                    {t(MESSAGE_THREAD_TEXT.EMPTY_TITLE)}
+                                </p>
+                                <p className="mt-1 text-sm text-slate-400">{t(MESSAGE_THREAD_TEXT.EMPTY_SUBTITLE)}</p>
                             </div>
                         </div>
                     )
                 ) : (
                     <div className="flex h-full items-center justify-center text-center">
                         <div>
-                            <p className="text-sm font-medium text-slate-700">Select a conversation</p>
-                            <p className="mt-1 text-sm text-slate-400">Your chat history will appear here.</p>
+                            <p className="text-sm font-medium text-slate-700">
+                                {t(MESSAGE_THREAD_TEXT.SELECT_CONVERSATION)}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-400">
+                                {t(MESSAGE_THREAD_TEXT.SELECT_CONVERSATION_HINT)}
+                            </p>
                         </div>
                     </div>
                 )}
@@ -156,7 +163,11 @@ const MessageThread = ({
                         onChange={(event) => setDraft(event.target.value)}
                         rows={1}
                         disabled={!activeConversation || isSending}
-                        placeholder={activeConversation ? 'Write a message...' : 'Select a conversation first'}
+                        placeholder={
+                            activeConversation
+                                ? t(MESSAGE_COMPOSER_TEXT.PLACEHOLDER_ACTIVE)
+                                : t(MESSAGE_COMPOSER_TEXT.PLACEHOLDER_INACTIVE)
+                        }
                         className="max-h-28 min-h-9 flex-1 resize-none bg-transparent py-2 text-sm text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed"
                         onKeyDown={(event) => {
                             if (event.key === 'Enter' && !event.shiftKey) {
@@ -172,7 +183,7 @@ const MessageThread = ({
                         disabled={!activeConversation || !draft.trim() || isSending}
                         className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
-                        Send
+                        {t(MESSAGE_COMPOSER_TEXT.SEND_BUTTON)}
                     </button>
                 </div>
             </form>

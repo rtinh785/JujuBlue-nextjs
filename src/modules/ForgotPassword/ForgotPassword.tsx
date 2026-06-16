@@ -10,11 +10,13 @@ import { useForgotPasswordMutation } from '@/apis/auth/auth.query'
 import { useGuestGuard } from '@/hooks/useGuestGuard'
 import { AUTH_LABEL, AUTH_MESSAGE, AUTH_TEXT } from '@/core/constants/auth.constant'
 import { ROUTE } from '@/core/constants/route.constant'
+import { useLingui } from '@lingui/react/macro'
 
 const ForgotPassword = () => {
     useGuestGuard()
+  
     const { mutateAsync: forgotPasswordMutation } = useForgotPasswordMutation()
-
+    const { t } = useLingui()
     const {
         register,
         handleSubmit,
@@ -30,11 +32,11 @@ const ForgotPassword = () => {
     const onSubmit = async (values: { email: string }) => {
         try {
             await forgotPasswordMutation({ email: values.email })
-            toast.success(AUTH_MESSAGE.FORGOT_PASSWORD_SUCCESS, { position: 'top-left' })
+            toast.success(t(AUTH_MESSAGE.FORGOT_PASSWORD_SUCCESS), { position: 'top-left' })
             reset()
         } catch (error) {
             console.log('forgot password error:', error)
-            toast.error(AUTH_MESSAGE.FORGOT_PASSWORD_FAILED, { position: 'top-left' })
+            toast.error(t(AUTH_MESSAGE.FORGOT_PASSWORD_FAILED), { position: 'top-left' })
         }
     }
 
@@ -51,13 +53,13 @@ const ForgotPassword = () => {
                     </div>
                 </div>
                 <h1 className="pb-2 text-center text-3xl font-bold lg:text-left lg:whitespace-nowrap">
-                    {AUTH_TEXT.FORGOT_PASSWORD_TITLE}
+                    {t(AUTH_TEXT.FORGOT_PASSWORD_TITLE)}
                 </h1>
-                <p className="mb-8 font-normal text-[#64748B]">{AUTH_TEXT.FORGOT_PASSWORD_DESCRIPTION}</p>
+                <p className="mb-8 font-normal text-[#64748B]">{t(AUTH_TEXT.FORGOT_PASSWORD_DESCRIPTION)}</p>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <InputField
-                        label={AUTH_TEXT.EMAIL_LABEL}
+                        label={t(AUTH_TEXT.EMAIL_LABEL)}
                         type="email"
                         placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
                         name="email"
@@ -69,13 +71,13 @@ const ForgotPassword = () => {
                         disabled={isSubmitting}
                         className="bg-primary mt-[28px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white disabled:opacity-50"
                     >
-                        {isSubmitting ? AUTH_LABEL.SENDING : AUTH_LABEL.SEND}
+                        {isSubmitting ? t(AUTH_LABEL.SENDING) : t(AUTH_LABEL.SEND)}
                     </button>
                 </form>
 
                 <div className="pt-8 text-center">
                     <Link href={ROUTE.REGISTER} className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                        {AUTH_LABEL.BACK_TO_SIGN_UP}
+                        {t(AUTH_LABEL.BACK_TO_SIGN_UP)}
                     </Link>
                 </div>
             </div>

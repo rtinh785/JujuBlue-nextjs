@@ -3,6 +3,7 @@
 import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
 import { BOOKMARK_DIALOG } from '@/core/constants/bookmark.constant'
 import { PostWithStatus } from '@/core/types/post.type'
+import { useLingui } from '@lingui/react/macro'
 import { Bookmark } from 'lucide-react'
 
 type Props = {
@@ -15,14 +16,14 @@ type Props = {
 
 const ConfirmUnbookmarkDialog = ({ post, open, isLoading = false, onOpenChange, onConfirm }: Props) => {
     if (!post) return null
-
+    const { t } = useLingui()
     return (
         <ConfirmActionDialog
             open={open}
-            title={BOOKMARK_DIALOG.REMOVE_TITLE}
-            description={BOOKMARK_DIALOG.REMOVE_DESCRIPTION}
-            confirmText={BOOKMARK_DIALOG.REMOVE_CONFIRM}
-            loadingText={BOOKMARK_DIALOG.REMOVE_LOADING}
+            title={t(BOOKMARK_DIALOG.REMOVE_TITLE)}
+            description={t(BOOKMARK_DIALOG.REMOVE_DESCRIPTION)}
+            confirmText={t(BOOKMARK_DIALOG.REMOVE_CONFIRM)}
+            loadingText={t(BOOKMARK_DIALOG.REMOVE_LOADING)}
             isLoading={isLoading}
             icon={<Bookmark className="h-4 w-4 text-red-500" />}
             onOpenChange={onOpenChange}

@@ -6,6 +6,7 @@ import { COMMENT_TEXT, POST_ACTION_LABEL, POST_TEXT } from '@/core/constants/pos
 import { LAYOUT_ALT } from '@/core/constants/layout.constant'
 import type { PostMediaItem, PostWithStatus } from '@/core/types/post.type'
 import { Heart } from 'lucide-react'
+import { useLingui } from '@lingui/react/macro'
 
 type Props = {
     commentId: string
@@ -57,7 +58,7 @@ const ReplyItem = ({
 }: Props) => {
     const isEditingReply = editingPostId === reply.id
     const isReplyOwner = currentUserId === reply.author?.id
-
+    const { t } = useLingui()
     return (
         <div className="flex gap-3">
             {reply.author?.avatar_url ? (
@@ -106,7 +107,7 @@ const ReplyItem = ({
 
                             <PostMediaViewer
                                 media={reply.media}
-                                alt={COMMENT_TEXT.REPLY_MEDIA_ALT}
+                                alt={t(COMMENT_TEXT.REPLY_MEDIA_ALT)}
                                 maxHeightClass="max-h-56"
                                 widthClass="w-1/2"
                             />
@@ -128,7 +129,7 @@ const ReplyItem = ({
                         onClick={() => onReplyClick(commentId, reply.author?.username, 'reply', reply.id)}
                         className="text-xs font-medium text-slate-500 transition hover:text-slate-700"
                     >
-                        {POST_ACTION_LABEL.REPLY}
+                        {t(POST_ACTION_LABEL.REPLY)}
                     </button>
                 </div>
             </div>

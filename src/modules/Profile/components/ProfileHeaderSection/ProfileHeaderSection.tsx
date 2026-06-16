@@ -1,5 +1,6 @@
 import AvatarUploader from '@/modules/Profile/components/ImagesUploader/Avatar/AvatarUploader'
 import { PROFILE_ACTION_LABEL } from '@/core/constants/profile.constant'
+import { useLingui } from '@lingui/react/macro'
 
 type ProfileHeaderSectionProps = {
     isOwnProfile: boolean
@@ -24,6 +25,7 @@ const ProfileHeaderSection = ({
     onMessage,
     onOpenEditDialog,
 }: ProfileHeaderSectionProps) => {
+    const { t } = useLingui()
     return (
         <div className="-mt-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="relative z-10 flex flex-col items-start gap-3">
@@ -43,7 +45,7 @@ const ProfileHeaderSection = ({
                         onClick={onOpenEditDialog}
                         className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                     >
-                        {PROFILE_ACTION_LABEL.EDIT_PROFILE}
+                        {t(PROFILE_ACTION_LABEL.EDIT_PROFILE)}
                     </button>
                 </div>
             ) : profileId ? (
@@ -57,7 +59,7 @@ const ProfileHeaderSection = ({
                                 : 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors duration-200 hover:bg-slate-50'
                         }
                     >
-                        {isFollowed ? PROFILE_ACTION_LABEL.UNFOLLOW : PROFILE_ACTION_LABEL.FOLLOW}
+                        {isFollowed ? t(PROFILE_ACTION_LABEL.UNFOLLOW) : t(PROFILE_ACTION_LABEL.FOLLOW)}
                     </button>
 
                     <button
@@ -65,7 +67,7 @@ const ProfileHeaderSection = ({
                         onClick={onMessage}
                         className="bg-primary hover:bg-primary/90 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-white"
                     >
-                        {PROFILE_ACTION_LABEL.MESSAGE}
+                        {t(PROFILE_ACTION_LABEL.MESSAGE)}
                     </button>
                 </div>
             ) : null}

@@ -16,10 +16,12 @@ import authApi from '@/apis/auth/auth.api'
 import { useGuestGuard } from '@/hooks/useGuestGuard'
 import { AUTH_LABEL, AUTH_MESSAGE, AUTH_TEXT, AUTH_URL } from '@/core/constants/auth.constant'
 import { ROUTE } from '@/core/constants/route.constant'
+import { useLingui } from '@lingui/react/macro'
+
 
 const Login = () => {
     useGuestGuard()
-
+    const { t } = useLingui()
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 
     const loginAccountMutation = useMutation({
@@ -47,8 +49,10 @@ const Login = () => {
                 reset()
                 router.push(ROUTE.ROOT)
             },
-            onError: (error: AxiosError<{ message?: string }>) => {
-                toast.error(error.response?.data?.message || AUTH_MESSAGE.LOGIN_FAILED, {
+            onError: (error) => {
+                const axiosError = error as AxiosError<{ message?: string }>
+
+                toast.error(axiosError.response?.data?.message || t(AUTH_MESSAGE.LOGIN_FAILED), {
                     position: 'top-left',
                 })
             },
@@ -99,9 +103,9 @@ const Login = () => {
                     </div>
                 </div>
 
-                <h1 className="pb-2 text-center text-3xl font-bold lg:text-left">{AUTH_TEXT.LOGIN_TITLE}</h1>
+                <h1 className="pb-2 text-center text-3xl font-bold lg:text-left">{t(AUTH_TEXT.LOGIN_TITLE)}</h1>
 
-                <p className="mb-8 font-normal text-[#64748B]">{AUTH_TEXT.LOGIN_DESCRIPTION}</p>
+                <p className="mb-8 font-normal text-[#64748B]">{t(AUTH_TEXT.LOGIN_DESCRIPTION)}</p>
 
                 <button
                     className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-[13px] text-sm font-medium text-gray-500"
@@ -112,14 +116,14 @@ const Login = () => {
                     <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
 
                     <span className="font-semibold text-[#0F172A]">
-                        {isGoogleLoading ? AUTH_LABEL.GOOGLE_CONNECTING : AUTH_LABEL.CONTINUE_WITH_GOOGLE}
+                        {isGoogleLoading ? t(AUTH_LABEL.GOOGLE_CONNECTING) : t(AUTH_LABEL.CONTINUE_WITH_GOOGLE)}
                     </span>
                 </button>
 
                 <div className="my-6 flex items-center gap-4 md:my-8">
                     <hr className="flex-1 border-gray-200" />
 
-                    <span className="text-sm text-gray-400">{AUTH_TEXT.OR}</span>
+                    <span className="text-sm text-gray-400">{t(AUTH_TEXT.OR)}</span>
 
                     <hr className="flex-1 border-gray-200" />
                 </div>
@@ -127,7 +131,7 @@ const Login = () => {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     {/* email */}
                     <InputField<LoginFormValues>
-                        label={AUTH_TEXT.EMAIL_LABEL}
+                        label={t(AUTH_TEXT.EMAIL_LABEL)}
                         type="email"
                         placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
                         name="email"
@@ -137,7 +141,7 @@ const Login = () => {
 
                     {/* password */}
                     <InputField<LoginFormValues>
-                        label={AUTH_TEXT.PASSWORD_LABEL}
+                        label={t(AUTH_TEXT.PASSWORD_LABEL)}
                         type="password"
                         placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
                         name="password"
@@ -148,7 +152,7 @@ const Login = () => {
                                 href={ROUTE.FORGOT_PASSWORD}
                                 className="text-primary text-sm font-medium hover:underline"
                             >
-                                {AUTH_LABEL.FORGOT_PASSWORD}
+                                {t(AUTH_LABEL.FORGOT_PASSWORD)}
                             </Link>
                         }
                     />
@@ -157,15 +161,15 @@ const Login = () => {
                         disabled={isSubmitting}
                         className="bg-primary mt-[28px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white disabled:opacity-50"
                     >
-                        {isSubmitting ? AUTH_LABEL.LOGGING_IN : AUTH_LABEL.LOGIN}
+                        {isSubmitting ? t(AUTH_LABEL.LOGGING_IN) : t(AUTH_LABEL.LOGIN)}
                     </button>
                 </form>
 
                 <div className="pt-12 text-center">
-                    <span className="text-[14px] font-normal text-[#64748B]">{AUTH_TEXT.NO_ACCOUNT}</span>
+                    <span className="text-[14px] font-normal text-[#64748B]">{t(AUTH_TEXT.NO_ACCOUNT)}</span>
 
                     <Link href={ROUTE.REGISTER} className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                        {AUTH_LABEL.SIGN_UP}
+                        {t(AUTH_LABEL.SIGN_UP)}
                     </Link>
                 </div>
             </div>

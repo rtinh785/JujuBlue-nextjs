@@ -1,8 +1,8 @@
 import { formatter } from '@lingui/format-po'
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from './src/core/constants/common.constant'
 
+const SUPPORTED_LOCALES = ['en', 'vi'] as const
+const DEFAULT_LOCALE = 'vi'
 const locales: string[] = [...SUPPORTED_LOCALES]
-
 if (process.env.NODE_ENV !== 'production') {
     locales.push('pseudo')
 }

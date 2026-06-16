@@ -8,16 +8,12 @@ import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import { PostWithStatus } from '@/core/types/post.type'
 import { useMemo, useState } from 'react'
 import { useInfiniteScrollTrigger } from '@/hooks/useInfiniteScrollTrigger'
+import { useLocale } from '@/contexts/LocaleContext'
 
 const Home = () => {
     const { data: user } = useCurrentUser()
-    const {
-        data: feedPostsPages,
-        isLoading,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-    } = useInfiniteFeedPosts()
+   
+    const { data: feedPostsPages, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteFeedPosts()
     const [selectedPost, setSelectedPost] = useState<PostWithStatus | null>(null)
     const [shouldFocusComment, setShouldFocusComment] = useState(false)
     const { loadMoreTriggerRef } = useInfiniteScrollTrigger({

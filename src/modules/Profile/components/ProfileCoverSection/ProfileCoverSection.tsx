@@ -1,6 +1,7 @@
 import { Pencil } from 'lucide-react'
 import Cropper from 'react-easy-crop'
 import { PROFILE_ACTION_LABEL, PROFILE_TEXT } from '@/core/constants/profile.constant'
+import { useLingui } from '@lingui/react/macro'
 
 type ProfileCoverSectionProps = {
     isOwnProfile: boolean
@@ -29,6 +30,7 @@ const ProfileCoverSection = ({
     onOpenCoverPhotoPicker,
     onCoverCropChange,
 }: ProfileCoverSectionProps) => {
+    const { t } = useLingui()
     return (
         <div className="group relative h-28 min-h-[170px] w-full overflow-hidden bg-slate-100 sm:h-36 lg:min-h-[231px]">
             {isOwnProfile && isEditingCoverPhoto && (
@@ -39,7 +41,7 @@ const ProfileCoverSection = ({
                         onClick={onCancelCoverPhoto}
                         className="rounded-lg bg-white/20 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        {PROFILE_ACTION_LABEL.CANCEL}
+                        {t(PROFILE_ACTION_LABEL.CANCEL)}
                     </button>
                     <button
                         type="button"
@@ -47,7 +49,7 @@ const ProfileCoverSection = ({
                         onClick={onSaveCoverPhoto}
                         className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        {isSavingCoverPhoto ? PROFILE_ACTION_LABEL.SAVING : PROFILE_ACTION_LABEL.SAVE_CHANGES}
+                        {isSavingCoverPhoto ? t(PROFILE_ACTION_LABEL.SAVING) : t(PROFILE_ACTION_LABEL.SAVE_CHANGES)}
                     </button>
                 </div>
             )}
@@ -71,7 +73,7 @@ const ProfileCoverSection = ({
                 ) : (
                     <img
                         src={currentCoverPhotoSrc}
-                        alt={PROFILE_TEXT.COVER_PREVIEW_ALT}
+                        alt={t(PROFILE_TEXT.COVER_PREVIEW_ALT)}
                         className="h-full w-full object-cover"
                         style={{
                             objectPosition: `center calc(50% + ${currentCoverPhotoOffsetY}px)`,
@@ -87,7 +89,7 @@ const ProfileCoverSection = ({
                     type="button"
                     onClick={onOpenCoverPhotoPicker}
                     className="absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full bg-black/55 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 focus-visible:opacity-100"
-                    aria-label={PROFILE_TEXT.CHANGE_COVER_PHOTO}
+                    aria-label={t(PROFILE_TEXT.CHANGE_COVER_PHOTO)}
                 >
                     <Pencil className="size-4" />
                 </button>

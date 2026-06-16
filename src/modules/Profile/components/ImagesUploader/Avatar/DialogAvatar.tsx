@@ -4,6 +4,7 @@ import { PROFILE_ACTION_LABEL, PROFILE_TEXT, PROFILE_UPLOAD } from '@/core/const
 import { getCroppedAvatarImage } from '@/modules/Profile/components/ImagesUploader/Avatar/avatarCrop.utils'
 import Cropper, { type Area } from 'react-easy-crop'
 import { useState } from 'react'
+import { useLingui } from '@lingui/react/macro'
 
 type DialogAvatarProps = {
     open: boolean
@@ -20,7 +21,7 @@ const DialogAvatar = ({ open, imageSrc, isSaving = false, onOpenChange, onCancel
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
     const [isPreparingAvatar, setIsPreparingAvatar] = useState(false)
     const isBusy = isSaving || isPreparingAvatar
-
+    const { t } = useLingui()
     const handleSaveClick = async () => {
         if (!imageSrc || !croppedAreaPixels || isBusy) {
             return
@@ -49,7 +50,7 @@ const DialogAvatar = ({ open, imageSrc, isSaving = false, onOpenChange, onCancel
         >
             <DialogContent className="max-w-[520px]">
                 <DialogHeader>
-                    <DialogTitle>{PROFILE_TEXT.AVATAR_DIALOG_TITLE}</DialogTitle>
+                    <DialogTitle>{t(PROFILE_TEXT.AVATAR_DIALOG_TITLE)}</DialogTitle>
                 </DialogHeader>
 
                 <div className="py-4">
@@ -89,10 +90,10 @@ const DialogAvatar = ({ open, imageSrc, isSaving = false, onOpenChange, onCancel
 
                 <DialogFooter>
                     <Button type="button" variant="outline" disabled={isBusy} onClick={onCancel}>
-                        {PROFILE_ACTION_LABEL.CANCEL}
+                        {t(PROFILE_ACTION_LABEL.CANCEL)}
                     </Button>
                     <Button type="button" disabled={isBusy || !croppedAreaPixels} onClick={handleSaveClick}>
-                        {isBusy ? PROFILE_ACTION_LABEL.SAVING : PROFILE_ACTION_LABEL.SAVE_CHANGES}
+                        {isBusy ? t(PROFILE_ACTION_LABEL.SAVING) : t(PROFILE_ACTION_LABEL.SAVE_CHANGES)}
                     </Button>
                 </DialogFooter>
             </DialogContent>

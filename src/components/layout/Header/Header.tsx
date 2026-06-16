@@ -27,10 +27,20 @@ import { LAYOUT_ALT, LAYOUT_ASSET, NAV_LABEL } from '@/core/constants/layout.con
 import { ROUTE, ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { useUnreadMessagesCount } from '@/apis/messages/messages.query'
 import { useMessagesRealtime } from '@/hooks/useMessagesRealtime'
-import { useCurrentLocale } from '@/hooks/useCurrentLocale'
+import { loadCatalog } from '@/translations/clientI18n'
+import { i18n } from '@lingui/core'
+import { useLingui } from '@lingui/react/macro'
+import { getAccesTokenFromLS } from '@/utils/auth'
 
 const Header = () => {
+    // Đảm bảo lần render đầu tiên trên client luôn khớp với server (SSR)
+    // -> tránh hydration mismatch. Chỉ sau khi mounted = true mới render
+    // nội dung phụ thuộc vào auth/user state.
     const [mounted, setMounted] = useState(false)
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
     const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false)
     const router = useRouter()
     const pathname = usePathname()
@@ -38,13 +48,23 @@ const Header = () => {
     const { data: profileData, isLoading: isProfileLoading } = useMyProfile(!!user)
     const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount(!!user)
     useMessagesRealtime(!!user)
-    const { languageLabel, toggleLocale } = useCurrentLocale()
+    const [languageLabel, setlanguageLabel] = useState('vi')
+    const { t } = useLingui()
+    const toggleLocale = async () => {
+        const nextLocale = languageLabel === 'en' ? 'vi' : 'en'
 
-    useEffect(() => {
-        setMounted(true)
-    }, [])
+        setlanguageLabel(nextLocale)
+
+        const messages = await loadCatalog(nextLocale)
+
+        i18n.loadAndActivate({
+            locale: nextLocale,
+            messages,
+        })
+    }
 
     const isPageLoading = isUserLoading || (!!user && isProfileLoading)
+
     const queryClient = useQueryClient()
     const profile = profileData ?? null
 
@@ -53,7 +73,6 @@ const Header = () => {
 
         await authApi.logoutAccount()
         await queryClient.setQueryData(userKeys.currentUser(), null)
-        // await queryClient.invalidateQueries({ queryKey: userKeys.currentUser() })
         await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
         if (pathname === ROUTE.PROFILE && currentUserId) {
             router.replace(ROUTE_BUILDER.profileDetail(currentUserId))
@@ -62,10 +81,10 @@ const Header = () => {
 
         router.replace(ROUTE.ROOT)
     }
-    if (!mounted) {
-        return <HeaderLoadingState />
-    }
-    if (isPageLoading) {
+
+    // Server luôn render HeaderLoadingState. Client cũng render
+    // HeaderLoadingState cho tới khi mounted -> hai bên khớp nhau 100%.
+    if (!mounted || isPageLoading) {
         return <HeaderLoadingState />
     }
 
@@ -173,7 +192,7 @@ const Header = () => {
                                                     d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
                                                 />
                                             </svg>
-                                            {NAV_LABEL.PROFILE}
+                                            {t(NAV_LABEL.PROFILE)}
                                         </Link>
                                     </DropdownMenuItem>
 
@@ -202,7 +221,7 @@ const Header = () => {
                                                 d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802"
                                             />
                                         </svg>
-                                        {languageLabel}
+                                        {languageLabel === 'en' ? 'English' : 'Tiếng Việt'}
                                     </DropdownMenuItem>
 
                                     <div className="my-1 h-px bg-gray-100" />
@@ -224,15 +243,15 @@ const Header = () => {
                                                 d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
                                             />
                                         </svg>
-                                        {NAV_LABEL.SIGN_OUT}
+                                        {t(NAV_LABEL.SIGN_OUT)}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
                     ) : (
                         <div className="flex items-center gap-x-3">
-                            <MyButton href={ROUTE.REGISTER} name={NAV_LABEL.SIGN_UP} />
-                            <MyButton href={ROUTE.LOGIN} name={NAV_LABEL.LOG_IN} />
+                            <MyButton href={ROUTE.REGISTER} name={t(NAV_LABEL.SIGN_UP)} />
+                            <MyButton href={ROUTE.LOGIN} name={t(NAV_LABEL.LOG_IN)} />
                         </div>
                     )}
                 </div>

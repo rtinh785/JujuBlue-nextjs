@@ -11,6 +11,7 @@ import PostMediaViewer from '@/components/post/components/PostMediaViewer'
 import ReplyItem from '@/components/post/components/ReplyItem'
 import { COMMENT_TEXT, POST_ACTION_LABEL, POST_TEXT } from '@/core/constants/post.constant'
 import { LAYOUT_ALT } from '@/core/constants/layout.constant'
+import { useLingui } from '@lingui/react/macro'
 
 type Props = {
     comment: CommentItem
@@ -67,7 +68,7 @@ const CommentItem = ({
 
     const { mutateAsync: uploadPostMedia, isPending: isUploadingEditMedia } = useUploadPostMedia()
     const { mutateAsync: updatePost, isPending: isUpdatingPost } = useUpdatePost()
-
+    const { t } = useLingui()
     const handleLikeTarget = async (targetId: string, isLiked: boolean) => {
         if (pendingLikeIds.includes(targetId)) return
 
@@ -160,7 +161,7 @@ const CommentItem = ({
                             <InlinePostEditor
                                 content={editContent}
                                 media={editMedia}
-                                placeholder={COMMENT_TEXT.PLACEHOLDER}
+                                placeholder={t(COMMENT_TEXT.PLACEHOLDER)}
                                 maxMediaHeightClass="max-h-64"
                                 isSaving={isUpdatingPost}
                                 isUploading={isUploadingEditMedia}
@@ -180,7 +181,7 @@ const CommentItem = ({
 
                                 <PostMediaViewer
                                     media={comment.media}
-                                    alt={COMMENT_TEXT.COMMENT_MEDIA_ALT}
+                                    alt={t(COMMENT_TEXT.COMMENT_MEDIA_ALT)}
                                     maxHeightClass="max-h-64"
                                 />
                             </>
@@ -201,7 +202,7 @@ const CommentItem = ({
                             onClick={() => onReplyClick(comment.id, comment.author?.username, 'parent')}
                             className="text-xs font-medium text-slate-500 transition hover:text-slate-700"
                         >
-                            {POST_ACTION_LABEL.REPLY}
+                            {t(POST_ACTION_LABEL.REPLY)}
                         </button>
                     </div>
 

@@ -3,6 +3,7 @@
 import { BOOKMARK_TEXT } from '@/core/constants/bookmark.constant'
 import { POST_TEXT } from '@/core/constants/post.constant'
 import { PostWithStatus } from '@/core/types/post.type'
+import { useLingui } from '@lingui/react/macro'
 import { MoreHorizontal, Play } from 'lucide-react'
 
 type Props = {
@@ -15,7 +16,7 @@ const BookmarkItem = ({ post, onOpenDetail, onRequestUnbookmark }: Props) => {
     const firstMedia = post.media?.[0]
     const authorName = post.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR
     const authorAvatar = post.author?.avatar_url
-
+    const { t } = useLingui()
     const handleRequestUnbookmark = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation()
         onRequestUnbookmark(post)
@@ -51,13 +52,13 @@ const BookmarkItem = ({ post, onOpenDetail, onRequestUnbookmark }: Props) => {
 
             <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-base leading-6 font-semibold text-slate-900">
-                    {post.content || BOOKMARK_TEXT.EMPTY_POST_CONTENT}
+                    {post.content || t(BOOKMARK_TEXT.EMPTY_POST_CONTENT)}
                 </p>
 
-                <p className="mt-1 text-sm text-slate-500">{BOOKMARK_TEXT.POST_TYPE_LABEL}</p>
+                <p className="mt-1 text-sm text-slate-500">{t(BOOKMARK_TEXT.POST_TYPE_LABEL)}</p>
 
                 <p className="mt-3 text-sm text-slate-600">
-                    {BOOKMARK_TEXT.SAVED_FROM_AUTHOR_PREFIX}{' '}
+                    {t(BOOKMARK_TEXT.SAVED_FROM_AUTHOR_PREFIX)}{' '}
                     <span className="font-semibold text-slate-900">{authorName}</span>
                 </p>
             </div>

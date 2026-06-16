@@ -15,6 +15,7 @@ import { POST_MESSAGE } from '@/core/constants/post.constant'
 import { Post, PostWithStatus, SharePostReq, UpdatePostReq } from '@/core/types/post.type'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { useLingui } from '@lingui/react/macro'
 
 type Props = {
     currentUserId?: string
@@ -38,10 +39,10 @@ const PostCard = ({
     onOpenComments,
 }: Props) => {
     const [displayPost, setDisplayPost] = useState(post)
-
+    const { t } = useLingui()
     const isOwner = currentUserId === displayPost.author?.id
     const isOriginalSharedPostMissing = displayPost.was_shared_post && !displayPost.shared_post
-    const shareDisabledReason = isOriginalSharedPostMissing ? POST_MESSAGE.SHARE_UNAVAILABLE : undefined
+    const shareDisabledReason = isOriginalSharedPostMissing ? t(POST_MESSAGE.SHARE_UNAVAILABLE) : undefined
 
     // Like / bookmark
     const { mutateAsync: likeMutation } = useLikePost()
@@ -67,7 +68,7 @@ const PostCard = ({
     const { mutateAsync: sharePost, isPending: isSharingPost } = useSharePost()
 
     const handleUnavailableShare = () => {
-        toast.error(POST_MESSAGE.SHARE_UNAVAILABLE, {
+        toast.error(t(POST_MESSAGE.SHARE_UNAVAILABLE), {
             position: 'top-left',
         })
     }

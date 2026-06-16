@@ -19,6 +19,7 @@ import {
     POST_VISIBILITY_LABEL,
 } from '@/core/constants/post.constant'
 import { LAYOUT_ALT } from '@/core/constants/layout.constant'
+import { useLingui } from '@lingui/react/macro'
 
 type Props = {
     post: PostWithStatus | null
@@ -27,16 +28,6 @@ type Props = {
     onOpenChange: (open: boolean) => void
     onSubmit: (body: EditPostFormValues & { media: PostMediaItem[] | null }) => void
 }
-
-const VISIBILITY_OPTIONS: {
-    value: NonNullable<EditPostFormValues['visibility']>
-    label: string
-    icon: React.ElementType
-}[] = [
-    { value: POST_VISIBILITY.PUBLIC, label: POST_VISIBILITY_LABEL.public, icon: Globe },
-    { value: POST_VISIBILITY.FOLLOWERS, label: POST_VISIBILITY_LABEL.followers, icon: Users },
-    { value: POST_VISIBILITY.PRIVATE, label: POST_VISIBILITY_LABEL.private, icon: Lock },
-]
 
 const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit }: Props) => {
     const {
@@ -58,7 +49,25 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
     const [visibilityOpen, setVisibilityOpen] = useState(false)
     const visibilityRef = useRef<HTMLDivElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+    const { t } = useLingui()
 
+    const VISIBILITY_OPTIONS = [
+        {
+            value: POST_VISIBILITY.PUBLIC,
+            label: t(POST_VISIBILITY_LABEL.public),
+            icon: Globe,
+        },
+        {
+            value: POST_VISIBILITY.FOLLOWERS,
+            label: t(POST_VISIBILITY_LABEL.followers),
+            icon: Users,
+        },
+        {
+            value: POST_VISIBILITY.PRIVATE,
+            label: t(POST_VISIBILITY_LABEL.private),
+            icon: Lock,
+        },
+    ]
     // Keep textarea height in sync with existing content when the dialog opens.
     useEffect(() => {
         if (!open || !textareaRef.current) return
@@ -117,7 +126,8 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
             <DialogContent className="max-h-[90vh] !max-w-[840px] overflow-y-auto p-0" showCloseButton>
                 <DialogHeader className="border-b border-slate-100 px-4 py-4">
                     <DialogTitle>
-                        {POST_TEXT.EDIT_DIALOG_TITLE_PREFIX} {post.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
+                        {t(POST_TEXT.EDIT_DIALOG_TITLE_PREFIX)}{' '}
+                        {post.author?.display_name ?? t(POST_TEXT.UNKNOWN_AUTHOR)}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -187,7 +197,7 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
 
                                 <textarea
                                     rows={1}
-                                    placeholder={POST_TEXT.COMPOSER_PLACEHOLDER}
+                                    placeholder={t(POST_TEXT.COMPOSER_PLACEHOLDER)}
                                     className="mt-3 w-full resize-none overflow-hidden rounded-2xl px-4 pr-3 text-sm text-slate-700 transition outline-none focus:border-slate-300"
                                     onInput={(e) => {
                                         const el = e.currentTarget
@@ -217,7 +227,7 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                         {item.type === POST_MEDIA_TYPE.IMAGE ? (
                                             <img
                                                 src={item.url}
-                                                alt={POST_TEXT.MEDIA_ALT}
+                                                alt={t(POST_TEXT.MEDIA_ALT)}
                                                 className="max-h-[500px] min-h-[200px] w-full object-cover"
                                             />
                                         ) : (
@@ -261,12 +271,12 @@ const EditPostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit 
                                     disabled={isLoading || isUploadingMedia}
                                     onClick={() => onOpenChange(false)}
                                 >
-                                    {POST_ACTION_LABEL.CANCEL}
+                                    {t(POST_ACTION_LABEL.CANCEL)}
                                 </Button>
                                 <Button type="submit" disabled={isLoading || isUploadingMedia}>
                                     {isLoading || isUploadingMedia
-                                        ? POST_ACTION_LABEL.SAVING
-                                        : POST_ACTION_LABEL.SAVE_CHANGES}
+                                        ? t(POST_ACTION_LABEL.SAVING)
+                                        : t(POST_ACTION_LABEL.SAVE_CHANGES)}
                                 </Button>
                             </div>
                         </div>

@@ -17,6 +17,7 @@ import {
     POST_VISIBILITY_DESCRIPTION,
     POST_VISIBILITY_LABEL,
 } from '@/core/constants/post.constant'
+import { useLingui } from '@lingui/react/macro'
 
 const VISIBILITY_OPTIONS = [
     {
@@ -71,7 +72,7 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
         VISIBILITY_OPTIONS.find((option) => option.value === selectedVisibility) ?? VISIBILITY_OPTIONS[0]
     const CurrentIcon = currentOption.icon
     const originalPost = post?.shared_post ?? post
-
+    const { t } = useLingui()
     useEffect(() => {
         if (!open) return
 
@@ -107,7 +108,7 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="!max-w-xl">
                 <DialogHeader>
-                    <DialogTitle className="text-base">{POST_TEXT.SHARE_DIALOG_TITLE}</DialogTitle>
+                    <DialogTitle className="text-base">{t(POST_TEXT.SHARE_DIALOG_TITLE)}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(handleShare)} className="space-y-4">
@@ -117,7 +118,7 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
                         render={({ field }) => (
                             <AutoResizeTextarea
                                 {...field}
-                                placeholder={POST_TEXT.SHARE_PLACEHOLDER}
+                                placeholder={t(POST_TEXT.SHARE_PLACEHOLDER)}
                                 className="min-h-20 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm leading-6 text-slate-700 placeholder:text-slate-400 focus:border-slate-300"
                             />
                         )}
@@ -132,7 +133,7 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
                             className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
                         >
                             <CurrentIcon className="size-3.5 text-slate-400" />
-                            {currentOption.label}
+                            {t(currentOption.label)}
                             <ChevronDown
                                 className={`size-3 text-slate-400 transition-transform ${visibilityOpen ? 'rotate-180' : ''}`}
                             />
@@ -159,9 +160,9 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
                                     >
                                         <Icon className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
                                         <span>
-                                            <span className="block">{label}</span>
+                                            <span className="block">{t(label)}</span>
                                             <span className="mt-0.5 block text-[11px] leading-4 font-normal text-slate-400">
-                                                {description}
+                                                {t(description)}
                                             </span>
                                         </span>
                                     </button>
@@ -184,11 +185,11 @@ const SharePostDialog = ({ post, open, isLoading = false, onOpenChange, onSubmit
                             disabled={isLoading}
                             onClick={() => onOpenChange(false)}
                         >
-                            {POST_ACTION_LABEL.CANCEL}
+                            {t(POST_ACTION_LABEL.CANCEL)}
                         </Button>
 
                         <Button type="submit" disabled={isLoading}>
-                            {isLoading ? POST_ACTION_LABEL.SHARING : POST_ACTION_LABEL.SHARE}
+                            {isLoading ? t(POST_ACTION_LABEL.SHARING) : t(POST_ACTION_LABEL.SHARE)}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -2,6 +2,7 @@
 
 import { POST_MEDIA_TYPE, POST_TEXT } from '@/core/constants/post.constant'
 import type { PostMediaItem } from '@/core/types/post.type'
+import { useLingui } from '@lingui/react/macro'
 import { X } from 'lucide-react'
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 
 const MediaPreviewList = ({ media, onRemove }: Props) => {
     if (media.length === 0) return null
-
+    const { t } = useLingui()
     return (
         <div className="grid grid-cols-2 gap-3 px-4 pt-3">
             {media.map((item, index) => (
@@ -20,7 +21,7 @@ const MediaPreviewList = ({ media, onRemove }: Props) => {
                     className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
                 >
                     {item.type === POST_MEDIA_TYPE.IMAGE ? (
-                        <img src={item.url} alt={POST_TEXT.MEDIA_PREVIEW_ALT} className="h-40 w-full object-cover" />
+                        <img src={item.url} alt={t(POST_TEXT.MEDIA_PREVIEW_ALT)} className="h-40 w-full object-cover" />
                     ) : (
                         <video src={item.url} className="h-40 w-full object-cover">
                             <track kind="captions" />

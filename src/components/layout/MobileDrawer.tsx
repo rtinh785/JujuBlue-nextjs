@@ -8,6 +8,7 @@ import { EarthLockIcon } from 'lucide-react'
 import { LAYOUT_ALT, LAYOUT_ASSET, NAV_LABEL } from '@/core/constants/layout.constant'
 import { ROUTE } from '@/core/constants/route.constant'
 import { useCurrentLocale } from '@/hooks/useCurrentLocale'
+import { useLingui } from '@lingui/react/macro'
 interface MobileDrawerProps {
     user: User | undefined
     profile: Profile | null
@@ -16,6 +17,7 @@ interface MobileDrawerProps {
 
 const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
     const { languageLabel, toggleLocale } = useCurrentLocale()
+    const { t } = useLingui()
 
     return (
         <Dialog>
@@ -27,10 +29,10 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                 showCloseButton={false}
                 className="data-[state=open]:animate-in data-[state=open]:slide-in-from-left data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left top-0 left-0 flex h-screen w-[78%] max-w-[280px] translate-x-0 translate-y-0 flex-col rounded-none border-none bg-white p-0 shadow-2xl duration-300 ease-out"
             >
-                <DialogTitle className="sr-only">{NAV_LABEL.NAVIGATION_TITLE}</DialogTitle>
+                <DialogTitle className="sr-only">{t(NAV_LABEL.NAVIGATION_TITLE)}</DialogTitle>
                 <div className="flex items-center justify-between px-4 pt-5 pb-4">
                     <span className="text-[15px] font-semibold tracking-tight text-gray-900">
-                        {NAV_LABEL.NAVIGATION_TITLE}
+                        {t(NAV_LABEL.NAVIGATION_TITLE)}
                     </span>
                     <DialogClose asChild>
                         <button
@@ -57,9 +59,9 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                             <DialogClose asChild>
                                 <Link href={ROUTE.PROFILE} className="block">
                                     <p className="truncate text-[13px] font-semibold text-gray-900">
-                                        {NAV_LABEL.MY_ACCOUNT}
+                                        {t(NAV_LABEL.MY_ACCOUNT)}
                                     </p>
-                                    <p className="text-[11px] text-gray-400">{NAV_LABEL.VIEW_PROFILE}</p>
+                                    <p className="text-[11px] text-gray-400">{t(NAV_LABEL.VIEW_PROFILE)}</p>
                                 </Link>
                             </DialogClose>
                         </div>
@@ -67,14 +69,14 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                 )}
                 {/* Nav section */}
 
-                <NavSection title={NAV_LABEL.MENU_SECTION}>
+                <NavSection title={t(NAV_LABEL.MENU_SECTION)}>
                     <DialogClose asChild>
                         <Link
                             href={ROUTE.HOME}
                             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900"
                         >
                             <img src={LAYOUT_ASSET.HOME} alt={LAYOUT_ALT.HOME} />
-                            {NAV_LABEL.HOME}
+                            {t(NAV_LABEL.HOME)}
                         </Link>
                     </DialogClose>
 
@@ -85,7 +87,7 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900"
                             >
                                 <img src={LAYOUT_ASSET.MESSAGE} alt={LAYOUT_ALT.MESSAGES} />
-                                {NAV_LABEL.MESSAGES}
+                                {t(NAV_LABEL.MESSAGES)}
                             </Link>
                         </DialogClose>
                     )}
@@ -93,7 +95,7 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                 {/* Divider */}
                 <div className="mx-3 my-3 border-t border-gray-100" />
                 {/* Settings section */}
-                <NavSection title={NAV_LABEL.SETTINGS_SECTION}>
+                <NavSection title={t(NAV_LABEL.SETTINGS_SECTION)}>
                     <NavItem icon={EarthLockIcon} label={languageLabel} onClick={toggleLocale} />
                 </NavSection>
                 {/* Spacer */}
@@ -107,7 +109,7 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                             className="flex w-full items-center gap-2.5 text-[13px] font-medium text-red-400 transition-colors hover:text-red-600"
                         >
                             <img src={LAYOUT_ASSET.LOG_OUT} alt={LAYOUT_ALT.SIGN_OUT} />
-                            {NAV_LABEL.SIGN_OUT}
+                            {t(NAV_LABEL.SIGN_OUT)}
                         </button>
                     </div>
                 )}
@@ -119,7 +121,7 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                                     href={ROUTE.LOGIN}
                                     className="block rounded-full border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700"
                                 >
-                                    {NAV_LABEL.LOG_IN}
+                                    {t(NAV_LABEL.LOG_IN)}
                                 </Link>
                             </DialogClose>
                             <DialogClose asChild>
@@ -127,7 +129,7 @@ const MobileDrawer = ({ user, profile, logOut }: MobileDrawerProps) => {
                                     href={ROUTE.REGISTER}
                                     className="block rounded-full bg-blue-500 px-4 py-3 text-center text-sm font-semibold text-white"
                                 >
-                                    {NAV_LABEL.SIGN_UP}
+                                    {t(NAV_LABEL.SIGN_UP)}
                                 </Link>
                             </DialogClose>
                         </div>

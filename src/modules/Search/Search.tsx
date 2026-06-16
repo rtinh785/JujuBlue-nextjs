@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/apis/user/user.query'
 import { Skeleton } from '@/components/base/skeleton'
 import PostDetailDialog from '@/components/post/components/PostDetailDialog'
 import PostCard from '@/components/post/PostCard'
+import { useLocale } from '@/contexts/LocaleContext'
 import { ROUTE, ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { PostWithStatus } from '@/core/types/post.type'
 import { SearchSort, SearchType, SearchUserItem } from '@/core/types/search.type'
@@ -54,6 +55,7 @@ const getSearchSort = (value: string | null): SearchSort => {
 
 const Search = () => {
     const router = useRouter()
+    // const { locale } = useLocale()
     const searchParams = useSearchParams()
     const hasAccessToken = !!getAccesTokenFromLS()
     const { data: user, isLoading: isUserLoading } = useCurrentUser()

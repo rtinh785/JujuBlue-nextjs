@@ -18,8 +18,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 import ConversationsSidebar from './components/ConversationsSidebar'
 import MessageThread from './components/MessageThread'
+import { CONVERSATIONS_SIDEBAR_TEXT } from '@/core/constants/message.constant'
+import { useLingui } from '@lingui/react/macro'
 
 const Messages = () => {
+    const { t } = useLingui()
     const [hasMounted, setHasMounted] = useState(false)
     const [isMobile, setIsMobile] = useState(false)
     const [draft, setDraft] = useState('')
@@ -211,7 +214,7 @@ const Messages = () => {
         return (
             <main className="flex h-screen items-center justify-center bg-slate-50 px-4">
                 <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-                    <h1 className="text-xl font-semibold text-slate-950">Messages</h1>
+                    <h1 className="text-xl font-semibold text-slate-950">{t(CONVERSATIONS_SIDEBAR_TEXT.TITLE)}</h1>
                     <p className="mt-2 text-sm text-slate-500">Please log in to view your messages.</p>
 
                     <Link
@@ -226,7 +229,7 @@ const Messages = () => {
     }
 
     return (
-        <main className="h-[calc(100dvh-4rem)] overflow-hidden bg-slate-100">
+        <main className="h-[100vh] overflow-hidden bg-slate-100">
             <section className="flex h-full min-h-0 flex-col lg:grid lg:grid-cols-[360px_1fr]">
                 <div
                     className={`${conversationId && isMobile ? 'hidden lg:flex' : 'flex'} min-h-0 w-full flex-1 lg:flex-none`}

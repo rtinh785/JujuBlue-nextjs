@@ -5,6 +5,7 @@ import linguiConfig from '../../lingui.config'
 import AppProviders from './providers'
 import { siteConfig } from '@/core/configs/site.config'
 
+
 export async function generateStaticParams() {
     return linguiConfig.locales.map((lang) => ({ lang }))
 }
@@ -12,6 +13,7 @@ export async function generateStaticParams() {
 export async function generateMetadata(): Promise<Metadata> {
     // props: PageLangParam
     // const i18n = getI18nInstance((await props.params).lang)
+
     return {
         title: siteConfig.title,
         description: siteConfig.description,

@@ -1,6 +1,7 @@
 'use client'
 
 import { POST_ACTION_LABEL } from '@/core/constants/post.constant'
+import { useLingui } from '@lingui/react/macro'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -13,7 +14,7 @@ type Props = {
 const OwnerActionMenu = ({ isDeleting = false, onEdit, onDelete }: Props) => {
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
-
+    const { t } = useLingui()
     useEffect(() => {
         if (!menuOpen) return
 
@@ -49,7 +50,7 @@ const OwnerActionMenu = ({ isDeleting = false, onEdit, onDelete }: Props) => {
                         className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
                     >
                         <Pencil className="size-3.5" />
-                        {POST_ACTION_LABEL.EDIT}
+                        {t(POST_ACTION_LABEL.EDIT)}
                     </button>
 
                     <button
@@ -62,7 +63,7 @@ const OwnerActionMenu = ({ isDeleting = false, onEdit, onDelete }: Props) => {
                         className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <Trash2 className="size-3.5" />
-                        {POST_ACTION_LABEL.DELETE}
+                        {t(POST_ACTION_LABEL.DELETE)}
                     </button>
                 </div>
             )}

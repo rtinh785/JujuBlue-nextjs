@@ -7,6 +7,8 @@ import { cn } from '@/utils/helper'
 import Link from 'next/link'
 import type { RefObject } from 'react'
 import { getConversationName, getConversationPreview } from '../utils/messageDisplay'
+import { CONVERSATIONS_SIDEBAR_TEXT } from '@/core/constants/message.constant'
+import { useLingui } from '@lingui/react/macro'
 
 interface ConversationsSidebarProps {
     conversations: ConversationItem[]
@@ -29,6 +31,7 @@ const ConversationsSidebar = ({
     onScroll,
     onSelectConversation,
 }: ConversationsSidebarProps) => {
+    const { t } = useLingui()
     return (
         <aside className="flex min-h-0 w-full flex-col border-r border-slate-200 bg-white lg:h-full">
             <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-4">
@@ -40,14 +43,14 @@ const ConversationsSidebar = ({
                 </Link>
 
                 <div>
-                    <h1 className="text-lg font-semibold text-slate-950">Messages</h1>
-                    <p className="text-xs text-slate-400">People you have chatted with</p>
+                    <h1 className="text-lg font-semibold text-slate-950">{t(CONVERSATIONS_SIDEBAR_TEXT.TITLE)}</h1>
+                    <p className="text-xs text-slate-400">{t(CONVERSATIONS_SIDEBAR_TEXT.SUBTITLE)}</p>
                 </div>
             </div>
 
             <div ref={conversationsListRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto p-3">
                 {isLoading ? (
-                    <p className="p-3 text-sm text-slate-500">Loading conversations...</p>
+                    <p className="p-3 text-sm text-slate-500">{t(CONVERSATIONS_SIDEBAR_TEXT.LOADING)}</p>
                 ) : conversations.length > 0 ? (
                     <div className="space-y-1">
                         {conversations.map((conversation) => {
@@ -94,15 +97,17 @@ const ConversationsSidebar = ({
                         {hasNextPage ? (
                             <div className="flex h-10 items-center justify-center">
                                 <span className="text-xs text-slate-400">
-                                    {isFetchingNextPage ? 'Loading more conversations...' : ''}
+                                    {isFetchingNextPage ? t(CONVERSATIONS_SIDEBAR_TEXT.LOADING) : ''}
                                 </span>
                             </div>
                         ) : null}
                     </div>
                 ) : (
                     <div className="px-3 py-10 text-center">
-                        <p className="text-sm font-medium text-slate-700">No conversations yet</p>
-                        <p className="mt-1 text-sm text-slate-400">Open someone&apos;s profile and start a message.</p>
+                        <p className="text-sm font-medium text-slate-700">
+                            {t(CONVERSATIONS_SIDEBAR_TEXT.EMPTY_TITLE)}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-400">{t(CONVERSATIONS_SIDEBAR_TEXT.EMPTY_SUBTITLE)}</p>
                     </div>
                 )}
             </div>

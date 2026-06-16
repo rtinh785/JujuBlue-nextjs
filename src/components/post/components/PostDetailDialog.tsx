@@ -14,6 +14,7 @@ import ConfirmActionDialog from '@/components/common/ConfirmActionDialog'
 import { Trash2 } from 'lucide-react'
 import { COMMENT_DIALOG, COMMENT_TEXT, POST_ACTION_LABEL, POST_TEXT } from '@/core/constants/post.constant'
 import { LAYOUT_ALT } from '@/core/constants/layout.constant'
+import { useLingui } from '@lingui/react/macro'
 
 type Props = {
     post: PostWithStatus | null
@@ -33,7 +34,7 @@ type ReplyTarget = {
 const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocusComment, onDeleted }: Props) => {
     const postId = post?.id
     const { data: latestPost } = usePostById(postId)
-
+    const { t } = useLingui()
     const displayPost = latestPost ?? post
     const { data: comments, isLoading } = useComments(postId)
     const [commentContent, setCommentContent] = useState('')
@@ -166,7 +167,8 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
             <DialogContent className="max-h-[90vh] !max-w-[840px] overflow-y-auto p-0" showCloseButton>
                 <DialogHeader className="border-b border-slate-100 px-4 py-4">
                     <DialogTitle>
-                        {POST_TEXT.DETAIL_TITLE_PREFIX} {displayPost.author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
+                        {t(POST_TEXT.DETAIL_TITLE_PREFIX)}{' '}
+                        {displayPost.author?.display_name ?? t(POST_TEXT.UNKNOWN_AUTHOR)}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -182,7 +184,7 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                     />
 
                     <div className="mt-4 rounded-2xl border border-slate-100 bg-white p-4">
-                        <h3 className="text-sm font-semibold text-slate-900">{COMMENT_TEXT.SECTION_TITLE}</h3>
+                        <h3 className="text-sm font-semibold text-slate-900">{t(COMMENT_TEXT.SECTION_TITLE)}</h3>
                         <div className="mt-4 border-t border-slate-100 pt-4">
                             <div className="flex gap-3">
                                 {myProfile?.avatar_url ? (
@@ -201,7 +203,7 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                                             ref={commentInputRef}
                                             value={commentContent}
                                             onChange={(event) => setCommentContent(event.target.value)}
-                                            placeholder={COMMENT_TEXT.PLACEHOLDER}
+                                            placeholder={t(COMMENT_TEXT.PLACEHOLDER)}
                                             rows={2}
                                             className="max-h-40 w-full resize-none overflow-y-auto px-4 py-3 text-sm text-slate-700 outline-none"
                                         />
@@ -224,8 +226,8 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                                                 className="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                                             >
                                                 {isCreatingComment
-                                                    ? POST_ACTION_LABEL.SENDING
-                                                    : POST_ACTION_LABEL.COMMENT}
+                                                    ? t(POST_ACTION_LABEL.SENDING)
+                                                    : t(POST_ACTION_LABEL.COMMENT)}
                                             </button>
                                         </div>
                                     </div>
@@ -233,7 +235,7 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                             </div>
                         </div>
                         {isLoading ? (
-                            <div className="py-6 text-center text-sm text-slate-500">{COMMENT_TEXT.LOADING}</div>
+                            <div className="py-6 text-center text-sm text-slate-500">{t(COMMENT_TEXT.LOADING)}</div>
                         ) : comments && comments.length > 0 ? (
                             <div className="mt-4 space-y-4">
                                 {comments.map((comment) => (
@@ -263,8 +265,8 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                             </div>
                         ) : (
                             <div className="py-6 text-center">
-                                <p className="text-sm font-medium text-slate-600">{COMMENT_TEXT.EMPTY_TITLE}</p>
-                                <p className="mt-1 text-xs text-slate-400">{COMMENT_TEXT.EMPTY_DESCRIPTION}</p>
+                                <p className="text-sm font-medium text-slate-600">{t(COMMENT_TEXT.EMPTY_TITLE)}</p>
+                                <p className="mt-1 text-xs text-slate-400">{t(COMMENT_TEXT.EMPTY_DESCRIPTION)}</p>
                             </div>
                         )}
                     </div>
@@ -273,10 +275,10 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
 
             <ConfirmActionDialog
                 open={!!deletingPost}
-                title={COMMENT_DIALOG.DELETE_TITLE}
-                description={COMMENT_DIALOG.DELETE_DESCRIPTION}
-                confirmText={COMMENT_DIALOG.DELETE_CONFIRM}
-                loadingText={COMMENT_DIALOG.DELETE_LOADING}
+                title={t(COMMENT_DIALOG.DELETE_TITLE)}
+                description={t(COMMENT_DIALOG.DELETE_DESCRIPTION)}
+                confirmText={t(COMMENT_DIALOG.DELETE_CONFIRM)}
+                loadingText={t(COMMENT_DIALOG.DELETE_LOADING)}
                 isLoading={isDeletingPost}
                 icon={<Trash2 className="h-4 w-4 text-red-500" />}
                 onOpenChange={(open) => {

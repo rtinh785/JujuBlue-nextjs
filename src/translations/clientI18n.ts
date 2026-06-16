@@ -1,7 +1,4 @@
 'use client'
-
-/* eslint-disable react-hooks/exhaustive-deps */
-
 import { i18n, Messages } from '@lingui/core'
 import { useEffect } from 'react'
 
@@ -12,7 +9,7 @@ export async function loadCatalog(locale: string): Promise<Messages> {
 
 export function useLinguiInit(locale: string, messages: Messages) {
     const isClient = typeof window !== 'undefined'
-
+  
     if (!isClient && locale !== i18n.locale) {
         // there is single instance of i18n on the server
         // note: on the server, we could have an instance of i18n per supported locale

@@ -15,9 +15,12 @@ import { useGuestGuard } from '@/hooks/useGuestGuard'
 import { AUTH_LABEL, AUTH_MESSAGE, AUTH_TEXT, AUTH_URL } from '@/core/constants/auth.constant'
 import { ROUTE } from '@/core/constants/route.constant'
 import { RegisterFormValues, registerSchema } from '@/schema/register.schema'
+import { useLingui } from '@lingui/react/macro'
+import { useLocale } from '@/contexts/LocaleContext'
 
 const Register = () => {
     useGuestGuard()
+    const { t } = useLingui()
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
     const registerAccountMutation = useMutation({
         mutationFn: authApi.registerAccount,
@@ -43,12 +46,14 @@ const Register = () => {
             { email, password },
             {
                 onSuccess: () => {
-                    toast.success(AUTH_MESSAGE.REGISTER_SUCCESS)
+                    toast.success(t(AUTH_MESSAGE.REGISTER_SUCCESS))
                     reset()
                 },
-                onError: (error: AxiosError<{ message?: string }>) => {
+                onError: (error) => {
+                    const axiosError = error as AxiosError<{ message?: string }>
+
                     setError('email', {
-                        message: error.response?.data?.message || AUTH_MESSAGE.REGISTER_FAILED,
+                        message: axiosError.response?.data?.message || t(AUTH_MESSAGE.REGISTER_FAILED),
                     })
                 },
             },
@@ -97,9 +102,9 @@ const Register = () => {
                     </div>
                 </div>
                 <h1 className="py-3 pb-2 text-center text-2xl font-bold lg:text-left lg:text-3xl lg:whitespace-nowrap">
-                    {AUTH_TEXT.REGISTER_TITLE}
+                    {t(AUTH_TEXT.REGISTER_TITLE)}
                 </h1>
-                <p className="mb-5 font-normal text-[#64748B]">{AUTH_TEXT.REGISTER_DESCRIPTION}</p>
+                <p className="mb-5 font-normal text-[#64748B]">{t(AUTH_TEXT.REGISTER_DESCRIPTION)}</p>
 
                 <button
                     type="button"
@@ -109,20 +114,20 @@ const Register = () => {
                 >
                     <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
                     <span className="font-semibold text-[#0F172A]">
-                        {isGoogleLoading ? AUTH_LABEL.GOOGLE_CONNECTING : AUTH_LABEL.CONTINUE_WITH_GOOGLE}
+                        {isGoogleLoading ? t(AUTH_LABEL.GOOGLE_CONNECTING) : t(AUTH_LABEL.CONTINUE_WITH_GOOGLE)}
                     </span>
                 </button>
 
                 <div className="my-2 flex items-center gap-4 md:my-6">
                     <hr className="flex-1 border-gray-200" />
-                    <span className="text-sm text-gray-400">{AUTH_TEXT.OR}</span>
+                    <span className="text-sm text-gray-400">{t(AUTH_TEXT.OR)}</span>
                     <hr className="flex-1 border-gray-200" />
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} noValidate>
                     {/* email */}
                     <InputField<RegisterFormValues>
-                        label={AUTH_TEXT.EMAIL_LABEL}
+                        label={t(AUTH_TEXT.EMAIL_LABEL)}
                         type="email"
                         placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
                         name="email"
@@ -131,7 +136,7 @@ const Register = () => {
                     />
                     {/* password */}
                     <InputField<RegisterFormValues>
-                        label={AUTH_TEXT.PASSWORD_LABEL}
+                        label={t(AUTH_TEXT.PASSWORD_LABEL)}
                         type="password"
                         placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
                         name="password"
@@ -140,9 +145,9 @@ const Register = () => {
                     />
                     {/* confirm password */}
                     <InputField<RegisterFormValues>
-                        label={AUTH_TEXT.CONFIRM_PASSWORD_LABEL}
+                        label={t(AUTH_TEXT.CONFIRM_PASSWORD_LABEL)}
                         type="password"
-                        placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
+                        placeholder={t(AUTH_TEXT.CONFIRM_PASSWORD_PLACEHOLDER)}
                         name="confirmPassword"
                         register={register}
                         errors={errors}
@@ -151,14 +156,14 @@ const Register = () => {
                         className="bg-primary mt-[18px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? AUTH_LABEL.CREATING_ACCOUNT : AUTH_LABEL.CREATE_ACCOUNT}
+                        {isSubmitting ? t(AUTH_LABEL.CREATING_ACCOUNT) : t(AUTH_LABEL.CREATE_ACCOUNT)}
                     </button>
                 </form>
 
                 <div className="mt-4 text-center">
-                    <span className="text-[14px] font-normal text-[#64748B]">{AUTH_TEXT.ALREADY_HAVE_ACCOUNT}</span>
+                    <span className="text-[14px] font-normal text-[#64748B]">{t(AUTH_TEXT.ALREADY_HAVE_ACCOUNT)}</span>
                     <Link href={ROUTE.LOGIN} className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                        {AUTH_LABEL.SIGN_IN}
+                        {t(AUTH_LABEL.SIGN_IN)}
                     </Link>
                 </div>
             </div>

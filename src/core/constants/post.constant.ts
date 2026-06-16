@@ -1,3 +1,7 @@
+
+import { msg } from '@lingui/core/macro'
+
+
 export const POST_VISIBILITY = {
     PUBLIC: 'public',
     FOLLOWERS: 'followers',
@@ -7,15 +11,15 @@ export const POST_VISIBILITY = {
 export type PostVisibility = (typeof POST_VISIBILITY)[keyof typeof POST_VISIBILITY]
 
 export const POST_VISIBILITY_LABEL = {
-    [POST_VISIBILITY.PUBLIC]: 'Public',
-    [POST_VISIBILITY.FOLLOWERS]: 'Followers',
-    [POST_VISIBILITY.PRIVATE]: 'Private',
+    [POST_VISIBILITY.PUBLIC]: msg`Công khai`,
+    [POST_VISIBILITY.FOLLOWERS]: msg`Người theo dõi`,
+    [POST_VISIBILITY.PRIVATE]: msg`Chỉ mình tôi`,
 } as const
 
 export const POST_VISIBILITY_DESCRIPTION = {
-    [POST_VISIBILITY.PUBLIC]: 'Everyone can see this post.',
-    [POST_VISIBILITY.FOLLOWERS]: 'Only your followers can see this post.',
-    [POST_VISIBILITY.PRIVATE]: 'Only you can see this post.',
+    [POST_VISIBILITY.PUBLIC]: msg`Tất cả mọi người đều có thể xem bài viết này.`,
+    [POST_VISIBILITY.FOLLOWERS]: msg`Chỉ những người theo dõi bạn mới có thể xem bài viết này.`,
+    [POST_VISIBILITY.PRIVATE]: msg`Chỉ bạn mới có thể xem bài viết này.`,
 } as const
 
 export const POST_VISIBILITY_VALUES = [
@@ -25,69 +29,69 @@ export const POST_VISIBILITY_VALUES = [
 ] as const
 
 export const POST_TEXT = {
-    EDIT_MEDIA_ALT: 'Edit media',
-    MEDIA_PREVIEW_ALT: 'Media preview',
-    UNKNOWN_AUTHOR: 'Unknown',
-    COMPOSER_PLACEHOLDER: "What's on your mind?",
-    SHARE_PLACEHOLDER: 'What do you want to say about this post?',
-    EDIT_DIALOG_TITLE_PREFIX: 'Edit post by',
-    SHARE_DIALOG_TITLE: 'Share post',
-    DETAIL_TITLE_PREFIX: 'Post by',
-    MEDIA_ALT: 'Post media',
-    ORIGINAL_POST_UNAVAILABLE_TITLE: 'Original post is no longer available',
-    ORIGINAL_POST_UNAVAILABLE_DESCRIPTION: 'The shared content was deleted or is no longer available.',
+    EDIT_MEDIA_ALT: msg`Chỉnh sửa phương tiện`,
+    MEDIA_PREVIEW_ALT: msg`Xem trước phương tiện`,
+    UNKNOWN_AUTHOR: msg`Không xác định`,
+    COMPOSER_PLACEHOLDER: msg`Bạn đang nghĩ gì?`,
+    SHARE_PLACEHOLDER: msg`Bạn muốn nói gì về bài viết này?`,
+    EDIT_DIALOG_TITLE_PREFIX: msg`Chỉnh sửa bài viết của`,
+    SHARE_DIALOG_TITLE: msg`Chia sẻ bài viết`,
+    DETAIL_TITLE_PREFIX: msg`Bài viết của`,
+    MEDIA_ALT: msg`Phương tiện của bài viết`,
+    ORIGINAL_POST_UNAVAILABLE_TITLE: msg`Bài viết gốc không còn khả dụng`,
+    ORIGINAL_POST_UNAVAILABLE_DESCRIPTION: msg`Nội dung được chia sẻ đã bị xoá hoặc không còn khả dụng.`,
 } as const
 
 export const POST_MESSAGE = {
-    MISSING_CONTENT_OR_MEDIA: 'Post must have content or media.',
-    SHARE_UNAVAILABLE: 'Cannot share because the original post was deleted.',
+    MISSING_CONTENT_OR_MEDIA: msg`Bài viết phải có nội dung hoặc phương tiện.`,
+    SHARE_UNAVAILABLE: msg`Không thể chia sẻ vì bài viết gốc đã bị xoá.`,
 } as const
 
 export const COMMENT_TEXT = {
-    SECTION_TITLE: 'Comments',
-    PLACEHOLDER: 'Write a comment...',
-    REPLY_PLACEHOLDER_PREFIX: 'Reply to',
-    REPLY_FALLBACK_TARGET: 'comment',
-    COMMENT_MEDIA_ALT: 'Comment media',
-    REPLY_MEDIA_ALT: 'Reply media',
-    EMPTY_TITLE: 'No comments yet',
-    EMPTY_DESCRIPTION: 'Be the first to comment.',
-    LOADING: 'Loading comments...',
+    SECTION_TITLE: msg`Bình luận`,
+    PLACEHOLDER: msg`Viết bình luận...`,
+    REPLY_PLACEHOLDER_PREFIX: msg`Trả lời`,
+    REPLY_FALLBACK_TARGET: msg`bình luận`,
+    COMMENT_MEDIA_ALT: msg`Phương tiện của bình luận`,
+    REPLY_MEDIA_ALT: msg`Phương tiện của phản hồi`,
+    EMPTY_TITLE: msg`Chưa có bình luận nào`,
+    EMPTY_DESCRIPTION: msg`Hãy là người đầu tiên bình luận.`,
+    LOADING: msg`Đang tải bình luận...`,
 } as const
 
 export const COMMENT_DIALOG = {
-    DELETE_TITLE: 'Delete comment?',
-    DELETE_DESCRIPTION: 'This comment will be permanently deleted. This action cannot be undone.',
-    DELETE_CONFIRM: 'Delete comment',
-    DELETE_LOADING: 'Deleting...',
+    DELETE_TITLE: msg`Xoá bình luận?`,
+    DELETE_DESCRIPTION: msg`Bình luận này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác.`,
+    DELETE_CONFIRM: msg`Xoá bình luận`,
+    DELETE_LOADING: msg`Đang xoá...`,
 } as const
 
 export const POST_DIALOG = {
-    DELETE_TITLE: 'Delete post?',
-    DELETE_DESCRIPTION: 'This post will be permanently deleted. This action cannot be undone.',
-    DELETE_CONFIRM: 'Delete post',
-    DELETE_LOADING: 'Deleting...',
+    DELETE_TITLE: msg`Xoá bài viết?`,
+    DELETE_DESCRIPTION: msg`Bài viết này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác.`,
+    DELETE_CONFIRM: msg`Xoá bài viết`,
+    DELETE_LOADING: msg`Đang xoá...`,
 } as const
 
 export const POST_ACTION_LABEL = {
-    CANCEL: 'Cancel',
-    COMMENT: 'Comment',
-    DELETE: 'Delete',
-    EDIT: 'Edit',
-    POST: 'Post',
-    POSTING: 'Posting...',
-    SAVE_CHANGES: 'Save changes',
-    SAVING: 'Saving...',
-    REPLY: 'Reply',
-    SENDING: 'Sending...',
-    SHARE: 'Share',
-    SHARING: 'Sharing...',
+    CANCEL: msg`Huỷ`,
+    COMMENT: msg`Bình luận`,
+    DELETE: msg`Xoá`,
+    EDIT: msg`Chỉnh sửa`,
+    POST: msg`Đăng`,
+    POSTING: msg`Đang đăng...`,
+    SAVE_CHANGES: msg`Lưu thay đổi`,
+    SAVING: msg`Đang lưu...`,
+    REPLY: msg`Trả lời`,
+    SENDING: msg`Đang gửi...`,
+    SHARE: msg`Chia sẻ`,
+    SHARING: msg`Đang chia sẻ...`,
 } as const
 
 export const POST_VALIDATION_MESSAGE = {
-    CONTENT_MAX_280: 'Content must be at most 280 characters.',
-    MEDIA_TYPE_INVALID: 'Only image or video files are allowed.',
-    POST_CONTENT_OR_MEDIA_REQUIRED: 'Post must have content or media.',
+    CONTENT_MAX_280: msg`Nội dung không được vượt quá 280 ký tự.`,
+    MEDIA_TYPE_INVALID: msg`Chỉ cho phép tệp hình ảnh hoặc video.`,
+    POST_CONTENT_OR_MEDIA_REQUIRED: msg`Bài viết phải có nội dung hoặc phương tiện.`,
 } as const
 
 export const POST_MEDIA_INPUT = {
@@ -105,3 +109,5 @@ export const FEED_QUERY = {
     INITIAL_LIMIT: 5,
     LOAD_MORE_LIMIT: 5,
 } as const
+
+

@@ -4,6 +4,7 @@ import MediaPickerButton from '@/components/post/components/MediaPickerButton'
 import MediaPreviewList from '@/components/post/components/MediaPreviewList'
 import { POST_ACTION_LABEL } from '@/core/constants/post.constant'
 import type { PostMediaItem } from '@/core/types/post.type'
+import { useLingui } from '@lingui/react/macro'
 
 type Props = {
     value: string
@@ -31,7 +32,7 @@ const ReplyComposer = ({
     onMediaRemove,
 }: Props) => {
     const submitDisabled = (!value.trim() && media.length === 0) || isCreating || isUploadingMedia
-
+    const { t } = useLingui()
     return (
         <div className="mt-3 ml-4 space-y-3">
             <textarea
@@ -53,7 +54,7 @@ const ReplyComposer = ({
                         onClick={onCancel}
                         className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
                     >
-                        {POST_ACTION_LABEL.CANCEL}
+                        {t(POST_ACTION_LABEL.CANCEL)}
                     </button>
 
                     <button
@@ -62,7 +63,7 @@ const ReplyComposer = ({
                         disabled={submitDisabled}
                         className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {isCreating ? POST_ACTION_LABEL.SENDING : POST_ACTION_LABEL.REPLY}
+                        {isCreating ? t(POST_ACTION_LABEL.SENDING) : t(POST_ACTION_LABEL.REPLY)}
                     </button>
                 </div>
             </div>

@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { LAYOUT_ALT, LAYOUT_ASSET, NAV_LABEL } from '@/core/constants/layout.constant'
 import { ROUTE, ROUTE_BUILDER } from '@/core/constants/route.constant'
+import { useLingui } from '@lingui/react/macro'
 
 interface SearchInputProps {
     mobileOnly?: boolean
@@ -15,7 +16,7 @@ const SearchInput = ({ mobileOnly = false, desktopOnly = false }: SearchInputPro
     const [isPending, startTransition] = useTransition()
     const router = useRouter()
     const visibilityClass = desktopOnly ? 'hidden lg:block' : mobileOnly ? 'block lg:hidden' : 'block'
-
+    const { t } = useLingui()
     useEffect(() => {
         router.prefetch(ROUTE.SEARCH)
     }, [router])
@@ -52,7 +53,7 @@ const SearchInput = ({ mobileOnly = false, desktopOnly = false }: SearchInputPro
                 type="text"
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
-                placeholder={NAV_LABEL.SEARCH_PLACEHOLDER}
+                placeholder={t(NAV_LABEL.SEARCH_PLACEHOLDER)}
                 className="h-9 w-full rounded-full border border-gray-300 bg-white pr-3 pl-10 text-sm outline-none placeholder:text-gray-400 focus:border-gray-400"
             />
         </form>

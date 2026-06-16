@@ -18,6 +18,7 @@ import { ChevronDown, Globe, ImagePlus, Lock, Users, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { useLingui } from '@lingui/react/macro'
 
 const VISIBILITY_OPTIONS = [
     {
@@ -42,6 +43,7 @@ const VISIBILITY_OPTIONS = [
 
 const ComposerCard = () => {
     const { data: profile } = useMyProfile()
+    const { t } = useLingui()
     const fileInputRef = useRef<HTMLInputElement | null>(null)
     const dropdownRef = useRef<HTMLDivElement | null>(null)
     const [visibilityOpen, setVisibilityOpen] = useState(false)
@@ -91,7 +93,7 @@ const ComposerCard = () => {
         const hasMedia = !!values.media && values.media.length > 0
 
         if (!hasContent && !hasMedia) {
-            toast.error(POST_MESSAGE.MISSING_CONTENT_OR_MEDIA, { position: 'top-left' })
+            toast.error(t(POST_MESSAGE.MISSING_CONTENT_OR_MEDIA), { position: 'top-left' })
             return
         }
 
@@ -155,7 +157,7 @@ const ComposerCard = () => {
                         render={({ field }) => (
                             <AutoResizeTextarea
                                 {...field}
-                                placeholder={POST_TEXT.COMPOSER_PLACEHOLDER}
+                                placeholder={t(POST_TEXT.COMPOSER_PLACEHOLDER)}
                                 rows={2}
                                 className="max-h-[72px] min-h-12 w-full bg-transparent p-0 text-sm leading-6 text-slate-700 placeholder:text-slate-400"
                             />
@@ -169,7 +171,7 @@ const ComposerCard = () => {
                             className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
                         >
                             <CurrentIcon className="size-3.5 text-slate-400" />
-                            {currentOption.label}
+                            {t(currentOption.label)}
                             <ChevronDown
                                 className={`size-3 text-slate-400 transition-transform ${visibilityOpen ? 'rotate-180' : ''}`}
                             />
@@ -193,9 +195,9 @@ const ComposerCard = () => {
                                     >
                                         <Icon className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
                                         <span>
-                                            <span className="block">{label}</span>
+                                            <span className="block">{t(label)}</span>
                                             <span className="mt-0.5 block text-[11px] leading-4 font-normal text-slate-400">
-                                                {description}
+                                                {t(description)}
                                             </span>
                                         </span>
                                     </button>
@@ -262,7 +264,7 @@ const ComposerCard = () => {
                             disabled={isPending || isUploadingMedia}
                             className="bg-primary rounded-full px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
                         >
-                            {isPending || isUploadingMedia ? POST_ACTION_LABEL.POSTING : POST_ACTION_LABEL.POST}
+                            {isPending || isUploadingMedia ? t(POST_ACTION_LABEL.POSTING) : t(POST_ACTION_LABEL.POST)}
                         </button>
                     </div>
                 </div>

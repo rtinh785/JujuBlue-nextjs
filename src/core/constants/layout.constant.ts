@@ -1,3 +1,5 @@
+import { msg } from '@lingui/core/macro'
+
 export const LAYOUT_ASSET = {
     LOGO: '/images/svg/logo-new.svg',
     MENU: '/images/svg/bar-menu.svg',
@@ -20,54 +22,39 @@ export const LAYOUT_ALT = {
 } as const
 
 export const NAV_LABEL = {
-    NAVIGATION_TITLE: 'Navigation',
-    MENU_SECTION: 'Menu',
-    SETTINGS_SECTION: 'Settings',
-    MY_ACCOUNT: 'My Account',
-    VIEW_PROFILE: 'View profile',
-    PROFILE: 'Profile',
-    LANGUAGE: 'Language',
-    HOME: 'Home',
-    MESSAGES: 'Messages',
-    SIGN_OUT: 'Sign out',
-    SIGN_UP: 'Sign up',
-    LOG_IN: 'Log in',
-    SEARCH_PLACEHOLDER: 'Search',
+    NAVIGATION_TITLE: msg`Điều hướng`,
+    MENU_SECTION: msg`Menu`,
+    SETTINGS_SECTION: msg`Cài đặt`,
+    MY_ACCOUNT: msg`Tài khoản của tôi`,
+    VIEW_PROFILE: msg`Xem hồ sơ`,
+    PROFILE: msg`Hồ sơ`,
+    LANGUAGE: msg`Ngôn ngữ`,
+    HOME: msg`Trang chủ`,
+    MESSAGES: msg`Tin nhắn`,
+    SIGN_OUT: msg`Đăng xuất`,
+    SIGN_UP: msg`Đăng ký`,
+    LOG_IN: msg`Đăng nhập`,
+    SEARCH_PLACEHOLDER: msg`Tìm kiếm`,
+    TOGGLE_LANGUAGE: msg`Tiếng Việt`,
 } as const
 
 export const ASIDE_TEXT = {
-    TERMS: 'Terms - Privacy - Cookies',
-    COPYRIGHT: '(c) 2024 Juju Blue',
-    WHO_TO_FOLLOW: 'Who to follow',
-    TRENDING: 'Trending',
-    TRENDING_DESCRIPTION: 'Popular posts you can open',
-    SHOW_MORE: 'Show more',
+    TERMS: msg`Điều khoản - Quyền riêng tư - Cookies`,
+    COPYRIGHT: msg`(c) 2024 Juju Blue`,
+    WHO_TO_FOLLOW: msg`Gợi ý theo dõi`,
+    TRENDING: msg`Xu hướng`,
+    TRENDING_DESCRIPTION: msg`Các bài viết phổ biến bạn có thể mở`,
+    SHOW_MORE: msg`Xem thêm`,
 } as const
 
 export const ASIDE_STAT_LABEL = {
-    FOLLOWING: 'Following',
-    FOLLOWERS: 'Followers',
-    POSTS: 'Posts',
+    FOLLOWING: msg`Đang theo dõi`,
+    FOLLOWERS: msg`Người theo dõi`,
+    POSTS: msg`Bài viết`,
 } as const
 
 export const ASIDE_ACTION_LABEL = {
-    FOLLOW: 'Follow',
+    FOLLOW: msg`Theo dõi`,
 } as const
 
-export const TRENDING_TOPICS = [
-    {
-        category: 'Technology - Trending',
-        title: '#MinimalDesign',
-        posts: '14.5k posts',
-    },
-    {
-        category: 'Design - Trending',
-        title: 'Typography Trends 2024',
-        posts: '8,230 posts',
-    },
-    {
-        category: 'Productivity - Trending',
-        title: 'Deep Work',
-        posts: '5,102 posts',
-    },
-] as const
+

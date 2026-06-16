@@ -1,6 +1,8 @@
+
 import { Skeleton } from '@/components/base/skeleton'
 
 const HeaderLoadingState = () => {
+
     return (
         <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm">
             <div className="relative container mx-auto flex items-center justify-between px-3 pt-3 pb-2 after:pointer-events-none after:absolute after:bottom-0 after:left-1/2 after:h-px after:w-screen after:-translate-x-1/2 after:bg-gray-200">

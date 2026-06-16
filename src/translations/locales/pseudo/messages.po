@@ -13,17 +13,503 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-msgid "Chinese"
+msgid "(c) 2024 Juju Blue"
 msgstr ""
 
-msgid "Dutch"
+msgid "Ảnh đại diện"
+msgstr ""
+
+msgid "Bài viết"
+msgstr ""
+
+msgid "Bài viết của"
+msgstr ""
+
+msgid "Bài viết gốc không còn khả dụng"
+msgstr ""
+
+msgid "Bài viết này không có nội dung"
+msgstr ""
+
+msgid "Bài viết này sẽ bị xoá khỏi danh sách đã lưu."
+msgstr ""
+
+msgid "Bài viết này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác."
+msgstr ""
+
+msgid "Bài viết phải có nội dung hoặc phương tiện."
+msgstr ""
+
+msgid "Bạn đang nghĩ gì?"
+msgstr ""
+
+msgid "Bạn muốn nói gì về bài viết này?"
+msgstr ""
+
+msgid "Bạn sẽ không còn thấy người dùng này trong danh sách đang theo dõi."
+msgstr ""
+
+msgid "bình luận"
+msgstr ""
+
+msgid "Bình luận"
+msgstr ""
+
+msgid "Bình luận này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác."
+msgstr ""
+
+msgid "Bỏ theo dõi"
+msgstr ""
+
+msgid "Các bài viết bạn đã đánh dấu lưu."
+msgstr ""
+
+msgid "Các bài viết của người dùng này sẽ xuất hiện ở đây."
+msgstr ""
+
+msgid "Các bài viết phổ biến bạn có thể mở"
+msgstr ""
+
+msgid "Cài đặt"
+msgstr ""
+
+msgid "Cập nhật thông tin cơ bản hiển thị trên hồ sơ của bạn."
+msgstr ""
+
+msgid "Chào mừng quay trở lại"
+msgstr ""
+
+msgid "Chỉ bạn mới có thể xem bài viết này."
+msgstr ""
+
+msgid "Chỉ cho phép tệp hình ảnh hoặc video."
+msgstr ""
+
+msgid "Chỉ mình tôi"
+msgstr ""
+
+msgid "Chỉ những người theo dõi bạn mới có thể xem bài viết này."
+msgstr ""
+
+msgid "Chia sẻ"
+msgstr ""
+
+msgid "Chia sẻ bài viết"
+msgstr ""
+
+msgid "Chỉnh sửa"
+msgstr ""
+
+msgid "Chỉnh sửa bài viết của"
+msgstr ""
+
+msgid "Chỉnh sửa hồ sơ"
+msgstr ""
+
+msgid "Chỉnh sửa phương tiện"
+msgstr ""
+
+msgid "Chọn ảnh đại diện"
+msgstr ""
+
+msgid "Chọn một cuộc trò chuyện"
+msgstr ""
+
+msgid "Chọn một cuộc trò chuyện trước"
+msgstr ""
+
+msgid "Chưa có bài viết nào"
+msgstr ""
+
+msgid "Chưa có bình luận nào"
+msgstr ""
+
+msgid "Chưa có cuộc trò chuyện nào"
+msgstr ""
+
+msgid "Chưa có tài khoản?"
+msgstr ""
+
+msgid "Chưa có tin nhắn nào"
+msgstr ""
+
+msgid "Chưa theo dõi ai"
+msgstr ""
+
+msgid "Công khai"
+msgstr ""
+
+msgid "Đã có tài khoản?"
+msgstr ""
+
+msgid "Đã lưu"
+msgstr ""
+
+msgid "Đã xảy ra lỗi. Vui lòng thử lại."
+msgstr ""
+
+msgid "Đăng"
+msgstr ""
+
+msgid "Đang bỏ theo dõi..."
+msgstr ""
+
+msgid "Đang chia sẻ..."
+msgstr ""
+
+msgid "Đang đăng nhập..."
+msgstr ""
+
+msgid "Đang đăng..."
+msgstr ""
+
+msgid "Đang gửi..."
+msgstr ""
+
+msgid "Đang kết nối..."
+msgstr ""
+
+msgid "Đăng ký"
+msgstr ""
+
+msgid "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản."
+msgstr ""
+
+msgid "Đăng ký thất bại. Vui lòng thử lại."
+msgstr ""
+
+msgid "Đang lưu..."
+msgstr ""
+
+msgid "Đăng nhập"
+msgstr ""
+
+msgid "Đăng nhập thành công"
+msgstr ""
+
+msgid "Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu."
+msgstr ""
+
+msgid "Đang tải bình luận..."
+msgstr ""
+
+msgid "Đang tải cuộc trò chuyện..."
+msgstr ""
+
+msgid "Đang tải thêm cuộc trò chuyện..."
+msgstr ""
+
+msgid "Đang tải tin nhắn cũ hơn..."
+msgstr ""
+
+msgid "Đang tải tin nhắn..."
+msgstr ""
+
+msgid "Đang tạo tài khoản..."
+msgstr ""
+
+msgid "Đang theo dõi"
+msgstr ""
+
+msgid "Đang xoá..."
+msgstr ""
+
+msgid "Đăng xuất"
+msgstr ""
+
+msgid "Đặt lại mật khẩu"
+msgstr ""
+
+msgid "Đặt lại mật khẩu thành công."
+msgstr ""
+
+msgid "Đặt lại mật khẩu thất bại."
+msgstr ""
+
+msgid "Địa chỉ email"
+msgstr ""
+
+msgid "Địa điểm"
+msgstr ""
+
+msgid "Địa điểm không được vượt quá 80 ký tự"
+msgstr ""
+
+msgid "Điều hướng"
+msgstr ""
+
+msgid "Điều khoản - Quyền riêng tư - Cookies"
+msgstr ""
+
+msgid "Được lưu từ bài viết của"
+msgstr ""
+
+msgid "Email không hợp lệ"
+msgstr ""
+
+msgid "Email là bắt buộc"
 msgstr ""
 
 msgid "English"
 msgstr "Ëñglïsh"
 
+msgid "Gợi ý theo dõi"
+msgstr ""
+
+msgid "Gửi"
+msgstr ""
+
+msgid "Gửi email đặt lại mật khẩu thất bại."
+msgstr ""
+
+msgid "Hãy gửi tin nhắn đầu tiên bên dưới."
+msgstr ""
+
+msgid "Hãy là người đầu tiên bình luận."
+msgstr ""
+
+msgid "Hình ảnh phải nhỏ hơn 2MB."
+msgstr ""
+
+msgid "Hồ sơ"
+msgstr ""
+
+msgid "hoặc"
+msgstr ""
+
+msgid "Huỷ"
+msgstr ""
+
+msgid "Không thể chia sẻ vì bài viết gốc đã bị xoá."
+msgstr ""
+
+msgid "Không thể tạo canvas."
+msgstr ""
+
+msgid "Không thể tạo dữ liệu hình ảnh."
+msgstr ""
+
+msgid "Không xác định"
+msgstr ""
+
+msgid "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn."
+msgstr ""
+
+msgid "Lưu thay đổi"
+msgstr ""
+
+msgid "Mật khẩu"
+msgstr ""
+
+msgid "Mật khẩu không khớp"
+msgstr ""
+
+msgid "Mật khẩu là bắt buộc"
+msgstr ""
+
+msgid "Mật khẩu mới"
+msgstr ""
+
+msgid "Mật khẩu mới là bắt buộc"
+msgstr ""
+
+msgid "Mật khẩu phải có ít nhất 6 ký tự"
+msgstr ""
+
+msgid "Mật khẩu phải có ít nhất 8 ký tự"
+msgstr ""
+
+msgid "Menu"
+msgstr ""
+
+msgid "Mở trang cá nhân của ai đó và bắt đầu nhắn tin."
+msgstr ""
+
+msgid "Ngày sinh"
+msgstr ""
+
+msgid "Ngôn ngữ"
+msgstr ""
+
+msgid "người dùng này"
+msgstr ""
+
+msgid "Người theo dõi"
+msgstr ""
+
+msgid "Nhắn tin"
+msgstr ""
+
+msgid "Nhập địa chỉ email và chúng tôi sẽ gửi liên kết đặt lại mật khẩu cho bạn."
+msgstr ""
+
+msgid "Nhập lại mật khẩu mới"
+msgstr ""
+
+msgid "Nhập mật khẩu mới của bạn"
+msgstr ""
+
+msgid "Nhập tên hiển thị"
+msgstr ""
+
+msgid "Nhập thông tin để đăng nhập vào tài khoản của bạn."
+msgstr ""
+
+msgid "Những người bạn đã trò chuyện"
+msgstr ""
+
+msgid "Những người bạn theo dõi sẽ xuất hiện ở đây."
+msgstr ""
+
+msgid "Nội dung được chia sẻ đã bị xoá hoặc không còn khả dụng."
+msgstr ""
+
+msgid "Nội dung không được vượt quá 280 ký tự."
+msgstr ""
+
+msgid "Phương tiện của bài viết"
+msgstr ""
+
+msgid "Phương tiện của bình luận"
+msgstr ""
+
+msgid "Phương tiện của phản hồi"
+msgstr ""
+
 msgid "Pseudo"
 msgstr "Pšëüdö"
 
+msgid "Quay lại đăng ký"
+msgstr ""
+
+msgid "Quay lại danh sách hội thoại"
+msgstr ""
+
+msgid "Quên mật khẩu?"
+msgstr ""
+
+msgid "Rất vui được gặp bạn!"
+msgstr ""
+
+msgid "Tài khoản của tôi"
+msgstr ""
+
+msgid "Tạo tài khoản"
+msgstr ""
+
+msgid "Tạo tài khoản mới."
+msgstr ""
+
+msgid "Tất cả mọi người đều có thể xem bài viết này."
+msgstr ""
+
+msgid "Tên hiển thị"
+msgstr ""
+
+msgid "Tên hiển thị không được vượt quá 50 ký tự"
+msgstr ""
+
+msgid "Tên hiển thị là bắt buộc"
+msgstr ""
+
+msgid "Thành phố Hồ Chí Minh"
+msgstr ""
+
+msgid "Thay đổi ảnh bìa"
+msgstr ""
+
+msgid "Theo dõi"
+msgstr ""
+
 msgid "Tiếng Việt"
+msgstr ""
+
+msgid "Tiếp tục với Google"
+msgstr ""
+
+msgid "Tiểu sử"
+msgstr ""
+
+msgid "Tiểu sử không được vượt quá 160 ký tự"
+msgstr ""
+
+msgid "Tìm kiếm"
+msgstr ""
+
+msgid "Tin nhắn"
+msgstr ""
+
+msgid "Tin nhắn của bạn sẽ hiển thị ở đây"
+msgstr ""
+
+msgid "Trả lời"
+msgstr ""
+
+msgid "Trang chủ"
+msgstr ""
+
+msgid "URL phải có dạng https://www.example.com"
+msgstr ""
+
+msgid "Viết bình luận..."
+msgstr ""
+
+msgid "Viết một đoạn giới thiệu ngắn về bản thân"
+msgstr ""
+
+msgid "Viết tin nhắn..."
+msgstr ""
+
+msgid "Vui lòng chọn tệp hình ảnh."
+msgstr ""
+
+msgid "Vui lòng đăng nhập để tiếp tục."
+msgstr ""
+
+msgid "Vui lòng kiểm tra email để đặt lại mật khẩu."
+msgstr ""
+
+msgid "Website"
+msgstr ""
+
+msgid "Xác nhận mật khẩu"
+msgstr ""
+
+msgid "Xác nhận mật khẩu là bắt buộc"
+msgstr ""
+
+msgid "Xem hồ sơ"
+msgstr ""
+
+msgid "Xem thêm"
+msgstr ""
+
+msgid "Xem trước ảnh bìa"
+msgstr ""
+
+msgid "Xem trước phương tiện"
+msgstr ""
+
+msgid "Xoá"
+msgstr ""
+
+msgid "Xoá bài viết"
+msgstr ""
+
+msgid "Xoá bài viết?"
+msgstr ""
+
+msgid "Xoá bình luận"
+msgstr ""
+
+msgid "Xoá bình luận?"
+msgstr ""
+
+msgid "Xoá bookmark"
+msgstr ""
+
+msgid "Xoá bookmark?"
+msgstr ""
+
+msgid "Xu hướng"
 msgstr ""

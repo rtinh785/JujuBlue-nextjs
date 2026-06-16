@@ -5,6 +5,7 @@ import { ROUTE_BUILDER } from '@/core/constants/route.constant'
 import type { PostWithStatus } from '@/core/types/post.type'
 import { usePrefetchProfile } from '@/hooks/usePrefetchProfile'
 import { formatPostTime } from '@/utils/helper'
+import { useLingui } from '@lingui/react/macro'
 
 type Props = {
     author?: PostWithStatus['author']
@@ -20,7 +21,7 @@ const PostCardHeader = ({ author, createdAt, visibility, isOwner, isDeleting, on
     const prefetchProfile = usePrefetchProfile()
     const authorId = author?.id
     const authorProfileHref = authorId ? ROUTE_BUILDER.profileDetail(authorId) : null
-
+    const { t } = useLingui()
     return (
         <div className="flex items-start gap-3">
             {authorProfileHref && author?.avatar_url ? (
@@ -52,11 +53,11 @@ const PostCardHeader = ({ author, createdAt, visibility, isOwner, isDeleting, on
                                 onTouchStart={() => prefetchProfile(authorId)}
                                 className="text-sm font-semibold text-slate-900 transition hover:text-blue-600"
                             >
-                                {author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
+                                {author?.display_name ?? t(POST_TEXT.UNKNOWN_AUTHOR)}
                             </Link>
                         ) : (
                             <h3 className="text-sm font-semibold text-slate-900">
-                                {author?.display_name ?? POST_TEXT.UNKNOWN_AUTHOR}
+                                {author?.display_name ?? t(POST_TEXT.UNKNOWN_AUTHOR)}
                             </h3>
                         )}
 
@@ -69,7 +70,7 @@ const PostCardHeader = ({ author, createdAt, visibility, isOwner, isDeleting, on
                 </div>
 
                 <p className="mt-[-4px] w-fit rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400">
-                    {POST_VISIBILITY_LABEL[visibility]}
+                    {t(POST_VISIBILITY_LABEL[visibility])}
                 </p>
             </div>
         </div>

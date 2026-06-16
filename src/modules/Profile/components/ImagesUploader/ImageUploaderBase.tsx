@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { PROFILE_UPLOAD } from '@/core/constants/profile.constant'
+import { useLingui } from '@lingui/react/macro'
 
 type ImageUploaderBaseProps = {
     imageUrl?: string | null
@@ -14,7 +15,7 @@ type ImageUploaderBaseProps = {
 
 const ImageUploaderBase = ({ imageUrl, alt, variant, onFileSelect }: ImageUploaderBaseProps) => {
     const inputRef = useRef<HTMLInputElement | null>(null)
-
+    const { t } = useLingui()
     const currentImage = imageUrl ?? ''
 
     const handleSelectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,12 +26,12 @@ const ImageUploaderBase = ({ imageUrl, alt, variant, onFileSelect }: ImageUpload
         }
 
         if (!file.type.startsWith('image/')) {
-            toast.error(PROFILE_UPLOAD.INVALID_IMAGE_TYPE)
+            toast.error(t(PROFILE_UPLOAD.INVALID_IMAGE_TYPE))
             return
         }
 
         if (file.size > PROFILE_UPLOAD.MAX_IMAGE_SIZE_BYTES) {
-            toast.error(PROFILE_UPLOAD.IMAGE_TOO_LARGE)
+            toast.error(t(PROFILE_UPLOAD.IMAGE_TOO_LARGE))
             return
         }
 

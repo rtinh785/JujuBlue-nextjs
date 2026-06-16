@@ -8,6 +8,7 @@ import { ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { usePrefetchProfile } from '@/hooks/usePrefetchProfile'
 import { UserMinus } from 'lucide-react'
 import Link from 'next/link'
+import { useLingui } from '@lingui/react/macro'
 
 interface FollowingTabProps {
     currentUserId?: string
@@ -21,7 +22,7 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
     const { data: following } = useFollowingList()
     const userToUnfollow = following?.find((u) => u.id === confirmId)
     const { mutateAsync: unfollowMutation, isPending } = useUnfollow(currentUserId)
-
+    const { t } = useLingui()
     const handleUnfollow = async () => {
         if (!confirmId || isPending) return
 
@@ -53,8 +54,8 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
                                 />
                             </svg>
                         </div>
-                        <p className="text-sm font-medium text-slate-700">{PROFILE_TEXT.FOLLOWING_EMPTY_TITLE}</p>
-                        <p className="mt-1 text-sm text-slate-400">{PROFILE_TEXT.FOLLOWING_EMPTY_DESCRIPTION}</p>
+                        <p className="text-sm font-medium text-slate-700">{t(PROFILE_TEXT.FOLLOWING_EMPTY_TITLE)}</p>
+                        <p className="mt-1 text-sm text-slate-400">{t(PROFILE_TEXT.FOLLOWING_EMPTY_DESCRIPTION)}</p>
                     </div>
                 ) : (
                     <ul className="divide-y divide-slate-100">
@@ -83,7 +84,7 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
                                         onClick={() => setConfirmId(user.id)}
                                         className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100"
                                     >
-                                        {PROFILE_ACTION_LABEL.UNFOLLOW}
+                                        {t(PROFILE_ACTION_LABEL.UNFOLLOW)}
                                     </button>
                                 )}
                             </li>
@@ -95,10 +96,10 @@ const FollowingTab = ({ currentUserId, isOwnProfile = true }: FollowingTabProps)
             {/* Confirm dialog dùng thư viện */}
             <ConfirmActionDialog
                 open={!!confirmId}
-                title={`${PROFILE_DIALOG.UNFOLLOW_TITLE_PREFIX} ${userToUnfollow?.display_name ?? PROFILE_TEXT.UNFOLLOW_TARGET_FALLBACK}?`}
-                description={PROFILE_DIALOG.UNFOLLOW_DESCRIPTION}
-                confirmText={PROFILE_DIALOG.UNFOLLOW_CONFIRM}
-                loadingText={PROFILE_DIALOG.UNFOLLOW_LOADING}
+                title={`${t(PROFILE_DIALOG.UNFOLLOW_TITLE_PREFIX)} ${userToUnfollow?.display_name ?? t(PROFILE_TEXT.UNFOLLOW_TARGET_FALLBACK)}?`}
+                description={t(PROFILE_DIALOG.UNFOLLOW_DESCRIPTION)}
+                confirmText={t(PROFILE_DIALOG.UNFOLLOW_CONFIRM)}
+                loadingText={t(PROFILE_DIALOG.UNFOLLOW_LOADING)}
                 isLoading={isPending}
                 icon={<UserMinus className="h-4 w-4 text-red-500" />}
                 onOpenChange={(open) => {

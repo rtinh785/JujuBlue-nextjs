@@ -4,6 +4,7 @@ import AutoResizeTextarea from '@/components/common/AutoResizeTextarea'
 import MediaPickerButton from '@/components/post/components/MediaPickerButton'
 import { POST_ACTION_LABEL, POST_MEDIA_TYPE, POST_TEXT } from '@/core/constants/post.constant'
 import type { PostMediaItem } from '@/core/types/post.type'
+import { useLingui } from '@lingui/react/macro'
 import { X } from 'lucide-react'
 
 type Props = {
@@ -34,7 +35,7 @@ const InlinePostEditor = ({
     onSubmit,
 }: Props) => {
     const submitDisabled = (!content.trim() && media.length === 0) || isSaving || isUploading
-
+    const { t } = useLingui()
     return (
         <div className="mt-3 space-y-3">
             <AutoResizeTextarea
@@ -51,7 +52,7 @@ const InlinePostEditor = ({
                             {item.type === POST_MEDIA_TYPE.IMAGE ? (
                                 <img
                                     src={item.url}
-                                    alt={POST_TEXT.EDIT_MEDIA_ALT}
+                                    alt={t(POST_TEXT.EDIT_MEDIA_ALT)}
                                     className={`${maxMediaHeightClass} w-full rounded-2xl object-cover`}
                                 />
                             ) : (
@@ -85,7 +86,7 @@ const InlinePostEditor = ({
                         onClick={onCancel}
                         className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
                     >
-                        {POST_ACTION_LABEL.CANCEL}
+                        {t(POST_ACTION_LABEL.CANCEL)}
                     </button>
 
                     <button
@@ -94,7 +95,7 @@ const InlinePostEditor = ({
                         disabled={submitDisabled}
                         className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {isSaving ? POST_ACTION_LABEL.SAVING : POST_ACTION_LABEL.SAVE_CHANGES}
+                        {isSaving ? t(POST_ACTION_LABEL.SAVING) : t(POST_ACTION_LABEL.SAVE_CHANGES)}
                     </button>
                 </div>
             </div>

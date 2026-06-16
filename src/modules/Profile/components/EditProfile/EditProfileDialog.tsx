@@ -14,6 +14,7 @@ import { PROFILE_ACTION_LABEL, PROFILE_TEXT } from '@/core/constants/profile.con
 import type { Profile } from '@/modules/Profile/profile.type'
 import { EditProfileFormValues, editProfileSchema } from '@/schema/editProfile.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useLingui } from '@lingui/react/macro'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -34,6 +35,7 @@ type EditProfileDialogProps = {
 }
 
 const EditProfileDialog = ({ open, onOpenChange, profile, isPending, onSubmit }: EditProfileDialogProps) => {
+    const { t } = useLingui()
     const {
         register,
         handleSubmit,
@@ -78,10 +80,10 @@ const EditProfileDialog = ({ open, onOpenChange, profile, isPending, onSubmit }:
                 {/* Header */}
                 <DialogHeader className="border-b border-slate-100 px-5 py-4">
                     <DialogTitle className="text-sm font-semibold text-slate-900">
-                        {PROFILE_TEXT.EDIT_DIALOG_TITLE}
+                        {t(PROFILE_TEXT.EDIT_DIALOG_TITLE)}
                     </DialogTitle>
                     <DialogDescription className="text-xs text-slate-400">
-                        {PROFILE_TEXT.EDIT_DIALOG_DESCRIPTION}
+                        {t(PROFILE_TEXT.EDIT_DIALOG_DESCRIPTION)}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -90,13 +92,13 @@ const EditProfileDialog = ({ open, onOpenChange, profile, isPending, onSubmit }:
                         {/* Display name */}
                         <div className="grid gap-1.5">
                             <label htmlFor="display_name" className={labelClassName}>
-                                {PROFILE_TEXT.DISPLAY_NAME_LABEL}
+                                {t(PROFILE_TEXT.DISPLAY_NAME_LABEL)}
                             </label>
                             <input
                                 id="display_name"
                                 type="text"
                                 className={errors.display_name ? inputErrorClassName : inputClassName}
-                                placeholder={PROFILE_TEXT.DISPLAY_NAME_PLACEHOLDER}
+                                placeholder={t(PROFILE_TEXT.DISPLAY_NAME_PLACEHOLDER)}
                                 {...register('display_name')}
                             />
                             {errors.display_name && (
@@ -107,12 +109,12 @@ const EditProfileDialog = ({ open, onOpenChange, profile, isPending, onSubmit }:
                         {/* Bio */}
                         <div className="grid gap-1.5">
                             <label htmlFor="bio" className={labelClassName}>
-                                {PROFILE_TEXT.BIO_LABEL}
+                                {t(PROFILE_TEXT.BIO_LABEL)}
                             </label>
                             <Textarea
                                 id="bio"
                                 className={`${errors.bio ? inputErrorClassName : inputClassName} min-h-[88px] resize-none focus-visible:ring-0`}
-                                placeholder={PROFILE_TEXT.BIO_PLACEHOLDER}
+                                placeholder={t(PROFILE_TEXT.BIO_PLACEHOLDER)}
                                 {...register('bio')}
                             />
                             {errors.bio && <p className="text-xs text-red-500">{errors.bio.message}</p>}
@@ -122,13 +124,13 @@ const EditProfileDialog = ({ open, onOpenChange, profile, isPending, onSubmit }:
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="grid gap-1.5">
                                 <label htmlFor="location" className={labelClassName}>
-                                    {PROFILE_TEXT.LOCATION_LABEL}
+                                    {t(PROFILE_TEXT.LOCATION_LABEL)}
                                 </label>
                                 <input
                                     id="location"
                                     type="text"
                                     className={errors.location ? inputErrorClassName : inputClassName}
-                                    placeholder={PROFILE_TEXT.LOCATION_PLACEHOLDER}
+                                    placeholder={t(PROFILE_TEXT.LOCATION_PLACEHOLDER)}
                                     {...register('location')}
                                 />
                                 {errors.location && <p className="text-xs text-red-500">{errors.location.message}</p>}
@@ -136,7 +138,7 @@ const EditProfileDialog = ({ open, onOpenChange, profile, isPending, onSubmit }:
 
                             <div className="grid gap-1.5">
                                 <label htmlFor="date_of_birth" className={labelClassName}>
-                                    {PROFILE_TEXT.DATE_OF_BIRTH_LABEL}
+                                    {t(PROFILE_TEXT.DATE_OF_BIRTH_LABEL)}
                                 </label>
                                 <input
                                     id="date_of_birth"
@@ -153,7 +155,7 @@ const EditProfileDialog = ({ open, onOpenChange, profile, isPending, onSubmit }:
                         {/* Website */}
                         <div className="grid gap-1.5">
                             <label htmlFor="website" className={labelClassName}>
-                                {PROFILE_TEXT.WEBSITE_LABEL}
+                                {t(PROFILE_TEXT.WEBSITE_LABEL)}
                             </label>
                             <input
                                 id="website"
@@ -169,12 +171,12 @@ const EditProfileDialog = ({ open, onOpenChange, profile, isPending, onSubmit }:
                     {/* Footer */}
                     <DialogFooter className="border-t border-slate-100 bg-white px-5 py-3">
                         <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
-                            {PROFILE_ACTION_LABEL.CANCEL}
+                            {t(PROFILE_ACTION_LABEL.CANCEL)}
                         </Button>
                         <Button type="submit" size="sm" disabled={!isDirty || isSubmitting || isPending}>
                             {isSubmitting || isPending
-                                ? PROFILE_ACTION_LABEL.SAVING
-                                : PROFILE_ACTION_LABEL.SAVE_CHANGES}
+                                ? t(PROFILE_ACTION_LABEL.SAVING)
+                                : t(PROFILE_ACTION_LABEL.SAVE_CHANGES)}
                         </Button>
                     </DialogFooter>
                 </form>

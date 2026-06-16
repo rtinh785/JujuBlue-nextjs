@@ -31,6 +31,8 @@ import { useCreateOrGetConversation } from '@/apis/messages/messages.query'
 import { ROUTE } from '@/core/constants/route.constant'
 import { cleanProfileUpdatePayload } from '@/modules/Profile/utils/profile.utils'
 
+import { useLingui } from '@lingui/react/macro'
+
 interface ProfileProps {
     profileId?: string
 }
@@ -38,6 +40,7 @@ interface ProfileProps {
 const Profile = ({ profileId }: ProfileProps) => {
     const [hasMounted, setHasMounted] = useState(false)
     const router = useRouter()
+    const { t } = useLingui()
     useEffect(() => {
         setHasMounted(true)
     }, [])
@@ -202,7 +205,7 @@ const Profile = ({ profileId }: ProfileProps) => {
                                     avatarUrl={
                                         profileData?.avatar_url ?? currentUser?.user_metadata?.avatar_url ?? undefined
                                     }
-                                    avatarAlt={profileData?.display_name ?? PROFILE_TEXT.AVATAR_ALT}
+                                    avatarAlt={profileData?.display_name ?? t(PROFILE_TEXT.AVATAR_ALT)}
                                     isFollowed={checkFollow?.isFollowing}
                                     onSelectAvatar={handleSelectAvatar}
                                     onFollowUnfollow={handleFollowUnfollow}
