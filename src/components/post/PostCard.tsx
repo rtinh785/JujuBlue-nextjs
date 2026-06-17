@@ -25,6 +25,7 @@ type Props = {
     onOpenDetail?: (post: PostWithStatus) => void
     onFocusCommentInput?: () => void
     onOpenComments?: (post: PostWithStatus) => void
+    enableImagePreview?: boolean
 }
 
 const POST_ACTION_DEBOUNCE_MS = 1000
@@ -37,6 +38,7 @@ const PostCard = ({
     onOpenDetail,
     onFocusCommentInput,
     onOpenComments,
+    enableImagePreview,
 }: Props) => {
     const [displayPost, setDisplayPost] = useState(post)
     const { t } = useLingui()
@@ -277,6 +279,7 @@ const PostCard = ({
                     canOpenDetail={!!currentUserId}
                     onOpenDetail={handleOpenDetail}
                     onOpenSharedPost={handleOpenSharedPost}
+                    enableImagePreview={enableImagePreview}
                 />
 
                 <PostActions

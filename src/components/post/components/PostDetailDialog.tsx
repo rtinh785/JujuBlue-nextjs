@@ -23,6 +23,7 @@ type Props = {
     onOpenChange: (open: boolean) => void
     shouldFocusComment?: boolean
     onDeleted?: (postId: string) => void
+    enableImagePreview?: boolean
 }
 type ReplyTarget = {
     parentCommentId: string
@@ -31,7 +32,7 @@ type ReplyTarget = {
     placement: 'parent' | 'reply'
 } | null
 
-const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocusComment, onDeleted }: Props) => {
+const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocusComment, onDeleted, enableImagePreview }: Props) => {
     const postId = post?.id
     const { data: latestPost } = usePostById(postId)
     const { t } = useLingui()
@@ -181,8 +182,9 @@ const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocus
                             onDeleted?.(postId)
                             onOpenChange(false)
                         }}
+                        enableImagePreview={enableImagePreview}
                     />
-
+                    {/* cmt dưới này */}
                     <div className="mt-4 rounded-2xl border border-slate-100 bg-white p-4">
                         <h3 className="text-sm font-semibold text-slate-900">{t(COMMENT_TEXT.SECTION_TITLE)}</h3>
                         <div className="mt-4 border-t border-slate-100 pt-4">

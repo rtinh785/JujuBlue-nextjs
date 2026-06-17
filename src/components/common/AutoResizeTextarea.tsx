@@ -28,7 +28,7 @@ const AutoResizeTextarea = ({ value, onChange, className = '', rows = 1, ...prop
                 onChange?.(event)
                 resizeTextarea()
             }}
-            className={`resize-none outline-none ${className}`}
+            className={`resize-none outline-none ${className} mb-0 h-auto`}
             {...props}
         />
     )

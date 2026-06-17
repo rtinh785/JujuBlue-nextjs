@@ -175,9 +175,7 @@ const CommentItem = ({
                             />
                         ) : (
                             <>
-                                {comment.content ? (
-                                    <p className="mt-1 text-sm text-slate-600">{comment.content}</p>
-                                ) : null}
+                                {comment.content ? <p className="text-sm text-slate-600">{comment.content}</p> : null}
 
                                 <PostMediaViewer
                                     media={comment.media}

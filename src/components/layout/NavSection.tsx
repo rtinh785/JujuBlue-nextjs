@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 
 type NavSectionProps = {
     title?: string
@@ -8,7 +8,18 @@ type NavSectionProps = {
 
 const NavSection = ({ title, children, isDesktop }: NavSectionProps) => {
     if (isDesktop) {
-        return <nav className="hidden items-center justify-center gap-x-1 lg:flex">{children}</nav>
+        const items = React.Children.toArray(children).filter(Boolean)
+
+        return (
+            <nav className="hidden items-center justify-center gap-8 rounded-xl px-16 py-2 lg:flex">
+                {items.map((child, index) => (
+                    <Fragment key={index}>
+                        {child}
+                        {index < items.length - 1 && <span className="h-6 w-px bg-gray-200" />}
+                    </Fragment>
+                ))}
+            </nav>
+        )
     } else {
         return (
             <div className="px-3">

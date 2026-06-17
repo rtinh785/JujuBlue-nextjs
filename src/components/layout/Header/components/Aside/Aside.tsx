@@ -20,7 +20,7 @@ const Aside = ({ showTrending = true, user }: AsideProps) => {
         <>
             <aside className="hidden space-y-4 lg:fixed lg:top-[88px] lg:right-[max(1rem,calc((100vw-1180px)/2+1rem))] lg:block lg:h-[calc(100vh-108px)] lg:w-[320px] lg:overflow-y-auto lg:pr-1">
                 {user && <ProfileSummaryCard />}
-                {showTrending && <TrendingCard onOpenPost={setSelectedPost} />}
+                {showTrending && <TrendingCard onOpenPost={setSelectedPost} user={user}/>}
                 {user && <SuggestedUsersCard user={user} />}
 
                 <div className="px-1 text-xs text-slate-400">

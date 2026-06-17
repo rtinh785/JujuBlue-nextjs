@@ -37,7 +37,7 @@ const InlinePostEditor = ({
     const submitDisabled = (!content.trim() && media.length === 0) || isSaving || isUploading
     const { t } = useLingui()
     return (
-        <div className="mt-3 space-y-3">
+        <div className="space-y-3">
             <AutoResizeTextarea
                 value={content}
                 onChange={(event) => onContentChange(event.target.value)}

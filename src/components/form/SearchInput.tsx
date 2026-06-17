@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { LAYOUT_ALT, LAYOUT_ASSET, NAV_LABEL } from '@/core/constants/layout.constant'
+import { Search } from 'lucide-react'
+import { NAV_LABEL } from '@/core/constants/layout.constant'
 import { ROUTE, ROUTE_BUILDER } from '@/core/constants/route.constant'
 import { useLingui } from '@lingui/react/macro'
 
@@ -39,14 +40,14 @@ const SearchInput = ({ mobileOnly = false, desktopOnly = false }: SearchInputPro
         <form className={`relative mx-3 w-full flex-1 ${visibilityClass}`} onSubmit={handleSubmit}>
             <button
                 type="submit"
-                aria-label={isPending ? 'Searching' : LAYOUT_ALT.SEARCH}
-                className="absolute top-1/2 left-3 -translate-y-1/2"
+                aria-label={isPending ? 'Searching' : t(NAV_LABEL.SEARCH_PLACEHOLDER)}
+                className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-gray-600"
                 disabled={isPending}
             >
                 {isPending ? (
-                    <span className="block size-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600" />
+                    <span className="block size-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
                 ) : (
-                    <img src={LAYOUT_ASSET.SEARCH} alt={LAYOUT_ALT.SEARCH} className="size-4" />
+                    <Search className="size-4" />
                 )}
             </button>
             <input
@@ -54,7 +55,7 @@ const SearchInput = ({ mobileOnly = false, desktopOnly = false }: SearchInputPro
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
                 placeholder={t(NAV_LABEL.SEARCH_PLACEHOLDER)}
-                className="h-9 w-full rounded-full border border-gray-300 bg-white pr-3 pl-10 text-sm outline-none placeholder:text-gray-400 focus:border-gray-400"
+                className="h-10 w-full rounded-xl border border-transparent bg-gray-50 pr-3 pl-10 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 hover:bg-gray-100 focus:border-gray-300 focus:bg-white focus:ring-2 focus:ring-gray-100"
             />
         </form>
     )
