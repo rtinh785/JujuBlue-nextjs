@@ -31,7 +31,7 @@ export const AUTH_LABEL = {
 } as const
 
 export const AUTH_TEXT = {
-    LOGIN_TITLE: msg`Chào mừng quay trở lại`,
+    LOGIN_TITLE: msg`Chào mừng trở lại`,
     LOGIN_DESCRIPTION: msg`Nhập thông tin để đăng nhập vào tài khoản của bạn.`,
     OR: msg`hoặc`,
     EMAIL_LABEL: msg`Địa chỉ email`,

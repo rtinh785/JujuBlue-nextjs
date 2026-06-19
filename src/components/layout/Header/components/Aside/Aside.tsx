@@ -15,12 +15,12 @@ interface AsideProps {
 
 const Aside = ({ showTrending = true, user }: AsideProps) => {
     const [selectedPost, setSelectedPost] = useState<PostWithStatus | null>(null)
-     const { t } = useLingui()
+    const { t } = useLingui()
     return (
         <>
-            <aside className="hidden space-y-4 lg:fixed lg:top-[88px] lg:right-[max(1rem,calc((100vw-1180px)/2+1rem))] lg:block lg:h-[calc(100vh-108px)] lg:w-[320px] lg:overflow-y-auto lg:pr-1">
+            <aside className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hidden space-y-4 lg:fixed lg:top-[88px] lg:right-[max(1rem,calc((100vw-1180px)/2+1rem))] lg:mt-[-33px] lg:block lg:h-[calc(100vh-108px)] lg:w-[320px] lg:overflow-y-auto lg:pr-1 ">
                 {user && <ProfileSummaryCard />}
-                {showTrending && <TrendingCard onOpenPost={setSelectedPost} user={user}/>}
+                {showTrending && <TrendingCard onOpenPost={setSelectedPost} />}
                 {user && <SuggestedUsersCard user={user} />}
 
                 <div className="px-1 text-xs text-slate-400">

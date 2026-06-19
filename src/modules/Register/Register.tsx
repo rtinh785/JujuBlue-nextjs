@@ -16,12 +16,17 @@ import { AUTH_LABEL, AUTH_MESSAGE, AUTH_TEXT, AUTH_URL } from '@/core/constants/
 import { ROUTE } from '@/core/constants/route.constant'
 import { RegisterFormValues, registerSchema } from '@/schema/register.schema'
 import { useLingui } from '@lingui/react/macro'
-import { useLocale } from '@/contexts/LocaleContext'
 
 const Register = () => {
     useGuestGuard()
     const { t } = useLingui()
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+    const [isMounted, setIsMounted] = useState(false)
+
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
+
     const registerAccountMutation = useMutation({
         mutationFn: authApi.registerAccount,
     })
@@ -90,84 +95,91 @@ const Register = () => {
     }, [router])
 
     return (
-        <section className="flex items-center justify-center bg-white px-4 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">
-            <div className="flex w-full max-w-[400px] flex-col px-4 md:min-w-[250px] md:px-0">
-                <div className="mb-8 flex w-full items-center justify-center lg:hidden">
-                    <div className="bg-primary flex size-[96px] items-center justify-center rounded-[12px] px-[16px] py-[8px]">
-                        <img
-                            src="/images/svg/logo-new.svg"
-                            alt="Juju Blue Logo"
-                            className="h-10 w-auto fill-[#fff] object-cover"
-                        />
-                    </div>
-                </div>
-                <h1 className="py-3 pb-2 text-center text-2xl font-bold lg:text-left lg:text-3xl lg:whitespace-nowrap">
-                    {t(AUTH_TEXT.REGISTER_TITLE)}
-                </h1>
-                <p className="mb-5 font-normal text-[#64748B]">{t(AUTH_TEXT.REGISTER_DESCRIPTION)}</p>
-
-                <button
-                    type="button"
-                    onClick={handleGoogleRegister}
-                    disabled={isGoogleLoading}
-                    className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-[13px] text-sm font-medium text-gray-500 disabled:opacity-50"
-                >
-                    <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
-                    <span className="font-semibold text-[#0F172A]">
-                        {isGoogleLoading ? t(AUTH_LABEL.GOOGLE_CONNECTING) : t(AUTH_LABEL.CONTINUE_WITH_GOOGLE)}
-                    </span>
-                </button>
-
-                <div className="my-2 flex items-center gap-4 md:my-6">
-                    <hr className="flex-1 border-gray-200" />
-                    <span className="text-sm text-gray-400">{t(AUTH_TEXT.OR)}</span>
-                    <hr className="flex-1 border-gray-200" />
-                </div>
-
-                <form onSubmit={handleSubmit(onSubmit)} noValidate>
-                    {/* email */}
-                    <InputField<RegisterFormValues>
-                        label={t(AUTH_TEXT.EMAIL_LABEL)}
-                        type="email"
-                        placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
-                        name="email"
-                        register={register}
-                        errors={errors}
+        <div
+            className={`flex w-full max-w-[465px] flex-col px-4 transition-all duration-500 ease-out md:min-w-[280px] md:px-0 ${
+                isMounted ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+            }`}
+        >
+            <div className="mb-8 flex w-full items-center justify-center lg:hidden">
+                <div className="bg-primary flex size-[96px] items-center justify-center rounded-[12px] px-[16px] py-[8px]">
+                    <img
+                        src="/images/svg/logo-new.svg"
+                        alt="Juju Blue Logo"
+                        className="h-10 w-auto fill-[#fff] object-cover"
                     />
-                    {/* password */}
-                    <InputField<RegisterFormValues>
-                        label={t(AUTH_TEXT.PASSWORD_LABEL)}
-                        type="password"
-                        placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
-                        name="password"
-                        register={register}
-                        errors={errors}
-                    />
-                    {/* confirm password */}
-                    <InputField<RegisterFormValues>
-                        label={t(AUTH_TEXT.CONFIRM_PASSWORD_LABEL)}
-                        type="password"
-                        placeholder={t(AUTH_TEXT.CONFIRM_PASSWORD_PLACEHOLDER)}
-                        name="confirmPassword"
-                        register={register}
-                        errors={errors}
-                    />
-                    <button
-                        className="bg-primary mt-[18px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? t(AUTH_LABEL.CREATING_ACCOUNT) : t(AUTH_LABEL.CREATE_ACCOUNT)}
-                    </button>
-                </form>
-
-                <div className="mt-4 text-center">
-                    <span className="text-[14px] font-normal text-[#64748B]">{t(AUTH_TEXT.ALREADY_HAVE_ACCOUNT)}</span>
-                    <Link href={ROUTE.LOGIN} className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                        {t(AUTH_LABEL.SIGN_IN)}
-                    </Link>
                 </div>
             </div>
-        </section>
+            <h1 className="py-2 pb-2 text-center text-2xl font-bold tracking-tight lg:text-left lg:text-[28px] lg:whitespace-nowrap">
+                {t(AUTH_TEXT.REGISTER_TITLE)}
+            </h1>
+            <p className="mb-6 text-sm leading-relaxed font-normal text-[#64748B]">
+                {t(AUTH_TEXT.REGISTER_DESCRIPTION)}
+            </p>
+
+            <button
+                type="button"
+                onClick={handleGoogleRegister}
+                disabled={isGoogleLoading}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
+                <span className="font-semibold text-[#0F172A]">
+                    {isGoogleLoading ? t(AUTH_LABEL.GOOGLE_CONNECTING) : t(AUTH_LABEL.CONTINUE_WITH_GOOGLE)}
+                </span>
+            </button>
+
+            <div className="my-5 flex items-center gap-4 md:my-7">
+                <hr className="flex-1 border-gray-200" />
+                <span className="text-sm text-gray-400">{t(AUTH_TEXT.OR)}</span>
+                <hr className="flex-1 border-gray-200" />
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-1">
+                {/* email */}
+                <InputField<RegisterFormValues>
+                    label={t(AUTH_TEXT.EMAIL_LABEL)}
+                    type="email"
+                    placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
+                    name="email"
+                    register={register}
+                    errors={errors}
+                />
+                {/* password */}
+                <InputField<RegisterFormValues>
+                    label={t(AUTH_TEXT.PASSWORD_LABEL)}
+                    type="password"
+                    placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
+                    name="password"
+                    register={register}
+                    errors={errors}
+                />
+                {/* confirm password */}
+                <InputField<RegisterFormValues>
+                    label={t(AUTH_TEXT.CONFIRM_PASSWORD_LABEL)}
+                    type="password"
+                    placeholder={t(AUTH_TEXT.CONFIRM_PASSWORD_PLACEHOLDER)}
+                    name="confirmPassword"
+                    register={register}
+                    errors={errors}
+                />
+                <button
+                    className="bg-primary mt-5 h-11 w-full rounded-lg px-2 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-none"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? t(AUTH_LABEL.CREATING_ACCOUNT) : t(AUTH_LABEL.CREATE_ACCOUNT)}
+                </button>
+            </form>
+
+            <div className="pt-7 text-center">
+                <span className="text-[14px] font-normal text-[#64748B]">{t(AUTH_TEXT.ALREADY_HAVE_ACCOUNT)}</span>
+                <Link
+                    href={ROUTE.LOGIN}
+                    className="text-primary pl-1 text-[14px] font-semibold transition-opacity hover:underline hover:opacity-80"
+                >
+                    {t(AUTH_LABEL.SIGN_IN)}
+                </Link>
+            </div>
+        </div>
     )
 }
 

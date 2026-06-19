@@ -11,8 +11,8 @@ const ProfileSummaryCard = () => {
     const { data: postCounts } = useGetPostCounts()
     const { t } = useLingui()
     return (
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-            <div className="flex items-center gap-3">
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] lg:mt-[16px]">
+            <div className="flex items-center gap-3 ">
                 {profileData?.avatar_url ? (
                     <img
                         src={profileData?.avatar_url}

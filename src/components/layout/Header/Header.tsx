@@ -33,9 +33,6 @@ import { useLingui } from '@lingui/react/macro'
 import { getAccesTokenFromLS } from '@/utils/auth'
 
 const Header = () => {
-    // Đảm bảo lần render đầu tiên trên client luôn khớp với server (SSR)
-    // -> tránh hydration mismatch. Chỉ sau khi mounted = true mới render
-    // nội dung phụ thuộc vào auth/user state.
     const [mounted, setMounted] = useState(false)
     useEffect(() => {
         setMounted(true)
@@ -52,25 +49,17 @@ const Header = () => {
     const { t } = useLingui()
     const toggleLocale = async () => {
         const nextLocale = languageLabel === 'en' ? 'vi' : 'en'
-
         setlanguageLabel(nextLocale)
-
         const messages = await loadCatalog(nextLocale)
-
-        i18n.loadAndActivate({
-            locale: nextLocale,
-            messages,
-        })
+        i18n.loadAndActivate({ locale: nextLocale, messages })
     }
 
     const isPageLoading = isUserLoading || (!!user && isProfileLoading)
-
     const queryClient = useQueryClient()
     const profile = profileData ?? null
 
     const handleSignOut = async () => {
         const currentUserId = user?.id
-
         await authApi.logoutAccount()
         await queryClient.setQueryData(userKeys.currentUser(), null)
         await queryClient.invalidateQueries({ queryKey: postsKeys.feed() })
@@ -78,74 +67,83 @@ const Header = () => {
             router.replace(ROUTE_BUILDER.profileDetail(currentUserId))
             return
         }
-
         router.replace(ROUTE.ROOT)
     }
 
-    // Server luôn render HeaderLoadingState. Client cũng render
-    // HeaderLoadingState cho tới khi mounted -> hai bên khớp nhau 100%.
     if (!mounted || isPageLoading) {
         return <HeaderLoadingState />
     }
 
     return (
-        <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm">
-            <div className="relative container mx-auto flex items-center justify-between px-3 py-2 after:pointer-events-none after:absolute after:bottom-0 after:left-1/2 after:h-px after:w-screen after:-translate-x-1/2 after:bg-gray-200">
+        <header className="sticky top-0 z-40 mx-auto w-full max-w-[1180px] bg-white/95 backdrop-blur-sm">
+            <div className="relative container mx-auto flex h-14 items-center justify-between px-3 after:pointer-events-none after:absolute after:bottom-0 after:left-1/2 after:h-px after:w-screen after:-translate-x-1/2 after:bg-gray-200">
+                {/* ── Mobile: hamburger ── */}
                 <div className="lg:hidden">
                     <MobileDrawer user={user} profile={profile} logOut={handleSignOut} />
                 </div>
 
-                <div className="hidden items-center gap-x-2 lg:flex">
-                    <button type="button" onClick={() => router.push(ROUTE.HOME)} className="cursor-pointer">
-                        <div className="bg-primary flex size-10 items-center justify-center rounded-[12px] px-2 py-1">
+                {/* ── Desktop trái: Logo + Search ── */}
+                <div className="hidden items-center gap-x-3 lg:flex">
+                    <button type="button" onClick={() => router.push(ROUTE.HOME)} className="shrink-0 cursor-pointer">
+                        <div className="bg-primary flex size-9 items-center justify-center rounded-[10px]">
                             <img
                                 src={LAYOUT_ASSET.LOGO}
                                 alt={LAYOUT_ALT.LOGO}
-                                className="h-1/2 w-[13px] fill-[#fff] object-cover"
+                                className="h-1/2 w-[13px] object-cover"
                             />
                         </div>
                     </button>
-
                     <SearchInput desktopOnly={true} />
                 </div>
 
-                <div className="hidden lg:absolute lg:left-1/2 lg:block lg:-translate-x-1/2">
-                    <NavSection isDesktop={true}>
-                        {user && <NavItem icon={Home} isDesktop={true} href={ROUTE.HOME} />}
-                        {user && (
-                            <div className="relative">
-                                <NavItem icon={MessageSquareText} isDesktop={true} href={ROUTE.MESSAGES} />
-                                {unreadMessagesCount > 0 ? (
-                                    <span className="absolute -top-1 -right-1 flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-semibold text-white">
-                                        {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
-                                    </span>
-                                ) : null}
-                            </div>
-                        )}
-                        {user && <NavItem icon={Bookmark} isDesktop={true} href={ROUTE.BOOKMARK} />}
-                    </NavSection>
-                </div>
-
-                {/*  */}
+                {/* ── Mobile giữa: Search + Avatar ── */}
                 <div className="flex items-center lg:hidden">
                     <SearchInput mobileOnly={true} />
                     {user && (
-                        <Link href={ROUTE.PROFILE} className="block">
+                        <Link href={ROUTE.PROFILE} className="ml-1 block">
                             {profile?.avatar_url ? (
                                 <img
                                     src={profile?.avatar_url}
                                     alt={LAYOUT_ALT.AVATAR}
-                                    className="group-hover:ring-primary size-10 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
+                                    className="size-9 rounded-full object-cover ring-2 ring-transparent"
                                 />
                             ) : (
-                                <div className="flex size-10 items-center justify-center rounded-full bg-gray-300" />
+                                <div className="flex size-9 items-center justify-center rounded-full bg-gray-300" />
                             )}
                         </Link>
                     )}
                 </div>
 
-                <div className="hidden items-center gap-x-2 lg:flex">
-                    {user && <NotificationButton enabled={!!user} />}
+                {/* ── Desktop phải: Nav + Bell + Avatar ── */}
+                <div className="hidden h-full items-center lg:flex">
+                    {user && (
+                        <>
+                            {/* Nav icons */}
+                            <NavSection isDesktop={true}>
+                                <NavItem icon={Home} isDesktop={true} href={ROUTE.HOME} />
+                                <div className="relative flex h-full items-center">
+                                    <NavItem icon={MessageSquareText} isDesktop={true} href={ROUTE.MESSAGES} />
+                                    {unreadMessagesCount > 0 && (
+                                        <span className="pointer-events-none absolute top-2 right-1 flex min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+                                            {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                                        </span>
+                                    )}
+                                </div>
+                                <NavItem icon={Bookmark} isDesktop={true} href={ROUTE.BOOKMARK} />
+                            </NavSection>
+
+                            {/* Divider */}
+                            <span className="mx-3 h-6 w-px bg-gray-200" />
+
+                            {/* Bell */}
+                            <NotificationButton enabled={!!user} />
+
+                            {/* Divider */}
+                            <span className="mx-3 h-6 w-px bg-gray-200" />
+                        </>
+                    )}
+
+                    {/* Avatar dropdown hoặc Sign in/up */}
                     {user ? (
                         <div
                             onMouseEnter={() => setIsAvatarMenuOpen(true)}
@@ -153,26 +151,23 @@ const Header = () => {
                         >
                             <DropdownMenu modal={false} open={isAvatarMenuOpen} onOpenChange={setIsAvatarMenuOpen}>
                                 <DropdownMenuTrigger asChild>
-                                    <button
-                                        type="button"
-                                        className="group relative hidden cursor-pointer outline-none lg:block"
-                                    >
+                                    <button type="button" className="group relative cursor-pointer outline-none">
                                         {profile?.avatar_url ? (
                                             <img
                                                 src={profile?.avatar_url}
                                                 alt={LAYOUT_ALT.AVATAR}
-                                                className="group-hover:ring-primary size-10 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
+                                                className="group-hover:ring-primary size-9 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2 "
                                             />
                                         ) : (
-                                            <div className="flex size-10 items-center justify-center rounded-full bg-gray-300" />
+                                            <div className="flex size-9 items-center justify-center rounded-full bg-gray-300" />
                                         )}
                                     </button>
                                 </DropdownMenuTrigger>
 
                                 <DropdownMenuContent
                                     align="end"
-                                    sideOffset={10}
-                                    className="w-52 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl shadow-gray-200/60"
+                                    sideOffset={2}
+                                    className="w-52 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 pt-[11px] mt-[11px] shadow-xl shadow-gray-200/60"
                                 >
                                     <DropdownMenuItem
                                         asChild

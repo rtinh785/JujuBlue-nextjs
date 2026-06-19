@@ -18,11 +18,15 @@ import { AUTH_LABEL, AUTH_MESSAGE, AUTH_TEXT, AUTH_URL } from '@/core/constants/
 import { ROUTE } from '@/core/constants/route.constant'
 import { useLingui } from '@lingui/react/macro'
 
-
 const Login = () => {
     useGuestGuard()
     const { t } = useLingui()
     const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+    const [isMounted, setIsMounted] = useState(false)
+
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
 
     const loginAccountMutation = useMutation({
         mutationFn: authApi.loginAccount,
@@ -91,89 +95,98 @@ const Login = () => {
     }, [router])
 
     return (
-        <section className="flex items-center justify-center bg-white px-4 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">
-            <div className="flex w-full max-w-[400px] flex-col px-4 md:min-w-[250px] md:px-0">
-                <div className="mb-8 flex w-full items-center justify-center lg:hidden">
-                    <div className="bg-primary flex size-[96px] items-center justify-center rounded-[12px] px-[16px] py-[8px]">
-                        <img
-                            src="/images/svg/logo-new.svg"
-                            alt="Juju Blue Logo"
-                            className="h-10 w-auto fill-[#fff] object-cover"
-                        />
-                    </div>
-                </div>
-
-                <h1 className="pb-2 text-center text-3xl font-bold lg:text-left">{t(AUTH_TEXT.LOGIN_TITLE)}</h1>
-
-                <p className="mb-8 font-normal text-[#64748B]">{t(AUTH_TEXT.LOGIN_DESCRIPTION)}</p>
-
-                <button
-                    className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-[13px] text-sm font-medium text-gray-500"
-                    onClick={handleGoogleLogin}
-                    type="button"
-                    disabled={isGoogleLoading}
-                >
-                    <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
-
-                    <span className="font-semibold text-[#0F172A]">
-                        {isGoogleLoading ? t(AUTH_LABEL.GOOGLE_CONNECTING) : t(AUTH_LABEL.CONTINUE_WITH_GOOGLE)}
-                    </span>
-                </button>
-
-                <div className="my-6 flex items-center gap-4 md:my-8">
-                    <hr className="flex-1 border-gray-200" />
-
-                    <span className="text-sm text-gray-400">{t(AUTH_TEXT.OR)}</span>
-
-                    <hr className="flex-1 border-gray-200" />
-                </div>
-
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    {/* email */}
-                    <InputField<LoginFormValues>
-                        label={t(AUTH_TEXT.EMAIL_LABEL)}
-                        type="email"
-                        placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
-                        name="email"
-                        register={register}
-                        errors={errors}
+        <div
+            className={`flex w-full max-w-[465px] flex-col px-4 transition-all duration-500 ease-out md:min-w-[280px] md:px-0 ${
+                isMounted ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+            }`}
+        >
+            <div className="mb-10 flex w-full items-center justify-center lg:hidden">
+                <div className="bg-primary flex size-[96px] items-center justify-center rounded-[12px] px-[16px] py-[8px]">
+                    <img
+                        src="/images/svg/logo-new.svg"
+                        alt="Juju Blue Logo"
+                        className="h-10 w-auto fill-[#fff] object-cover"
                     />
-
-                    {/* password */}
-                    <InputField<LoginFormValues>
-                        label={t(AUTH_TEXT.PASSWORD_LABEL)}
-                        type="password"
-                        placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
-                        name="password"
-                        register={register}
-                        errors={errors}
-                        rightNode={
-                            <Link
-                                href={ROUTE.FORGOT_PASSWORD}
-                                className="text-primary text-sm font-medium hover:underline"
-                            >
-                                {t(AUTH_LABEL.FORGOT_PASSWORD)}
-                            </Link>
-                        }
-                    />
-
-                    <button
-                        disabled={isSubmitting}
-                        className="bg-primary mt-[28px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white disabled:opacity-50"
-                    >
-                        {isSubmitting ? t(AUTH_LABEL.LOGGING_IN) : t(AUTH_LABEL.LOGIN)}
-                    </button>
-                </form>
-
-                <div className="pt-12 text-center">
-                    <span className="text-[14px] font-normal text-[#64748B]">{t(AUTH_TEXT.NO_ACCOUNT)}</span>
-
-                    <Link href={ROUTE.REGISTER} className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                        {t(AUTH_LABEL.SIGN_UP)}
-                    </Link>
                 </div>
             </div>
-        </section>
+
+            <h1 className="pb-2 text-center text-3xl font-bold tracking-tight lg:text-left">
+                {t(AUTH_TEXT.LOGIN_TITLE)}
+            </h1>
+
+            <p className="mb-9 text-[15px] leading-relaxed font-normal text-[#64748B]">
+                {t(AUTH_TEXT.LOGIN_DESCRIPTION)}
+            </p>
+
+            <button
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={handleGoogleLogin}
+                type="button"
+                disabled={isGoogleLoading}
+            >
+                <img src="/images/svg/google-icon.svg" alt="google-icon" className="size-5" />
+
+                <span className="font-semibold text-[#0F172A]">
+                    {isGoogleLoading ? t(AUTH_LABEL.GOOGLE_CONNECTING) : t(AUTH_LABEL.CONTINUE_WITH_GOOGLE)}
+                </span>
+            </button>
+
+            <div className="my-7 flex items-center gap-4 md:my-9">
+                <hr className="flex-1 border-gray-200" />
+
+                <span className="text-sm text-gray-400">{t(AUTH_TEXT.OR)}</span>
+
+                <hr className="flex-1 border-gray-200" />
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1">
+                {/* email */}
+                <InputField<LoginFormValues>
+                    label={t(AUTH_TEXT.EMAIL_LABEL)}
+                    type="email"
+                    placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
+                    name="email"
+                    register={register}
+                    errors={errors}
+                />
+
+                {/* password */}
+                <InputField<LoginFormValues>
+                    label={t(AUTH_TEXT.PASSWORD_LABEL)}
+                    type="password"
+                    placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
+                    name="password"
+                    register={register}
+                    errors={errors}
+                    rightNode={
+                        <Link
+                            href={ROUTE.FORGOT_PASSWORD}
+                            className="text-primary text-sm font-medium transition-opacity hover:underline hover:opacity-80"
+                        >
+                            {t(AUTH_LABEL.FORGOT_PASSWORD)}
+                        </Link>
+                    }
+                />
+
+                <button
+                    disabled={isSubmitting}
+                    className="bg-primary mt-6 h-11 w-full rounded-lg px-2 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-none"
+                >
+                    {isSubmitting ? t(AUTH_LABEL.LOGGING_IN) : t(AUTH_LABEL.LOGIN)}
+                </button>
+            </form>
+
+            <div className="pt-10 text-center">
+                <span className="text-[14px] font-normal text-[#64748B]">{t(AUTH_TEXT.NO_ACCOUNT)}</span>
+
+                <Link
+                    href={ROUTE.REGISTER}
+                    className="text-primary pl-1 text-[14px] font-semibold transition-opacity hover:underline hover:opacity-80"
+                >
+                    {t(AUTH_LABEL.SIGN_UP)}
+                </Link>
+            </div>
+        </div>
     )
 }
 

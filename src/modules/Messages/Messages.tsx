@@ -62,7 +62,6 @@ const Messages = () => {
 
     const messages = useMemo(() => {
         const pages = messagesPages?.pages ?? []
-
         return pages
             .slice()
             .reverse()
@@ -79,28 +78,16 @@ const Messages = () => {
 
     useEffect(() => {
         const mediaQuery = window.matchMedia('(max-width: 1023px)')
-
-        const updateIsMobile = () => {
-            setIsMobile(mediaQuery.matches)
-        }
-
+        const updateIsMobile = () => setIsMobile(mediaQuery.matches)
         updateIsMobile()
         mediaQuery.addEventListener('change', updateIsMobile)
-
-        return () => {
-            mediaQuery.removeEventListener('change', updateIsMobile)
-        }
+        return () => mediaQuery.removeEventListener('change', updateIsMobile)
     }, [])
 
     const scrollMessagesToBottom = (behavior?: ScrollBehavior) => {
         const messagesList = messagesListRef.current
-
         if (!messagesList) return
-
-        messagesList.scrollTo({
-            top: messagesList.scrollHeight,
-            behavior,
-        })
+        messagesList.scrollTo({ top: messagesList.scrollHeight, behavior })
     }
 
     const markConversationAsReadInCache = (targetConversationId: string) => {
@@ -111,112 +98,92 @@ const Messages = () => {
 
     const markConversationReadIfNeeded = async (conversation: ConversationItem | null) => {
         if (!conversation || !conversation.has_unread) return
-
         markConversationAsReadInCache(conversation.id)
         await markConversationReadMutation.mutateAsync(conversation.id)
     }
 
     const handleSelectConversation = async (conversation: ConversationItem) => {
         router.replace(`/messages?conversationId=${conversation.id}`)
-
         await markConversationReadIfNeeded(conversation)
     }
 
     const handleSendMessage = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-
         const content = draft.trim()
-
         if (!conversationId || !content) return
-
         setDraft('')
         await sendMessageMutation.mutateAsync(content)
-
-        window.requestAnimationFrame(() => {
-            scrollMessagesToBottom('smooth')
-        })
+        window.requestAnimationFrame(() => scrollMessagesToBottom('smooth'))
     }
 
     const handleMessagesScroll = async () => {
         const messagesList = messagesListRef.current
-
         if (
             !messagesList ||
             !hasNextMessagesPage ||
             isFetchingNextMessagesPage ||
             isMessagesLoading ||
             messagesList.scrollTop > 80
-        ) {
+        )
             return
-        }
 
         isLoadingOlderMessagesRef.current = true
         previousMessagesScrollHeightRef.current = messagesList.scrollHeight
         previousMessagesScrollTopRef.current = messagesList.scrollTop
-
         await fetchNextMessagesPage()
     }
 
     const handleConversationsScroll = async () => {
         const conversationsList = conversationsListRef.current
-
         if (
             !conversationsList ||
             !hasNextConversationsPage ||
             isFetchingNextConversationsPage ||
             conversationsList.scrollHeight - conversationsList.scrollTop - conversationsList.clientHeight > 120
-        ) {
+        )
             return
-        }
-
         await fetchNextConversationsPage()
     }
 
     useEffect(() => {
         if (conversationId || conversations.length === 0 || isMobile) return
-
         router.replace(`/messages?conversationId=${conversations[0].id}`)
     }, [conversationId, conversations, isMobile, router])
 
     useEffect(() => {
         if (!activeConversation || isMessagesLoading) return
-
         window.requestAnimationFrame(() => {
             if (isLoadingOlderMessagesRef.current) {
                 const messagesList = messagesListRef.current
-
                 if (messagesList) {
                     messagesList.scrollTop =
                         messagesList.scrollHeight -
                         previousMessagesScrollHeightRef.current +
                         previousMessagesScrollTopRef.current
                 }
-
                 isLoadingOlderMessagesRef.current = false
                 previousMessagesScrollHeightRef.current = 0
                 previousMessagesScrollTopRef.current = 0
                 return
             }
-
             scrollMessagesToBottom()
         })
     }, [activeConversation, isMessagesLoading, messages.length])
 
     if (!hasMounted || isUserLoading) {
         return (
-            <main className="flex h-screen items-center justify-center bg-slate-50">
-                <p className="text-sm text-slate-500">Checking login status...</p>
+            <main className="flex h-[calc(100vh-56px)] items-center justify-center">
+                <div className="size-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
             </main>
         )
     }
 
     if (!user) {
         return (
-            <main className="flex h-screen items-center justify-center bg-slate-50 px-4">
-                <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+            <main className="flex h-[calc(100vh-56px)] items-center justify-center px-4">
+                <div className="w-full max-w-md rounded-3xl border border-gray-200 bg-white p-6 text-center shadow-sm">
                     <h1 className="text-xl font-semibold text-slate-950">{t(CONVERSATIONS_SIDEBAR_TEXT.TITLE)}</h1>
                     <p className="mt-2 text-sm text-slate-500">Please log in to view your messages.</p>
-
                     <Link
                         href={ROUTE.LOGIN}
                         className="mt-5 inline-flex rounded-full bg-blue-500 px-5 py-2 text-sm font-semibold text-white"
@@ -229,8 +196,10 @@ const Messages = () => {
     }
 
     return (
-        <main className="h-[100vh] overflow-hidden bg-slate-100">
-            <section className="flex h-full min-h-0 flex-col lg:grid lg:grid-cols-[360px_1fr]">
+        // h-[calc(100vh-56px)] = toàn bộ viewport trừ header h-14 (56px)
+        <main className="mx-auto h-[calc(100vh-56px)] w-full max-w-[1180px] overflow-hidden px-3 pt-4 lg:px-4">
+            <section className="flex h-full min-h-0 overflow-hidden rounded-t-2xl border border-b-0 border-gray-200 shadow-sm lg:grid lg:grid-cols-[300px_1fr]">
+                {/* Sidebar */}
                 <div
                     className={`${conversationId && isMobile ? 'hidden lg:flex' : 'flex'} min-h-0 w-full flex-1 lg:flex-none`}
                 >
@@ -241,15 +210,12 @@ const Messages = () => {
                         isLoading={isConversationsLoading}
                         hasNextPage={!!hasNextConversationsPage}
                         isFetchingNextPage={isFetchingNextConversationsPage}
-                        onScroll={() => {
-                            void handleConversationsScroll()
-                        }}
-                        onSelectConversation={(conversation) => {
-                            void handleSelectConversation(conversation)
-                        }}
+                        onScroll={() => void handleConversationsScroll()}
+                        onSelectConversation={(conversation) => void handleSelectConversation(conversation)}
                     />
                 </div>
 
+                {/* Thread */}
                 <div
                     className={`${!conversationId && isMobile ? 'hidden lg:flex' : 'flex'} min-h-0 w-full flex-1 lg:flex-none`}
                 >
@@ -264,15 +230,9 @@ const Messages = () => {
                         messages={messages}
                         messagesListRef={messagesListRef}
                         setDraft={setDraft}
-                        onComposerFocus={() => {
-                            void markConversationReadIfNeeded(activeConversation)
-                        }}
-                        onMessagesClick={() => {
-                            void markConversationReadIfNeeded(activeConversation)
-                        }}
-                        onMessagesScroll={() => {
-                            void handleMessagesScroll()
-                        }}
+                        onComposerFocus={() => void markConversationReadIfNeeded(activeConversation)}
+                        onMessagesClick={() => void markConversationReadIfNeeded(activeConversation)}
+                        onMessagesScroll={() => void handleMessagesScroll()}
                         onSubmit={handleSendMessage}
                     />
                 </div>

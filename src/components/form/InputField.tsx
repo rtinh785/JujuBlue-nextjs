@@ -24,6 +24,8 @@ const InputField = <T extends FieldValues>({
     const [showPassword, setShowPassword] = useState(false)
     const errorMessage = errors[name]?.message as string | undefined
     const inputType = type === 'password' && showPassword ? 'text' : type
+    const hasError = Boolean(errorMessage)
+
     return (
         <div className="flex flex-col">
             <div className="mb-[6px] flex items-center justify-between gap-3">
@@ -35,7 +37,11 @@ const InputField = <T extends FieldValues>({
                 <input
                     type={inputType}
                     placeholder={placeholder}
-                    className="w-full rounded-lg border-1 border-transparent bg-[#F8FAFC] px-[14.5] py-4 pr-12 focus:border focus:border-[#E2E8F0] focus:outline-none"
+                    className={`h-11 w-full rounded-lg border bg-[#F8FAFC] px-4 pr-12 text-sm transition-colors duration-150 outline-none placeholder:text-[#94A3B8] focus:bg-white focus:ring-2 ${
+                        hasError
+                            ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
+                            : 'border-transparent focus:border-[#E2E8F0] focus:ring-[#E2E8F0]'
+                    }`}
                     {...register(name)}
                 />
 
@@ -43,7 +49,7 @@ const InputField = <T extends FieldValues>({
                     <button
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
-                        className="absolute top-1/2 right-4 -translate-y-1/2 text-sm text-[#64748B]"
+                        className="absolute top-1/2 right-4 -translate-y-1/2 text-sm text-[#64748B] transition-colors hover:text-[#0F172A]"
                     >
                         {showPassword ? 'Hide' : 'Show'}
                     </button>

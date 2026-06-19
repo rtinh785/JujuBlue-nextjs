@@ -8,18 +8,23 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { useEffect, useState } from 'react'
 import { getResetAccessToken } from '@/utils'
 import { useGuestGuard } from '@/hooks/useGuestGuard'
 import { AUTH_LABEL, AUTH_MESSAGE, AUTH_TEXT } from '@/core/constants/auth.constant'
 import { ROUTE } from '@/core/constants/route.constant'
 import { useLingui } from '@lingui/react/macro'
-import { useLocale } from '@/contexts/LocaleContext'
 
 const ResetPassword = () => {
     useGuestGuard()
     const { t } = useLingui()
     const router = useRouter()
     const { mutateAsync: resetPasswordMutation } = useResetPasswordMutation()
+    const [isMounted, setIsMounted] = useState(false)
+
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
 
     const {
         register,
@@ -57,47 +62,54 @@ const ResetPassword = () => {
     }
 
     return (
-        <section className="flex items-center justify-center bg-white px-4 py-8 text-black sm:px-6 md:px-10 lg:w-1/2 lg:px-16 xl:px-24">
-            <div className="flex w-full max-w-[400px] flex-col px-4 md:min-w-[250px] md:px-0">
-                <div className="mb-8 flex w-full items-center justify-center lg:hidden">
-                    <div className="bg-primary flex size-[96px] items-center justify-center rounded-[12px] px-[16px] py-[8px]">
-                        <img
-                            src="/images/svg/logo-new.svg"
-                            alt="Juju Blue Logo"
-                            className="h-10 w-auto fill-[#fff] object-cover"
-                        />
-                    </div>
-                </div>
-                <h1 className="pb-2 text-center text-3xl font-bold whitespace-nowrap lg:text-left">
-                    {t(AUTH_TEXT.RESET_PASSWORD_TITLE)}
-                </h1>
-                <p className="mb-8 font-normal text-[#64748B]">{t(AUTH_TEXT.RESET_PASSWORD_DESCRIPTION)}</p>
-
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <InputField
-                        label={t(AUTH_TEXT.NEW_PASSWORD_LABEL)}
-                        type="password"
-                        placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
-                        name="newPassword"
-                        register={register}
-                        errors={errors}
+        <div
+            className={`flex w-full max-w-[465px] flex-col px-4 transition-all duration-500 ease-out md:min-w-[280px] md:px-0 ${
+                isMounted ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+            }`}
+        >
+            <div className="mb-8 flex w-full items-center justify-center lg:hidden">
+                <div className="bg-primary flex size-[96px] items-center justify-center rounded-[12px] px-[16px] py-[8px]">
+                    <img
+                        src="/images/svg/logo-new.svg"
+                        alt="Juju Blue Logo"
+                        className="h-10 w-auto fill-[#fff] object-cover"
                     />
-
-                    <button
-                        disabled={isSubmitting}
-                        className="bg-primary mt-[28px] w-full rounded-lg px-2 py-4 text-[14px] font-semibold text-white disabled:opacity-50"
-                    >
-                        {isSubmitting ? t(AUTH_LABEL.SAVING) : t(AUTH_LABEL.SEND)}
-                    </button>
-                </form>
-
-                <div className="pt-8 text-center">
-                    <Link href={ROUTE.REGISTER} className="text-primary pl-1 text-[14px] font-semibold hover:underline">
-                        {t(AUTH_LABEL.BACK_TO_SIGN_UP)}
-                    </Link>
                 </div>
             </div>
-        </section>
+            <h1 className="pb-2 text-center text-2xl font-bold tracking-tight whitespace-nowrap lg:text-left lg:text-[28px]">
+                {t(AUTH_TEXT.RESET_PASSWORD_TITLE)}
+            </h1>
+            <p className="mb-7 text-sm leading-relaxed font-normal text-[#64748B]">
+                {t(AUTH_TEXT.RESET_PASSWORD_DESCRIPTION)}
+            </p>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1">
+                <InputField
+                    label={t(AUTH_TEXT.NEW_PASSWORD_LABEL)}
+                    type="password"
+                    placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
+                    name="newPassword"
+                    register={register}
+                    errors={errors}
+                />
+
+                <button
+                    disabled={isSubmitting}
+                    className="bg-primary mt-5 w-full rounded-lg px-2 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-none"
+                >
+                    {isSubmitting ? t(AUTH_LABEL.SAVING) : t(AUTH_LABEL.SEND)}
+                </button>
+            </form>
+
+            <div className="pt-7 text-center">
+                <Link
+                    href={ROUTE.REGISTER}
+                    className="text-primary pl-1 text-sm font-semibold transition-opacity hover:underline hover:opacity-80"
+                >
+                    {t(AUTH_LABEL.BACK_TO_SIGN_UP)}
+                </Link>
+            </div>
+        </div>
     )
 }
 

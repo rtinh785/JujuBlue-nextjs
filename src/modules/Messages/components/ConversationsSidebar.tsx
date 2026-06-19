@@ -1,10 +1,7 @@
 'use client'
 
-import { ROUTE } from '@/core/constants/route.constant'
-import { LAYOUT_ALT, LAYOUT_ASSET } from '@/core/constants/layout.constant'
 import type { ConversationItem } from '@/core/types/message.type'
 import { cn } from '@/utils/helper'
-import Link from 'next/link'
 import type { RefObject } from 'react'
 import { getConversationName, getConversationPreview } from '../utils/messageDisplay'
 import { CONVERSATIONS_SIDEBAR_TEXT } from '@/core/constants/message.constant'
@@ -32,27 +29,26 @@ const ConversationsSidebar = ({
     onSelectConversation,
 }: ConversationsSidebarProps) => {
     const { t } = useLingui()
-    return (
-        <aside className="flex min-h-0 w-full flex-col border-r border-slate-200 bg-white lg:h-full">
-            <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-4">
-                <Link
-                    href={ROUTE.HOME}
-                    className="bg-primary flex size-10 items-center justify-center rounded-[12px] px-2 py-1"
-                >
-                    <img src={LAYOUT_ASSET.LOGO} alt={LAYOUT_ALT.LOGO} className="h-1/2 w-[13px] object-cover" />
-                </Link>
 
-                <div>
-                    <h1 className="text-lg font-semibold text-slate-950">{t(CONVERSATIONS_SIDEBAR_TEXT.TITLE)}</h1>
-                    <p className="text-xs text-slate-400">{t(CONVERSATIONS_SIDEBAR_TEXT.SUBTITLE)}</p>
-                </div>
+    return (
+        <aside className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent flex min-h-0 w-full flex-col border-r border-gray-200 bg-white">
+            {/* Header sidebar */}
+            <div className="flex h-14 shrink-0 items-center border-b border-gray-100 px-4">
+                <h2 className="text-sm font-semibold text-slate-800">{t(CONVERSATIONS_SIDEBAR_TEXT.TITLE)}</h2>
             </div>
 
-            <div ref={conversationsListRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-y-auto p-3">
+            {/* Danh sách conversations */}
+            <div
+                ref={conversationsListRef}
+                onScroll={onScroll}
+                className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent min-h-0 flex-1 overflow-y-auto p-2"
+            >
                 {isLoading ? (
-                    <p className="p-3 text-sm text-slate-500">{t(CONVERSATIONS_SIDEBAR_TEXT.LOADING)}</p>
+                    <div className="flex items-center justify-center py-10">
+                        <div className="size-5 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
+                    </div>
                 ) : conversations.length > 0 ? (
-                    <div className="space-y-1">
+                    <div className="space-y-0.5">
                         {conversations.map((conversation) => {
                             const isActive = conversation.id === conversationId
 
@@ -62,52 +58,59 @@ const ConversationsSidebar = ({
                                     type="button"
                                     onClick={() => onSelectConversation(conversation)}
                                     className={cn(
-                                        'flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition',
-                                        isActive ? 'bg-blue-50' : 'hover:bg-slate-50',
+                                        'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors',
+                                        isActive ? 'bg-blue-50' : 'hover:bg-gray-50',
                                     )}
                                 >
                                     {conversation.other_user?.avatar_url ? (
                                         <img
                                             src={conversation.other_user.avatar_url}
                                             alt={getConversationName(conversation)}
-                                            className="size-11 rounded-full object-cover"
+                                            className="size-10 shrink-0 rounded-full object-cover"
                                         />
                                     ) : (
-                                        <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-500">
+                                        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-500">
                                             {getConversationName(conversation).charAt(0).toUpperCase()}
                                         </div>
                                     )}
 
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-slate-950">
+                                        <p
+                                            className={cn(
+                                                'truncate text-sm',
+                                                conversation.has_unread
+                                                    ? 'font-semibold text-slate-900'
+                                                    : 'font-medium text-slate-700',
+                                            )}
+                                        >
                                             {getConversationName(conversation)}
                                         </p>
-                                        <p className="mt-0.5 truncate text-sm text-slate-500">
+                                        <p className="mt-0.5 truncate text-xs text-slate-400">
                                             {getConversationPreview(conversation)}
                                         </p>
                                     </div>
 
-                                    {conversation.has_unread ? (
-                                        <span className="size-2.5 shrink-0 rounded-full bg-blue-500" />
-                                    ) : null}
+                                    {conversation.has_unread && (
+                                        <span className="size-2 shrink-0 rounded-full bg-blue-500" />
+                                    )}
                                 </button>
                             )
                         })}
 
-                        {hasNextPage ? (
-                            <div className="flex h-10 items-center justify-center">
-                                <span className="text-xs text-slate-400">
-                                    {isFetchingNextPage ? t(CONVERSATIONS_SIDEBAR_TEXT.LOADING) : ''}
-                                </span>
+                        {hasNextPage && (
+                            <div className="flex h-8 items-center justify-center">
+                                {isFetchingNextPage && (
+                                    <div className="size-4 animate-spin rounded-full border-2 border-slate-200 border-t-blue-500" />
+                                )}
                             </div>
-                        ) : null}
+                        )}
                     </div>
                 ) : (
                     <div className="px-3 py-10 text-center">
-                        <p className="text-sm font-medium text-slate-700">
+                        <p className="text-sm font-medium text-slate-600">
                             {t(CONVERSATIONS_SIDEBAR_TEXT.EMPTY_TITLE)}
                         </p>
-                        <p className="mt-1 text-sm text-slate-400">{t(CONVERSATIONS_SIDEBAR_TEXT.EMPTY_SUBTITLE)}</p>
+                        <p className="mt-1 text-xs text-slate-400">{t(CONVERSATIONS_SIDEBAR_TEXT.EMPTY_SUBTITLE)}</p>
                     </div>
                 )}
             </div>
