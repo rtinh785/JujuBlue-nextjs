@@ -31,7 +31,7 @@ export const getProfileFromLS = () => {
     return result ? JSON.parse(result) : null
 }
 
-export const setProfileToLS = (profile: any) => {
+export const setProfileToLS = (profile: unknown) => {
     if (typeof window === 'undefined') return
     localStorage.setItem('profile', JSON.stringify(profile))
 }

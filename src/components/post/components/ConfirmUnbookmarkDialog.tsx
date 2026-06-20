@@ -15,8 +15,9 @@ type Props = {
 }
 
 const ConfirmUnbookmarkDialog = ({ post, open, isLoading = false, onOpenChange, onConfirm }: Props) => {
-    if (!post) return null
     const { t } = useLingui()
+    if (!post) return null
+
     return (
         <ConfirmActionDialog
             open={open}

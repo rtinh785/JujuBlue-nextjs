@@ -1,4 +1,3 @@
-import { PostWithStatus } from '@/core/types/post.type'
 import React, { ReactNode } from 'react'
 
 interface Prob {

@@ -73,8 +73,6 @@ export const PROFILE_UPLOAD = {
 
     INVALID_IMAGE_TYPE: msg`Vui lòng chọn tệp hình ảnh.`,
     IMAGE_TOO_LARGE: msg`Hình ảnh phải nhỏ hơn 2MB.`,
-    CANVAS_CREATE_FAILED: msg`Không thể tạo canvas.`,
-    IMAGE_BLOB_CREATE_FAILED: msg`Không thể tạo dữ liệu hình ảnh.`,
 
     DEFAULT_AVATAR_FILE_NAME: 'avatar.jpg',
     AVATAR_MIME_TYPE: 'image/jpeg',

@@ -30,7 +30,6 @@ import { useMessagesRealtime } from '@/hooks/useMessagesRealtime'
 import { loadCatalog } from '@/translations/clientI18n'
 import { i18n } from '@lingui/core'
 import { useLingui } from '@lingui/react/macro'
-import { getAccesTokenFromLS } from '@/utils/auth'
 
 const Header = () => {
     const [mounted, setMounted] = useState(false)
@@ -156,7 +155,7 @@ const Header = () => {
                                             <img
                                                 src={profile?.avatar_url}
                                                 alt={LAYOUT_ALT.AVATAR}
-                                                className="group-hover:ring-primary size-9 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2 "
+                                                className="group-hover:ring-primary size-9 rounded-full object-cover ring-2 ring-transparent transition-all duration-200 group-hover:ring-offset-2"
                                             />
                                         ) : (
                                             <div className="flex size-9 items-center justify-center rounded-full bg-gray-300" />
@@ -167,7 +166,7 @@ const Header = () => {
                                 <DropdownMenuContent
                                     align="end"
                                     sideOffset={2}
-                                    className="w-52 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 pt-[11px] mt-[11px] shadow-xl shadow-gray-200/60"
+                                    className="mt-[11px] w-52 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 pt-[11px] shadow-xl shadow-gray-200/60"
                                 >
                                     <DropdownMenuItem
                                         asChild

@@ -17,7 +17,7 @@ const authApi = {
     logoutAccount() {
         return http.post(URL_LOGOUT)
     },
-        forgotPassword(body: { email: string }) {
+    forgotPassword(body: { email: string }) {
         return http.post(URL_FORGOT_PASSWORD, body)
     },
     resetPassword(body: { new_password: string }, accessToken: string) {

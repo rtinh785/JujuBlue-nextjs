@@ -76,8 +76,8 @@ msgstr "Settings"
 msgid "Cập nhật thông tin cơ bản hiển thị trên hồ sơ của bạn."
 msgstr "Update the basic information displayed on your profile."
 
-msgid "Chào mừng quay trở lại"
-msgstr "Welcome back"
+msgid "Chào mừng trở lại"
+msgstr ""
 
 msgid "Chỉ bạn mới có thể xem bài viết này."
 msgstr "Only you can view this post."
@@ -283,12 +283,6 @@ msgstr "Cancel"
 msgid "Không thể chia sẻ vì bài viết gốc đã bị xoá."
 msgstr "Cannot share because the original post has been deleted."
 
-msgid "Không thể tạo canvas."
-msgstr "Unable to create canvas."
-
-msgid "Không thể tạo dữ liệu hình ảnh."
-msgstr "Unable to create image data."
-
 msgid "Không xác định"
 msgstr "Unknown"
 
@@ -462,9 +456,6 @@ msgstr "Write a message..."
 
 msgid "Vui lòng chọn tệp hình ảnh."
 msgstr "Please select an image file."
-
-msgid "Vui lòng đăng nhập để tiếp tục."
-msgstr "Please sign in to continue."
 
 msgid "Vui lòng kiểm tra email để đặt lại mật khẩu."
 msgstr "Please check your email to reset your password."

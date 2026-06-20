@@ -12,7 +12,6 @@ import ConfirmUnbookmarkDialog from '@/components/post/components/ConfirmUnbookm
 import { BOOKMARK_TEXT } from '@/core/constants/bookmark.constant'
 import { useLingui } from '@lingui/react/macro'
 
-
 const Bookmark = () => {
     const { data: user } = useCurrentUser()
     const { t } = useLingui()

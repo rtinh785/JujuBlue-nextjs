@@ -8,7 +8,6 @@ interface MyButtonProps {
 }
 
 const MyButton = ({ href, name }: MyButtonProps) => {
-   
     return (
         <Link
             href={href}

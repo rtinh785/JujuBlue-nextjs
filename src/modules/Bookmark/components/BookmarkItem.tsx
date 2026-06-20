@@ -23,7 +23,7 @@ const BookmarkItem = ({ post, onOpenDetail, onRequestUnbookmark }: Props) => {
     }
 
     return (
-        <article
+        <div
             role="button"
             tabIndex={0}
             onClick={() => onOpenDetail(post)}
@@ -34,7 +34,9 @@ const BookmarkItem = ({ post, onOpenDetail, onRequestUnbookmark }: Props) => {
                     <img src={firstMedia.url} alt={post.content} className="h-full w-full object-cover" />
                 ) : firstMedia?.type === 'video' ? (
                     <div className="relative h-full w-full">
-                        <video src={firstMedia.url} className="h-full w-full object-cover" />
+                        <video src={firstMedia.url} className="h-full w-full object-cover">
+                            <track kind="captions" src="" label="" />
+                        </video>
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                             <div className="flex size-10 items-center justify-center rounded-full bg-white/90 text-slate-900">
                                 <Play className="ml-0.5 size-5 fill-current" />
@@ -70,7 +72,7 @@ const BookmarkItem = ({ post, onOpenDetail, onRequestUnbookmark }: Props) => {
             >
                 <MoreHorizontal className="size-5" />
             </button>
-        </article>
+        </div>
     )
 }
 

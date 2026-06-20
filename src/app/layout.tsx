@@ -5,7 +5,6 @@ import linguiConfig from '../../lingui.config'
 import AppProviders from './providers'
 import { siteConfig } from '@/core/configs/site.config'
 
-
 export async function generateStaticParams() {
     return linguiConfig.locales.map((lang) => ({ lang }))
 }

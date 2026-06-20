@@ -76,8 +76,8 @@ msgstr "Cài đặt"
 msgid "Cập nhật thông tin cơ bản hiển thị trên hồ sơ của bạn."
 msgstr "Cập nhật thông tin cơ bản hiển thị trên hồ sơ của bạn."
 
-msgid "Chào mừng quay trở lại"
-msgstr "Chào mừng quay trở lại"
+msgid "Chào mừng trở lại"
+msgstr "Chào mừng trở lại"
 
 msgid "Chỉ bạn mới có thể xem bài viết này."
 msgstr "Chỉ bạn mới có thể xem bài viết này."
@@ -283,12 +283,6 @@ msgstr "Huỷ"
 msgid "Không thể chia sẻ vì bài viết gốc đã bị xoá."
 msgstr "Không thể chia sẻ vì bài viết gốc đã bị xoá."
 
-msgid "Không thể tạo canvas."
-msgstr "Không thể tạo canvas."
-
-msgid "Không thể tạo dữ liệu hình ảnh."
-msgstr "Không thể tạo dữ liệu hình ảnh."
-
 msgid "Không xác định"
 msgstr "Không xác định"
 
@@ -462,9 +456,6 @@ msgstr "Viết tin nhắn..."
 
 msgid "Vui lòng chọn tệp hình ảnh."
 msgstr "Vui lòng chọn tệp hình ảnh."
-
-msgid "Vui lòng đăng nhập để tiếp tục."
-msgstr "Vui lòng đăng nhập để tiếp tục."
 
 msgid "Vui lòng kiểm tra email để đặt lại mật khẩu."
 msgstr "Vui lòng kiểm tra email để đặt lại mật khẩu."

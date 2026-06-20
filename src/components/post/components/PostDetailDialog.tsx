@@ -32,7 +32,15 @@ type ReplyTarget = {
     placement: 'parent' | 'reply'
 } | null
 
-const PostDetailDialog = ({ post, currentUserId, open, onOpenChange, shouldFocusComment, onDeleted, enableImagePreview }: Props) => {
+const PostDetailDialog = ({
+    post,
+    currentUserId,
+    open,
+    onOpenChange,
+    shouldFocusComment,
+    onDeleted,
+    enableImagePreview,
+}: Props) => {
     const postId = post?.id
     const { data: latestPost } = usePostById(postId)
     const { t } = useLingui()

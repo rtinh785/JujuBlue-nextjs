@@ -1,5 +1,4 @@
 import { PROFILE_UPLOAD } from '@/core/constants/profile.constant'
-import { useLingui } from '@lingui/react/macro'
 import type { Area } from 'react-easy-crop'
 
 export const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -15,9 +14,9 @@ export const getCroppedAvatarImage = async (imageSrc: string, pixelCrop: Area) =
     const image = await createImage(imageSrc)
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
-    const { t } = useLingui()
+
     if (!ctx) {
-        throw new Error(t(PROFILE_UPLOAD.CANVAS_CREATE_FAILED))
+        throw new Error('Cannot create canvas.')
     }
 
     canvas.width = pixelCrop.width
@@ -38,7 +37,7 @@ export const getCroppedAvatarImage = async (imageSrc: string, pixelCrop: Area) =
     return new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((file) => {
             if (!file) {
-                reject(new Error(t(PROFILE_UPLOAD.IMAGE_BLOB_CREATE_FAILED)))
+                reject(new Error('Failed to create image blob.'))
                 return
             }
 

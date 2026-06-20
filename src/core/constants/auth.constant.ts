@@ -11,7 +11,6 @@ export const AUTH_MESSAGE = {
     GENERIC_ERROR: msg`Đã xảy ra lỗi. Vui lòng thử lại.`,
     REGISTER_FAILED: msg`Đăng ký thất bại. Vui lòng thử lại.`,
     LOGIN_FAILED: msg`Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu.`,
-    LOGIN_REQUIRED: msg`Vui lòng đăng nhập để tiếp tục.`,
 } as const
 
 export const AUTH_LABEL = {

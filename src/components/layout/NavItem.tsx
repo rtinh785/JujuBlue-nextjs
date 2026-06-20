@@ -29,8 +29,8 @@ const NavItem = ({ icon, label, href, isDesktop = false, onClick }: NavItemProps
                     iconColor,
                     // gạch chân khi active
                     isActive
-                        ? 'after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:rounded-full after:bg-primary'
-                        : 'after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform hover:after:scale-x-100',
+                        ? 'after:bg-primary after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:rounded-full'
+                        : 'after:bg-primary after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:scale-x-0 after:rounded-full after:transition-transform hover:after:scale-x-100',
                 ].join(' ')}
             >
                 {Icon && <Icon className="size-[22px]" strokeWidth={isActive ? 2.2 : 1.8} />}

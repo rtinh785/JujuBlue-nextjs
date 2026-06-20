@@ -56,5 +56,3 @@ export const ASIDE_STAT_LABEL = {
 export const ASIDE_ACTION_LABEL = {
     FOLLOW: msg`Theo dõi`,
 } as const
-
-

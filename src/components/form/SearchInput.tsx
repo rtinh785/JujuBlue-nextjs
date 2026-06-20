@@ -55,7 +55,7 @@ const SearchInput = ({ mobileOnly = false, desktopOnly = false }: SearchInputPro
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
                 placeholder={t(NAV_LABEL.SEARCH_PLACEHOLDER)}
-                className="h-10 w-full rounded-xl border border-transparent bg-gray-50 pr-3 pl-10 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 hover:bg-gray-100 focus:border-gray-300 focus:bg-white focus:ring-2 focus:ring-gray-100"
+                className="h-10 w-full rounded-xl border border-transparent bg-gray-50 pr-3 pl-10 text-sm text-gray-900 transition-colors outline-none placeholder:text-gray-400 hover:bg-gray-100 focus:border-gray-300 focus:bg-white focus:ring-2 focus:ring-gray-100"
             />
         </form>
     )

@@ -19,7 +19,6 @@ export const languages: Language[] = [
         name: msg`Tiếng Việt`,
         rtl: false,
     },
-
 ]
 
 if (process.env.NODE_ENV !== 'production') {

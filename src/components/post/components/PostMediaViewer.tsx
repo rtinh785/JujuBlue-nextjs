@@ -2,8 +2,6 @@
 
 import { POST_MEDIA_TYPE, POST_TEXT } from '@/core/constants/post.constant'
 import type { PostMediaItem } from '@/core/types/post.type'
-import { MessageDescriptor } from '@lingui/core'
-import { useLingui } from '@lingui/react/macro'
 
 type Props = {
     media?: PostMediaItem[] | null
@@ -19,7 +17,6 @@ const PostMediaViewer = ({
     widthClass = 'w-full',
 }: Props) => {
     if (!media || media.length === 0) return null
-    const { t } = useLingui()
     return (
         <div className="mt-3 space-y-3">
             {media.map((item, index) => {

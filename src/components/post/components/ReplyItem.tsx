@@ -103,7 +103,7 @@ const ReplyItem = ({
                         />
                     ) : (
                         <>
-                            {reply.content ? <p className=" text-sm text-slate-600">{reply.content}</p> : null}
+                            {reply.content ? <p className="text-sm text-slate-600">{reply.content}</p> : null}
 
                             <PostMediaViewer
                                 media={reply.media}

@@ -1,6 +1,4 @@
-
 import { msg } from '@lingui/core/macro'
-
 
 export const POST_VISIBILITY = {
     PUBLIC: 'public',
@@ -109,5 +107,3 @@ export const FEED_QUERY = {
     INITIAL_LIMIT: 5,
     LOAD_MORE_LIMIT: 5,
 } as const
-
-

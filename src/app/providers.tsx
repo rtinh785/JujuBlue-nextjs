@@ -6,7 +6,7 @@ import { languages } from '@/translations/languages'
 import { cookies } from 'next/headers'
 import { PreloadResources } from './preload-resources'
 import { DEFAULT_LOCALE, LOCALE_KEY, SUPPORTED_LOCALES, type SupportedLocale } from '@/core/constants/common.constant'
-import { LocaleProvider } from '@/contexts/LocaleContext'
+
 function isValidLocale(value: string): value is SupportedLocale {
     return (SUPPORTED_LOCALES as readonly string[]).includes(value)
 }
